@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<products>
+  <product>
+    <id>1</id>
+    <name>Laptop Pro 15</name>
+    <price>25999</price>
+    <imageUrl>https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=600&q=80</imageUrl>
+    <category>Computadoras</category>
+    <description>Laptop profesional con procesador de última generación, 16 GB RAM y 512 GB SSD.</description>
+    <inStock>true</inStock>
+  </product>
+  <product>
+    <id>2</id>
+    <name>Monitor UltraWide 34"</name>
+    <price>12500</price>
+    <imageUrl>https://images.unsplash.com/photo-1527443224154-c4a573d4c7b4?w=600&q=80</imageUrl>
+    <category>Monitores</category>
+    <description>Monitor curvo UltraWide 3440×1440 con panel IPS y 144 Hz de tasa de refresco.</description>
+    <inStock>true</inStock>
+  </product>
+  <product>
+    <id>3</id>
+    <name>Teclado Mecánico RGB</name>
+    <price>2199</price>
+    <imageUrl>https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=600&q=80</imageUrl>
+    <category>Periféricos</category>
+    <description>Teclado mecánico compacto con switches Cherry MX Red e iluminación RGB personalizable.</description>
+    <inStock>true</inStock>
+  </product>
+  <product>
+    <id>4</id>
+    <name>Mouse Inalámbrico Ergonómico</name>
+    <price>899</price>
+    <imageUrl>https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=600&q=80</imageUrl>
+    <category>Periféricos</category>
+    <description>Mouse inalámbrico con diseño ergonómico, DPI ajustable y hasta 90 días de batería.</description>
+    <inStock>true</inStock>
+  </product>
+  <product>
+    <id>5</id>
+    <name>Auriculares Over-Ear Studio</name>
+    <price>3499</price>
+    <imageUrl>https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&q=80</imageUrl>
+    <category>Audio</category>
+    <description>Auriculares de estudio con cancelación de ruido activa, drivers de 40 mm y 30 h de autonomía.</description>
+    <inStock>true</inStock>
+  </product>
+  <product>
+    <id>6</id>
+    <name>Webcam 4K Pro</name>
+    <price>1799</price>
+    <imageUrl>https://images.unsplash.com/photo-1617975571754-2b5f7ac85c33?w=600&q=80</imageUrl>
+    <category>Videoconferencia</category>
+    <description>Webcam 4K con corrección de luz automática, micrófono dual y campo visual de 90°.</description>
+    <inStock>false</inStock>
+  </product>
+  <product>
+    <id>7</id>
+    <name>SSD Externo 1 TB</name>
+    <price>1299</price>
+    <imageUrl>https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=600&q=80</imageUrl>
+    <category>Almacenamiento</category>
+    <description>SSD externo USB-C con velocidades de lectura de hasta 1 050 MB/s y carcasa resistente a golpes.</description>
+    <inStock>true</inStock>
+  </product>
+  <product>
+    <id>8</id>
+    <name>Hub USB-C 7 en 1</name>
+    <price>699</price>
+    <imageUrl>https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?w=600&q=80</imageUrl>
+    <category>Accesorios</category>
+    <description>Hub USB-C con HDMI 4K, 3× USB-A, SD/MicroSD y carga rápida PD 100 W.</description>
+    <inStock>true</inStock>
+  </product>
+</products>

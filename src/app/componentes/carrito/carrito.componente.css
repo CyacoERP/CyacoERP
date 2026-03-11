@@ -1,0 +1,259 @@
+.header {
+  margin-bottom: 48px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  position: relative;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 40px;
+  font-weight: 700;
+  color: #1a1a1a;
+  letter-spacing: -0.02em;
+}
+
+.btn-volver {
+  color: #666;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 400;
+  transition: color 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-volver:hover {
+  color: #1a1a1a;
+}
+
+.vacio {
+  text-align: center;
+  padding: 80px 20px;
+  color: #666;
+  font-size: 18px;
+}
+
+.btn-catalogo {
+  display: inline-block;
+  margin-top: 24px;
+  padding: 12px 32px;
+  background: #1a1a1a;
+  color: white;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: background 0.2s ease;
+}
+
+.btn-catalogo:hover {
+  background: #333;
+}
+
+.contenido {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 48px;
+  align-items: start;
+}
+
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: 120px 1fr auto;
+  gap: 24px;
+  padding: 24px 0;
+  border-bottom: 1px solid #eee;
+  align-items: start;
+}
+
+.img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  display: block;
+  background: #f5f5f5;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nombre {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.categoria {
+  margin: 0;
+  color: #999;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.precio-unit {
+  margin: 8px 0 0;
+  font-size: 15px;
+  color: #666;
+}
+
+.controles {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  min-width: 120px;
+}
+
+.lbl-cantidad {
+  font-size: 12px;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.input-cantidad {
+  width: 72px;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  font-size: 15px;
+  text-align: center;
+  outline: none;
+}
+
+.input-cantidad:focus {
+  border-color: #1a1a1a;
+}
+
+.subtotal {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.btn-quitar {
+  background: none;
+  border: none;
+  color: #999;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 4px 0;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.btn-quitar:hover {
+  color: #e53935;
+}
+
+.resumen {
+  background: #fafafa;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: sticky;
+  top: 24px;
+}
+
+.resumen-titulo {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.resumen-linea {
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  font-size: 15px;
+  color: #444;
+}
+
+.separador {
+  border: none;
+  border-top: 1px solid #ddd;
+  margin: 0;
+}
+
+.resumen-total {
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  font-size: 18px;
+  color: #1a1a1a;
+}
+
+.btn-recibo {
+  padding: 14px;
+  background: #1a1a1a;
+  color: white;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  transition: background 0.2s ease;
+  width: 100%;
+}
+
+.btn-recibo:hover {
+  background: #333;
+}
+
+.btn-vaciar {
+  padding: 10px 14px;
+  background: none;
+  border: 1px solid #ddd;
+  color: #666;
+  font-size: 13px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: border-color 0.2s ease, color 0.2s ease;
+  width: 100%;
+}
+
+.btn-vaciar:hover {
+  border-color: #e53935;
+  color: #e53935;
+}
+
+@media (max-width: 900px) {
+  .contenido {
+    grid-template-columns: 1fr;
+  }
+
+  .resumen {
+    position: static;
+  }
+}
+
+@media (max-width: 600px) {
+  .item {
+    grid-template-columns: 80px 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  .controles {
+    grid-column: 1 / -1;
+    align-items: flex-start;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}

@@ -1,0 +1,14 @@
+<article class="card">
+  <img [src]="producto.imageUrl" [alt]="producto.name" class="img" />
+  <div class="body">
+    <h3 class="title">{{ producto.name }}</h3>
+    <p class="meta">{{ producto.category }}</p>
+    <p class="desc">{{ producto.description }}</p>
+    <span class="price">{{ precioFormateado }}</span>
+    @if (producto.inStock) {
+      <button class="btn-agregar" (click)="onAgregarAlCarrito()">Agregar al carrito</button>
+    } @else {
+      <span class="sin-stock">Sin stock</span>
+    }
+  </div>
+</article>

@@ -1,0 +1,53 @@
+<header class="header">
+  <a routerLink="/" class="btn-volver">← Seguir comprando</a>
+  <h1>Carrito de Compras</h1>
+</header>
+
+@if (items.length === 0) {
+  <div class="vacio">
+    <p>Tu carrito está vacío.</p>
+    <a routerLink="/" class="btn-catalogo">Ver catálogo</a>
+  </div>
+} @else {
+  <div class="contenido">
+    <section class="lista">
+      @for (item of items; track item.producto.id) {
+        <div class="item">
+          <img [src]="item.producto.imageUrl" [alt]="item.producto.name" class="img" />
+          <div class="info">
+            <h3 class="nombre">{{ item.producto.name }}</h3>
+            <p class="categoria">{{ item.producto.category }}</p>
+            <p class="precio-unit">${{ item.producto.price.toLocaleString('es-MX') }} MXN / pieza</p>
+          </div>
+          <div class="controles">
+            <label class="lbl-cantidad">Cantidad</label>
+            <input
+              type="number"
+              class="input-cantidad"
+              [value]="item.cantidad"
+              min="1"
+              (change)="onActualizarCantidad(item.producto.id, $event)"
+            />
+            <p class="subtotal">{{ subtotalFormateado(item.producto.price, item.cantidad) }}</p>
+            <button class="btn-quitar" (click)="onQuitarProducto(item.producto.id)">Quitar</button>
+          </div>
+        </div>
+      }
+    </section>
+
+    <aside class="resumen">
+      <h2 class="resumen-titulo">Resumen</h2>
+      <p class="resumen-linea">
+        <span>Artículos ({{ totalItems }})</span>
+        <span>{{ totalFormateado }}</span>
+      </p>
+      <hr class="separador" />
+      <p class="resumen-total">
+        <strong>Total</strong>
+        <strong>{{ totalFormateado }}</strong>
+      </p>
+      <button class="btn-recibo" (click)="onGenerarRecibo()">📄 Generar recibo XML</button>
+      <button class="btn-vaciar" (click)="onVaciarCarrito()">Vaciar carrito</button>
+    </aside>
+  </div>
+}
