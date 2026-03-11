@@ -1,9 +1,10 @@
 .header {
   margin-bottom: 48px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 24px;
   position: relative;
+  flex-direction: column;
 }
 
 .header h1 {
