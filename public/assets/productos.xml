@@ -13,15 +13,6 @@
   </product>
   <product>
     <id>2</id>
-    <name>Monitor UltraWide 34"</name>
-    <price>12500</price>
-    <imageUrl>https://images.unsplash.com/photo-1527443224154-c4a573d4c7b4?w=600&amp;q=80</imageUrl>
-    <category>Monitores</category>
-    <description>Monitor curvo UltraWide 3440×1440 con panel IPS y 144 Hz de tasa de refresco.</description>
-    <inStock>true</inStock>
-  </product>
-  <product>
-    <id>3</id>
     <name>Teclado Mecánico RGB</name>
     <price>2199</price>
     <imageUrl>https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=600&amp;q=80</imageUrl>
@@ -30,7 +21,7 @@
     <inStock>true</inStock>
   </product>
   <product>
-    <id>4</id>
+    <id>3</id>
     <name>Mouse Inalámbrico Ergonómico</name>
     <price>899</price>
     <imageUrl>https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=600&amp;q=80</imageUrl>
@@ -39,7 +30,7 @@
     <inStock>true</inStock>
   </product>
   <product>
-    <id>5</id>
+    <id>4</id>
     <name>Auriculares Over-Ear Studio</name>
     <price>3499</price>
     <imageUrl>https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&amp;q=80</imageUrl>
@@ -48,16 +39,7 @@
     <inStock>true</inStock>
   </product>
   <product>
-    <id>6</id>
-    <name>Webcam 4K Pro</name>
-    <price>1799</price>
-    <imageUrl>https://images.unsplash.com/photo-1617975571754-2b5f7ac85c33?w=600&amp;q=80</imageUrl>
-    <category>Videoconferencia</category>
-    <description>Webcam 4K con corrección de luz automática, micrófono dual y campo visual de 90°.</description>
-    <inStock>false</inStock>
-  </product>
-  <product>
-    <id>7</id>
+    <id>5</id>
     <name>SSD Externo 1 TB</name>
     <price>1299</price>
     <imageUrl>https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=600&amp;q=80</imageUrl>
@@ -66,7 +48,7 @@
     <inStock>true</inStock>
   </product>
   <product>
-    <id>8</id>
+    <id></id>
     <name>Hub USB-C 7 en 1</name>
     <price>699</price>
     <imageUrl>https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?w=600&amp;q=80</imageUrl>

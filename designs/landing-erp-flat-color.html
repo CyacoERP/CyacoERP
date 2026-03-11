@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ERP Flat Colorido</title>
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --flat-primary: #03a9f4;
+      --flat-secondary: #ffeb3b;
+      --flat-accent: #e91e63;
+      --flat-bg: #fdf6f0;
+      --flat-success: #43a047;
+    }
+    body {
+      font-family: 'Montserrat', Arial, sans-serif;
+      background: var(--flat-bg);
+      color: #222;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: var(--flat-primary);
+      color: #fff;
+      text-align: center;
+      padding: 3rem 0 2rem 0;
+      clip-path: ellipse(80% 100% at 50% 0%);
+    }
+    h1 {
+      font-family: 'Montserrat', Arial, sans-serif;
+      font-weight: 800;
+      letter-spacing: -2px;
+      font-size: 2.6rem;
+    }
+    .cta-btn-flat {
+      background: var(--flat-accent);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 1rem 2.7rem;
+      font-weight: 700;
+      font-size: 1.13rem;
+      letter-spacing: 1px;
+      margin-top: 1.1rem;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(233,30,99,0.11);
+      transition: background 0.18s;
+    }
+    .cta-btn-flat:hover { background: #d81b60; }
+    main {
+      max-width: 940px;
+      margin: -2.6rem auto 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2.3rem;
+      justify-content: center;
+    }
+    .card-flat {
+      background: #fff;
+      border-radius: 16px;
+      min-width: 250px;
+      max-width: 300px;
+      flex: 1 1 250px;
+      margin: 2rem 1rem 1.5rem 1rem;
+      box-shadow: 0 8px 28px 0 rgba(3,169,244,0.075);
+      padding: 2rem 1.4rem 1.7rem 1.4rem;
+      border-left: 5px solid var(--flat-secondary);
+      border-bottom: 4px solid var(--flat-primary);
+      transition: transform 0.18s;
+    }
+    .card-flat:hover { transform: scale(1.03); }
+    .tag-flat {
+      display: inline-block;
+      background: var(--flat-success);
+      color: #fff;
+      padding: 0.2em 1em;
+      border-radius: 1000px;
+      font-weight: 700;
+      font-size: 0.88em;
+      margin-bottom: 0.44em;
+    }
+    h2 {
+      color: var(--flat-primary);
+      text-align: center;
+      margin-top: 2.5rem;
+    }
+    footer {
+      text-align: center;
+      color: #aaa;
+      font-size: 1rem;
+      padding: 2.2rem 0 1.2rem 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>ERP Flat Colorido</h1>
+    <p style="font-size:1.22rem;">Dinamismo y alegría en la gestión empresarial</p>
+    <button class="cta-btn-flat">¡Pruébalo gratis!</button>
+  </header>
+  <h2>Lo que tu empresa necesita</h2>
+  <main>
+    <div class="card-flat">
+      <div class="tag-flat">Súper rápido</div>
+      <h3>Procesos ágiles</h3>
+      <p>Optimiza tareas diarias con un sistema claro y bloques de colores amigables.</p>
+    </div>
+    <div class="card-flat">
+      <div class="tag-flat" style="background:var(--flat-accent);">Intuitivo</div>
+      <h3>Diseño simple</h3>
+      <p>Olvídate de las complicaciones: cada sección es fácil de encontrar.</p>
+    </div>
+    <div class="card-flat">
+      <div class="tag-flat" style="background:var(--flat-primary);">Multi-usuario</div>
+      <h3>Colaboración</h3>
+      <p>Agrega, edita y revisa información en equipo sin perder el control.</p>
+    </div>
+  </main>
+  <footer>
+    &copy; 2026 - ERP Flat Colorido. Proyecto escolar.
+  </footer>
+</body>
+</html>

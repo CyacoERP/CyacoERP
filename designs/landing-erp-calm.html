@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ERP Estilo Calm</title>
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0; padding: 0;
+      box-sizing: border-box;
+      font-family: 'Montserrat', Arial, sans-serif;
+      background: #f6f8fa;
+      color: #233;
+    }
+    .hero {
+      position: relative;
+      width: 100%;
+      min-height: 98vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(120deg, rgba(32,193,222,0.56) 0%, rgba(35,74,116,0.5) 100%), 
+        url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1500&q=80') center/cover no-repeat;
+      /* Cambia la URL de imagen arriba por alguna de tu preferencia */
+      overflow: hidden;
+    }
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 430px;
+      background: rgba(255,255,255,0.83);
+      box-shadow: 0 8px 32px rgba(33,80,99,0.13);
+      border-radius: 1.5rem;
+      padding: 2.2rem 2rem 2rem 2rem;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .main-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.7em;
+      color: #1a606a;
+      letter-spacing: -1px;
+    }
+    .subtitle {
+      font-size: 1.17rem;
+      font-weight: 400;
+      color: #387085;
+      margin-bottom: 1.7em;
+      line-height: 1.3em;
+    }
+    .form-help {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      gap: 1.1em;
+    }
+    .form-help input, .form-help textarea {
+      font-family: inherit;
+      border: 1.6px solid #d8e7ee;
+      border-radius: 7px;
+      padding: 0.85em 1.1em;
+      font-size: 1rem;
+      background: #fafeff;
+      margin-bottom: 0.3em;
+      resize: none;
+      outline: none;
+      transition: border 0.18s;
+    }
+    .form-help input:focus, .form-help textarea:focus {
+      border-color: #20c1de;
+    }
+    .form-help button {
+      background: linear-gradient(90deg,#20c1de 0%,#235e81 100%);
+      color: #fff;
+      font-weight: 600;
+      padding: 0.9em 2.2em;
+      border: none;
+      border-radius: 1.2em;
+      font-size: 1.1rem;
+      margin-top: 0.3em;
+      cursor: pointer;
+      transition: background 0.17s;
+      box-shadow: 0 2px 8px rgba(32,193,222,0.09);
+    }
+    .form-help button:hover {
+      background: linear-gradient(90deg,#235e81 0%,#20c1de 100%);
+    }
+    .form-help label {
+      text-align: left;
+      font-size: .97em;
+      color: #387085;
+      margin-bottom: 0.1em;
+      padding-left:.4em;
+    }
+    .byline {
+      font-size: 0.88em;
+      color: #486;
+      margin-top: 1.8em;
+    }
+    @media (max-width: 600px) {
+      .hero-content {max-width: 98vw; padding: 1.1rem 0.4rem;}
+      .main-title {font-size:2rem;}
+    }
+  </style>
+</head>
+<body>
+  <section class="hero">
+    <div class="hero-content">
+      <div class="main-title">ERP sencillo, <span style="color:#20c1de;">relajante</span> y personalizado</div>
+      <div class="subtitle">Te ayudamos a llevar la gestión de tu empresa sin estrés.<br>
+        Cuéntanos <strong>¿en qué podemos ayudarte hoy?</strong>
+      </div>
+      <form class="form-help">
+        <label for="name">Tu nombre</label>
+        <input id="name" type="text" placeholder="Nombre completo" autocomplete="name"/>
+        <label for="need">¿Qué deseas mejorar con un ERP?</label>
+        <textarea id="need" rows="3" placeholder="Escribe aquí..."></textarea>
+        <button type="submit">Comenzar</button>
+      </form>
+      <div class="byline">
+        ERP demo para prácticas escolares — Relájate y optimiza.<br>
+        <span style="font-size:.93em;color:#b6ced9;">Inspirado en Calm</span>
+      </div>
+    </div>
+  </section>
+</body>
+</html>
