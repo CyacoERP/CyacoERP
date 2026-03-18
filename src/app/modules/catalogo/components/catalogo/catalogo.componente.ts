@@ -70,7 +70,7 @@ export class CatalogoComponente implements OnInit {
 
     productos.forEach(p => {
       if (p.category) categories.add(p.category);
-      // Brands would need to be added to the model if needed
+      if (p.brand) brands.add(p.brand);
     });
 
     this.categories = Array.from(categories).sort();
@@ -108,7 +108,8 @@ export class CatalogoComponente implements OnInit {
       const term = this.searchTerm.toLowerCase();
       filtered = filtered.filter(p =>
         p.name.toLowerCase().includes(term) ||
-        p.description?.toLowerCase().includes(term)
+        p.description?.toLowerCase().includes(term) ||
+        p.sku?.toLowerCase().includes(term)
       );
     }
 
@@ -117,9 +118,9 @@ export class CatalogoComponente implements OnInit {
       filtered = filtered.filter(p => this.filters.categories.has(p.category || ''));
     }
 
-    // Filtro por marcas (no aplicar si no hay marcas)
+    // Filtro por marcas
     if (this.filters.brands.size > 0) {
-      filtered = filtered.filter(p => this.filters.brands.has(p.category || ''));
+      filtered = filtered.filter(p => this.filters.brands.has(p.brand || ''));
     }
 
     // Filtro por precio

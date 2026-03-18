@@ -6,4 +6,9 @@ export interface Producto {
   category: string;
   description: string;
   inStock: boolean;
+  brand?: string;
+  rating?: number;
+  reviews?: number;
+  protocols?: string;
+  sku?: string;
 }

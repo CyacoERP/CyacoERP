@@ -106,18 +106,18 @@
                 </div>
               </div>
               <div class="product-info">
-                <div class="product-brand">Marca</div>
+                <div class="product-brand">{{ producto.brand }}</div>
                 <h3 class="product-name">{{ producto.name }}</h3>
                 <div class="product-rating">
-                  <span class="stars">★ 4.0</span>
-                  <span class="reviews">(125 resenas)</span>
+                  <span class="stars">★ {{ producto.rating }}.0</span>
+                  <span class="reviews">({{ producto.reviews }} resenas)</span>
                 </div>
                 <div class="product-protocols">
-                  Protocolos: Modbus, Profinet
+                  Protocolos: {{ producto.protocols }}
                 </div>
                 <div class="product-footer">
                   <div>
-                    <span class="sku">SKU: 12345</span>
+                    <span class="sku">SKU: {{ producto.sku }}</span>
                   </div>
                   <span class="price">{{ formatPrice(producto.price) }}</span>
                 </div>
