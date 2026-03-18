@@ -135,6 +135,7 @@
 }
 
 .dropdown-item {
+  display: block;
   width: 100%;
   text-align: left;
   background: transparent;
@@ -145,6 +146,7 @@
   border-radius: 8px;
   cursor: pointer;
   font-family: inherit;
+  text-decoration: none;
   transition: background 0.15s ease, color 0.15s ease;
 }
 

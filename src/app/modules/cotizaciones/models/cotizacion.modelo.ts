@@ -17,4 +17,27 @@ export interface Cotizacion {
   fechaCreacion: Date;
   fechaPedido?: Date;
   observaciones?: string;
+  contacto?: {
+    nombreCompleto: string;
+    correo: string;
+    telefono: string;
+    cargo: string;
+    empresa: string;
+  };
+  proyecto?: {
+    nombre: string;
+    fechaRequerida: string;
+  };
+}
+
+export interface SolicitudCotizacion {
+  nombreCompleto: string;
+  correo: string;
+  telefono: string;
+  cargo: string;
+  empresa: string;
+  proyecto: string;
+  fechaRequerida: string;
+  notas: string;
+  items: ItemCotizacion[];
 }

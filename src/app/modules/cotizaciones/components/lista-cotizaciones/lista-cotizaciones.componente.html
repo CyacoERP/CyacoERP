@@ -1,16 +1,28 @@
-<div class="container">
-  <h2>Cotizaciones</h2>
-  
-  <div *ngIf="cargando()" class="loading">Cargando...</div>
-  
-  <div *ngIf="!cargando() && cotizaciones().length > 0" class="lista">
-    <div *ngFor="let cotizacion of cotizaciones()" class="item">
-      <h4>{{ cotizacion.id }}</h4>
-      <p>Estado: {{ cotizacion.estado }}</p>
+<section class="quotes-page">
+  <header class="quotes-header">
+    <p class="breadcrumb">Inicio › Cotizaciones › Mis Cotizaciones</p>
+    <h1>Mis Cotizaciones</h1>
+    <p class="subtitle">Historial de solicitudes generadas desde tu carrito.</p>
+  </header>
+
+  @if (cargando()) {
+    <div class="status-card">Cargando cotizaciones...</div>
+  } @else {
+    <div class="quotes-grid">
+      @for (cotizacion of cotizaciones(); track cotizacion.id) {
+        <article class="quote-card">
+          <div class="quote-head">
+            <h3>{{ cotizacion.numero }}</h3>
+            <span class="quote-state">{{ cotizacion.estado }}</span>
+          </div>
+
+          <p class="quote-meta">Fecha: {{ formatDate(cotizacion.fechaCreacion) }}</p>
+          <p class="quote-meta">Productos: {{ cotizacion.items.length }}</p>
+          <p class="quote-total">{{ formatPrice(cotizacion.total) }}</p>
+
+          <a routerLink="/cotizaciones/solicitar" class="quote-link">Solicitar otra cotización</a>
+        </article>
+      }
     </div>
-  </div>
-  
-  <div *ngIf="!cargando() && cotizaciones().length === 0" class="empty">
-    No hay cotizaciones
-  </div>
-</div>
+  }
+</section>

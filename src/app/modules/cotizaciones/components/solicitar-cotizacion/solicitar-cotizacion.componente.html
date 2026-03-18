@@ -1,0 +1,101 @@
+<section class="quote-page">
+  <header class="quote-hero">
+    <div class="hero-content">
+      <p class="breadcrumb">Inicio › Solicitar Cotización</p>
+      <h1>Solicitar Cotización Formal</h1>
+      <p>Recibirás una propuesta en menos de 24 horas hábiles.</p>
+    </div>
+  </header>
+
+  <div class="quote-layout">
+    @if (mensajeSinCotizaciones()) {
+      <div class="notice-card">
+        No se han solicitado cotizaciones aún. Para generar una vaya a Solicitar Cotización.
+      </div>
+    }
+
+    <form class="quote-form" [formGroup]="formulario" (ngSubmit)="enviarSolicitud()">
+      <section class="card">
+        <h2>Datos de Contacto</h2>
+        <div class="grid two">
+          <label>
+            Nombre completo *
+            <input type="text" formControlName="nombreCompleto" placeholder="Ing. Juan Pérez" />
+          </label>
+          <label>
+            Correo electrónico *
+            <input type="email" formControlName="correo" placeholder="juan@empresa.com" />
+          </label>
+          <label>
+            Teléfono / WhatsApp *
+            <input type="text" formControlName="telefono" placeholder="+52 81 0000 0000" />
+          </label>
+          <label>
+            Cargo / Puesto
+            <input type="text" formControlName="cargo" placeholder="Gerente de Compras" />
+          </label>
+          <label class="full">
+            Empresa / Organización *
+            <input type="text" formControlName="empresa" placeholder="PEMEX Refinación S.A. de C.V." />
+          </label>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Información del Proyecto</h2>
+        <div class="grid one">
+          <label>
+            Nombre del proyecto / aplicación *
+            <input type="text" formControlName="proyecto" placeholder="Sistema de medición fiscal - Refinería Norte" />
+          </label>
+          <label>
+            Fecha requerida de entrega *
+            <input type="date" formControlName="fechaRequerida" />
+          </label>
+          <label>
+            Notas adicionales / requerimientos especiales
+            <textarea rows="4" formControlName="notas" placeholder="Describa condiciones de proceso, certificaciones o condiciones especiales."></textarea>
+          </label>
+        </div>
+      </section>
+
+      <section class="card consent-card">
+        <label class="consent-label">
+          <input type="checkbox" formControlName="aceptaPrivacidad" />
+          <span>Acepto el Aviso de Privacidad y autorizo a Cyaco a contactarme para dar seguimiento a mi solicitud.</span>
+        </label>
+      </section>
+
+      <button type="submit" class="btn-submit" [disabled]="formulario.invalid || sinItems()">
+        Enviar Solicitud de Cotización
+      </button>
+
+      @if (sinItems()) {
+        <p class="helper-text">
+          No hay productos en la cotización. <a routerLink="/catalogo">Ir al catálogo →</a>
+        </p>
+      }
+    </form>
+
+    <aside class="summary-card">
+      <h3>Resumen de Cotización</h3>
+      @if (itemsCarrito().length === 0) {
+        <p class="empty-summary">No hay productos en la cotización.</p>
+        <a routerLink="/catalogo">Ir al catálogo →</a>
+      } @else {
+        <ul>
+          @for (item of itemsCarrito(); track item.producto.id) {
+            <li>
+              <span>{{ item.producto.name }} x{{ item.cantidad }}</span>
+              <strong>{{ formatPrice(item.producto.price * item.cantidad) }}</strong>
+            </li>
+          }
+        </ul>
+        <div class="summary-total">
+          <span>Total estimado</span>
+          <strong>{{ formatPrice(totalEstimado()) }}</strong>
+        </div>
+      }
+    </aside>
+  </div>
+</section>

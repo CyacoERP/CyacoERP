@@ -61,9 +61,9 @@ import { ModalStateServicio } from '../../services/modal-state.servicio';
               El precio final se confirmará en la cotización formal
             </div>
 
-            <button class="btn-solicitar">
+            <a routerLink="/cotizaciones/solicitar" (click)="cerrar()" class="btn-solicitar">
               Solicitar Cotización Formal
-            </button>
+            </a>
 
             <a routerLink="/catalogo" (click)="cerrar()" class="link-continue">
               Continuar explorando
@@ -351,6 +351,9 @@ import { ModalStateServicio } from '../../services/modal-state.servicio';
     }
 
     .btn-solicitar {
+      display: block;
+      text-align: center;
+      text-decoration: none;
       width: 100%;
       padding: 12px;
       background: var(--primary-red);

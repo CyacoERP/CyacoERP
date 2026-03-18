@@ -4,6 +4,7 @@ import { CatalogoComponente } from './modules/catalogo/components/catalogo/catal
 import { CarritoComponente } from './modules/catalogo/components/carrito/carrito.componente';
 import { LoginComponente } from './modules/auth/components/login/login.componente';
 import { ListaCotizacionesComponente } from './modules/cotizaciones/components/lista-cotizaciones/lista-cotizaciones.componente';
+import { SolicitarCotizacionComponente } from './modules/cotizaciones/components/solicitar-cotizacion/solicitar-cotizacion.componente';
 import { ListaProyectosComponente } from './modules/proyectos/components/lista-proyectos/lista-proyectos.componente';
 import { ListaBlogComponente } from './modules/blog/components/lista-blog/lista-blog.componente';
 import { FormularioContactoComponente } from './modules/contacto/components/formulario-contacto/formulario-contacto.componente';
@@ -18,7 +19,9 @@ export const routes: Routes = [
   { path: 'auth/registro', component: LoginComponente }, // Reutilizar login (será modificado después)
   
   // Cotizaciones
-  { path: 'cotizaciones', component: ListaCotizacionesComponente },
+  { path: 'cotizaciones', redirectTo: 'cotizaciones/mis', pathMatch: 'full' },
+  { path: 'cotizaciones/mis', component: ListaCotizacionesComponente },
+  { path: 'cotizaciones/solicitar', component: SolicitarCotizacionComponente },
   { path: 'cotizaciones/:id', component: ListaCotizacionesComponente },
   
   // Proyectos
