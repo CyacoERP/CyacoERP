@@ -14,44 +14,41 @@
   background: var(--bg-main);
   color: #1f2937;
   min-height: 100vh;
+  padding-top: 60px;
 }
 
 .hero-section {
   background: var(--dark-blue);
-  padding: 60px 40px;
-  text-align: center;
+  padding: 40px;
+  text-align: left;
   border-bottom: 1px solid var(--border-color);
 }
 
 .hero-section h1 {
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: 700;
   margin: 0 0 10px 0;
   color: var(--light-text);
 }
 
 .hero-section p {
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: #94a3b8;
-  margin: 0 0 30px 0;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
+  margin: 0 0 20px 0;
 }
 
 .search-bar {
   max-width: 600px;
-  margin: 0 auto;
 }
 
 .search-input {
   width: 100%;
-  padding: 14px 20px;
+  padding: 12px 16px;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 12px;
   color: var(--light-text);
-  font-size: 1rem;
+  font-size: 0.95rem;
   transition: border-color 0.3s ease;
 }
 
@@ -63,6 +60,73 @@
 
 .search-input::placeholder {
   color: #9ca3af;
+}
+
+.featured-section {
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border-color);
+  padding: 16px 40px;
+}
+
+.featured-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.featured-container::-webkit-scrollbar {
+  display: none;
+}
+
+.featured-label {
+  font-size: 0.75rem;
+  color: var(--secondary-text);
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.featured-videos {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.featured-videos::-webkit-scrollbar {
+  display: none;
+}
+
+.featured-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: var(--gray-100);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--secondary-text);
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  font-family: inherit;
+}
+
+.featured-btn:hover {
+  background: var(--primary-red);
+  color: white;
+  border-color: var(--primary-red);
+}
+
+.featured-btn img {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .main-content {
