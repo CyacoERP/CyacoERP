@@ -14,13 +14,13 @@
   background: var(--bg-main);
   color: #1f2937;
   min-height: 100vh;
-  padding-top: 60px;
 }
 
 
 .hero-section {
   background: var(--dark-blue);
   border-bottom: 1px solid var(--border-color);
+  padding: 0;
 }
 
 .hero-container {
