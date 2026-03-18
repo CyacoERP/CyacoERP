@@ -1,7 +1,6 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { Router } from '@angular/router';
 import { CotizacionServicio } from '../../services/cotizacion.servicio';
 import { Cotizacion } from '../../models/cotizacion.modelo';
 
@@ -15,9 +14,9 @@ import { Cotizacion } from '../../models/cotizacion.modelo';
 export class ListaCotizacionesComponente implements OnInit {
   cotizaciones = signal<Cotizacion[]>([]);
   cargando = signal(true);
+  conError = signal(false);
 
   private readonly cotizacionServicio = inject(CotizacionServicio);
-  private readonly router = inject(Router);
 
   ngOnInit(): void {
     this.cargarCotizaciones();
@@ -28,18 +27,10 @@ export class ListaCotizacionesComponente implements OnInit {
       next: (datos: Cotizacion[]) => {
         this.cotizaciones.set(datos || []);
         this.cargando.set(false);
-
-        if ((datos || []).length === 0) {
-          this.router.navigate(['/cotizaciones/solicitar'], {
-            queryParams: { empty: '1' },
-          });
-        }
       },
       error: () => {
         this.cargando.set(false);
-        this.router.navigate(['/cotizaciones/solicitar'], {
-          queryParams: { empty: '1' },
-        });
+        this.conError.set(true);
       },
     });
   }

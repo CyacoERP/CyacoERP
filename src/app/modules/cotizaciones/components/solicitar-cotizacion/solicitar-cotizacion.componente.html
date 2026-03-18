@@ -66,9 +66,18 @@
         </label>
       </section>
 
-      <button type="submit" class="btn-submit" [disabled]="formulario.invalid || sinItems()">
+      <button
+        type="submit"
+        class="btn-submit"
+        [class.btn-submit--active]="puedeEnviar()"
+        [disabled]="!puedeEnviar()"
+      >
         Enviar Solicitud de Cotización
       </button>
+
+      @if (mensajeEnvio()) {
+        <p class="helper-text">{{ mensajeEnvio() }}</p>
+      }
 
       @if (sinItems()) {
         <p class="helper-text">

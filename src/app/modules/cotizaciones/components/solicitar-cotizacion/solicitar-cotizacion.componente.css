@@ -128,9 +128,22 @@ textarea:focus {
   border-radius: 10px;
   padding: 12px 18px;
   font-weight: 700;
+  color: #f8fafc;
+  background: #cbd5e1;
+  cursor: not-allowed;
+  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-submit--active {
   color: #fff;
   background: #dc2626;
   cursor: pointer;
+}
+
+.btn-submit--active:hover {
+  background: #b91c1c;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(220, 38, 38, 0.25);
 }
 
 .btn-submit:disabled {

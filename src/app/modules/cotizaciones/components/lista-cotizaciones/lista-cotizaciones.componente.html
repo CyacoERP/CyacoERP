@@ -1,13 +1,29 @@
 <section class="quotes-page">
-  <header class="quotes-header">
-    <p class="breadcrumb">Inicio › Cotizaciones › Mis Cotizaciones</p>
-    <h1>Mis Cotizaciones</h1>
-    <p class="subtitle">Historial de solicitudes generadas desde tu carrito.</p>
-  </header>
-
   @if (cargando()) {
     <div class="status-card">Cargando cotizaciones...</div>
+  } @else if (conError()) {
+    <div class="status-card">No se pudieron cargar las cotizaciones en este momento.</div>
+  } @else if (cotizaciones().length === 0) {
+    <div class="empty-state">
+      <h1>No hay cotizaciones solicitadas</h1>
+      <p>
+        Para generar una cotización, ve a la pestaña de Solicitar Cotización.
+      </p>
+      <div class="empty-actions">
+        <a routerLink="/cotizaciones/solicitar" class="btn btn-primary">Solicitar Cotización</a>
+        <div class="empty-actions-secondary">
+          <a routerLink="/" class="btn btn-secondary">Ir al inicio</a>
+          <a routerLink="/catalogo" class="btn btn-secondary">Ver catálogo</a>
+        </div>
+      </div>
+    </div>
   } @else {
+    <header class="quotes-header">
+      <p class="breadcrumb">Inicio › Cotizaciones › Mis Cotizaciones</p>
+      <h1>Mis Cotizaciones</h1>
+      <p class="subtitle">Historial de solicitudes generadas desde tu carrito.</p>
+    </header>
+
     <div class="quotes-grid">
       @for (cotizacion of cotizaciones(); track cotizacion.id) {
         <article class="quote-card">

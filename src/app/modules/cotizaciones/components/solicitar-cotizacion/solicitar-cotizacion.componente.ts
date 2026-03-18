@@ -21,6 +21,7 @@ export class SolicitarCotizacionComponente {
 
   readonly mensajeSinCotizaciones = signal(false);
   readonly enviado = signal(false);
+  readonly mensajeEnvio = signal<string | null>(null);
 
   readonly itemsCarrito = this.carritoServicio.itemsCarrito;
   readonly totalEstimado = this.carritoServicio.totalPrecio;
@@ -28,9 +29,9 @@ export class SolicitarCotizacionComponente {
   readonly sinItems = computed(() => this.itemsCarrito().length === 0);
 
   readonly formulario = this.fb.group({
-    nombreCompleto: ['', [Validators.required, Validators.minLength(3)]],
+    nombreCompleto: ['', [Validators.required]],
     correo: ['', [Validators.required, Validators.email]],
-    telefono: ['', [Validators.required, Validators.minLength(8)]],
+    telefono: ['', [Validators.required]],
     cargo: [''],
     empresa: ['', Validators.required],
     proyecto: ['', Validators.required],
@@ -46,8 +47,16 @@ export class SolicitarCotizacionComponente {
   }
 
   enviarSolicitud(): void {
-    if (this.formulario.invalid || this.sinItems()) {
+    this.mensajeEnvio.set(null);
+
+    if (this.sinItems()) {
+      this.mensajeEnvio.set('No hay productos en la cotización. Agrega al menos un artículo para continuar.');
+      return;
+    }
+
+    if (this.formulario.invalid) {
       this.formulario.markAllAsTouched();
+      this.mensajeEnvio.set('Completa los campos obligatorios y acepta el aviso de privacidad para continuar.');
       return;
     }
 
@@ -71,10 +80,71 @@ export class SolicitarCotizacionComponente {
       items,
     };
 
-    this.cotizacionServicio.crearDesdeSolicitud(payload);
-    this.carritoServicio.vaciarCarrito();
+    const cotizacionCreada = this.cotizacionServicio.crearDesdeSolicitud(payload);
+    this.descargarXmlCotizacion(cotizacionCreada.numero, payload);
     this.enviado.set(true);
-    this.router.navigate(['/cotizaciones/mis']);
+
+    // Espera breve para que el navegador inicie la descarga antes de redirigir.
+    setTimeout(() => {
+      this.carritoServicio.vaciarCarrito();
+      this.router.navigate(['/cotizaciones/mis']);
+    }, 500);
+  }
+
+  private descargarXmlCotizacion(numeroCotizacion: string, payload: SolicitudCotizacion): void {
+    const total = payload.items.reduce((acc, item) => acc + item.subtotal, 0);
+    const fecha = new Date().toISOString();
+
+    const itemsXml = payload.items
+      .map((item) => `
+    <articulo>
+      <id>${this.escapeXml(String(item.producto.id))}</id>
+      <nombre>${this.escapeXml(item.producto.name)}</nombre>
+      <cantidad>${item.cantidad}</cantidad>
+      <precioUnitario>${item.precioUnitario}</precioUnitario>
+      <subtotal>${item.subtotal}</subtotal>
+    </articulo>`)
+      .join('');
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<cotizacion>
+  <numero>${this.escapeXml(numeroCotizacion)}</numero>
+  <fecha>${fecha}</fecha>
+  <contacto>
+    <nombreCompleto>${this.escapeXml(payload.nombreCompleto)}</nombreCompleto>
+    <correo>${this.escapeXml(payload.correo)}</correo>
+    <telefono>${this.escapeXml(payload.telefono)}</telefono>
+    <cargo>${this.escapeXml(payload.cargo)}</cargo>
+    <empresa>${this.escapeXml(payload.empresa)}</empresa>
+  </contacto>
+  <proyecto>
+    <nombre>${this.escapeXml(payload.proyecto)}</nombre>
+    <fechaRequerida>${this.escapeXml(payload.fechaRequerida)}</fechaRequerida>
+    <notas>${this.escapeXml(payload.notas)}</notas>
+  </proyecto>
+  <articulos>${itemsXml}
+  </articulos>
+  <total>${total}</total>
+</cotizacion>`;
+
+    const blob = new Blob([xml], { type: 'application/xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `cotizacion-${numeroCotizacion}.xml`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  private escapeXml(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&apos;');
   }
 
   formatPrice(price: number): string {
@@ -88,5 +158,9 @@ export class SolicitarCotizacionComponente {
   invalid(controlName: string): boolean {
     const control = this.formulario.get(controlName);
     return !!control && control.invalid && (control.touched || control.dirty);
+  }
+
+  puedeEnviar(): boolean {
+    return this.formulario.valid && !this.sinItems();
   }
 }

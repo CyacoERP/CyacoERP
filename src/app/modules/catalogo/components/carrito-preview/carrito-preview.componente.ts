@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { CarritoServicio, ItemCarrito } from '../../services/carrito.servicio';
@@ -76,12 +76,12 @@ import { ModalStateServicio } from '../../services/modal-state.servicio';
   styles: [`
     :host {
       --drawer-width: 400px;
-      --primary-red: #E74C3C;
-      --dark-bg: #0F1729;
-      --light-text: #FFFFFF;
-      --secondary-text: #8A9BB4;
-      --card-bg: #1A2940;
-      --border-color: #2A3F5F;
+      --primary-red: #ef2a2a;
+      --dark-bg: #0f2044;
+      --light-text: #ffffff;
+      --secondary-text: #6b7280;
+      --card-bg: #f3f4f6;
+      --border-color: #e5e7eb;
     }
 
     .drawer-overlay {
@@ -102,7 +102,7 @@ import { ModalStateServicio } from '../../services/modal-state.servicio';
       right: 0;
       width: var(--drawer-width);
       height: 100vh;
-      background: var(--dark-bg);
+      background: var(--card-bg);
       border-left: 1px solid var(--border-color);
       z-index: 999;
       transform: translateX(100%);
@@ -117,8 +117,9 @@ import { ModalStateServicio } from '../../services/modal-state.servicio';
     }
 
     .drawer-header {
+      background: var(--dark-bg);
       padding: 20px;
-      border-bottom: 1px solid var(--border-color);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -162,7 +163,7 @@ import { ModalStateServicio } from '../../services/modal-state.servicio';
     }
 
     .close-btn:hover {
-      color: var(--primary-red);
+      color: #dbeafe;
     }
 
     .drawer-content {
@@ -188,7 +189,7 @@ import { ModalStateServicio } from '../../services/modal-state.servicio';
     }
 
     .empty-cart p {
-      color: var(--secondary-text);
+      color: #4b5563;
       font-size: 1rem;
       margin: 0 0 20px 0;
     }
@@ -216,8 +217,8 @@ import { ModalStateServicio } from '../../services/modal-state.servicio';
       display: flex;
       gap: 12px;
       padding: 12px;
-      background: rgba(26, 41, 64, 0.5);
-      border-radius: 8px;
+      background: #eceff3;
+      border-radius: 14px;
       border: 1px solid var(--border-color);
       position: relative;
     }
@@ -237,15 +238,15 @@ import { ModalStateServicio } from '../../services/modal-state.servicio';
 
     .item-details h4 {
       margin: 0 0 4px 0;
-      color: var(--light-text);
-      font-size: 0.85rem;
+      color: #111827;
+      font-size: 0.95rem;
       line-height: 1.2;
       font-weight: 600;
     }
 
     .item-sku {
-      color: var(--secondary-text);
-      font-size: 0.75rem;
+      color: #6b7280;
+      font-size: 0.8rem;
       margin: 2px 0 8px 0;
     }
 
@@ -259,25 +260,24 @@ import { ModalStateServicio } from '../../services/modal-state.servicio';
     .qty-btn {
       width: 24px;
       height: 24px;
-      border: 1px solid var(--border-color);
-      background: transparent;
-      color: var(--light-text);
+      border: none;
+      background: #d1d5db;
+      color: #374151;
       cursor: pointer;
-      border-radius: 2px;
+      border-radius: 50%;
       font-size: 0.85rem;
       transition: all 0.2s;
       padding: 0;
     }
 
     .qty-btn:hover {
-      background: var(--primary-red);
-      border-color: var(--primary-red);
+      background: #c4c9d1;
     }
 
     .qty-value {
       min-width: 24px;
       text-align: center;
-      color: var(--light-text);
+      color: #111827;
       font-size: 0.9rem;
       font-weight: 600;
     }
@@ -293,7 +293,7 @@ import { ModalStateServicio } from '../../services/modal-state.servicio';
     .remove-btn {
       background: none;
       border: none;
-      color: var(--secondary-text);
+      color: #9ca3af;
       cursor: pointer;
       font-size: 1.3rem;
       padding: 0;
@@ -307,47 +307,48 @@ import { ModalStateServicio } from '../../services/modal-state.servicio';
     }
 
     .remove-btn:hover {
-      color: var(--primary-red);
+      color: #6b7280;
     }
 
     .item-price {
-      color: var(--primary-red);
+      color: #1e3a8a;
       font-weight: 700;
-      font-size: 0.95rem;
+      font-size: 1.15rem;
       text-align: right;
     }
 
     .cart-summary {
       padding: 20px;
-      background: rgba(26, 41, 64, 0.5);
-      border-radius: 8px;
-      border: 1px solid var(--border-color);
+      background: #f3f4f6;
+      border-radius: 0;
+      border: none;
+      border-top: 1px solid #d1d5db;
       margin-top: auto;
       flex-shrink: 0;
     }
 
     .summary-label {
-      color: var(--secondary-text);
+      color: #334155;
       font-size: 0.9rem;
       margin-bottom: 8px;
     }
 
     .summary-total {
-      font-size: 1.8rem;
+      font-size: 2rem;
       font-weight: 700;
-      color: var(--primary-red);
+      color: #111827;
       margin-bottom: 16px;
     }
 
     .info-text {
-      color: var(--secondary-text);
+      color: #94a3b8;
       font-size: 0.8rem;
       line-height: 1.4;
       margin-bottom: 16px;
-      padding: 12px;
-      background: rgba(139, 155, 180, 0.1);
-      border-left: 2px solid var(--secondary-text);
-      border-radius: 4px;
+      padding: 0;
+      background: transparent;
+      border: none;
+      border-radius: 0;
     }
 
     .btn-solicitar {
@@ -355,34 +356,34 @@ import { ModalStateServicio } from '../../services/modal-state.servicio';
       text-align: center;
       text-decoration: none;
       width: 100%;
-      padding: 12px;
+      padding: 13px;
       background: var(--primary-red);
       color: white;
       border: none;
-      border-radius: 6px;
+      border-radius: 14px;
       font-weight: 600;
       cursor: pointer;
       transition: background 0.2s;
       margin-bottom: 12px;
-      font-size: 0.9rem;
+      font-size: 1.03rem;
     }
 
     .btn-solicitar:hover {
-      background: #C0392B;
+      background: #dc2626;
     }
 
     .link-continue {
       display: block;
       text-align: center;
-      color: var(--primary-red);
+      color: #475569;
       text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 600;
+      font-size: 1.1rem;
+      font-weight: 500;
       transition: color 0.2s;
     }
 
     .link-continue:hover {
-      color: #C0392B;
+      color: #1f2937;
     }
 
     @media (max-width: 768px) {
