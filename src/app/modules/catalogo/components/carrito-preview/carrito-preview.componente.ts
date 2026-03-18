@@ -13,7 +13,12 @@ import { ModalStateServicio } from '../../services/modal-state.servicio';
     
     <div class="drawer" [class.open]="isOpen()">
       <div class="drawer-header">
-        <h2>Cotización</h2>
+        <h2>
+          Cotización
+          @if (items().length > 0) {
+            <span class="badge-items">{{ items().length }} items</span>
+          }
+        </h2>
         <button class="close-btn" (click)="cerrar()">✕</button>
       </div>
 
@@ -33,32 +38,37 @@ import { ModalStateServicio } from '../../services/modal-state.servicio';
                 <img [src]="item.producto.imageUrl" [alt]="item.producto.name" class="item-image">
                 <div class="item-details">
                   <h4>{{ item.producto.name }}</h4>
-                  <p class="item-price">{{ formatPrice(item.producto.price) }}</p>
+                  <p class="item-sku">{{ item.producto.sku }}</p>
                   <div class="quantity-control">
-                    <button (click)="decrementarCantidad(item.producto.id)">−</button>
-                    <span>{{ item.cantidad }}</span>
-                    <button (click)="incrementarCantidad(item.producto.id)">+</button>
+                    <button (click)="decrementarCantidad(item.producto.id)" class="qty-btn">−</button>
+                    <span class="qty-value">{{ item.cantidad }}</span>
+                    <button (click)="incrementarCantidad(item.producto.id)" class="qty-btn">+</button>
                   </div>
                 </div>
-                <button class="remove-btn" (click)="removerProducto(item.producto.id)">🗑</button>
+                <div class="item-right">
+                  <button class="remove-btn" (click)="removerProducto(item.producto.id)" title="Eliminar">×</button>
+                  <div class="item-price">{{ formatPrice(item.producto.price) }}</div>
+                </div>
               </div>
             }
           </div>
 
           <div class="cart-summary">
-            <div class="summary-row">
-              <span>Subtotal:</span>
-              <span>{{ formatPrice(totalPrecio()) }}</span>
+            <div class="summary-label">Subtotal estimado:</div>
+            <div class="summary-total">{{ formatPrice(totalPrecio()) }}</div>
+            
+            <div class="info-text">
+              El precio final se confirmará en la cotización formal
             </div>
-            <div class="summary-row total">
-              <span>Total:</span>
-              <span>{{ formatPrice(totalPrecio()) }}</span>
-            </div>
-          </div>
 
-          <button class="btn-cotizar-final">
-            Cotizar Ahora
-          </button>
+            <button class="btn-solicitar">
+              Solicitar Cotización Formal
+            </button>
+
+            <a routerLink="/catalogo" (click)="cerrar()" class="link-continue">
+              Continuar explorando
+            </a>
+          </div>
         }
       </div>
     </div>
@@ -118,6 +128,22 @@ import { ModalStateServicio } from '../../services/modal-state.servicio';
       margin: 0;
       color: var(--light-text);
       font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .badge-items {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--primary-red);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 12px;
+      min-width: 50px;
     }
 
     .close-btn {
@@ -143,6 +169,8 @@ import { ModalStateServicio } from '../../services/modal-state.servicio';
       flex: 1;
       overflow-y: auto;
       padding: 20px;
+      display: flex;
+      flex-direction: column;
     }
 
     .empty-cart {
@@ -181,13 +209,14 @@ import { ModalStateServicio } from '../../services/modal-state.servicio';
       flex-direction: column;
       gap: 16px;
       margin-bottom: 20px;
+      flex-shrink: 0;
     }
 
     .cart-item {
       display: flex;
       gap: 12px;
       padding: 12px;
-      background: var(--card-bg);
+      background: rgba(26, 41, 64, 0.5);
       border-radius: 8px;
       border: 1px solid var(--border-color);
       position: relative;
@@ -198,33 +227,36 @@ import { ModalStateServicio } from '../../services/modal-state.servicio';
       height: 80px;
       object-fit: cover;
       border-radius: 4px;
+      flex-shrink: 0;
     }
 
     .item-details {
       flex: 1;
+      min-width: 0;
     }
 
     .item-details h4 {
       margin: 0 0 4px 0;
       color: var(--light-text);
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       line-height: 1.2;
+      font-weight: 600;
     }
 
-    .item-price {
-      color: var(--primary-red);
-      font-weight: 600;
-      margin: 4px 0 8px 0;
+    .item-sku {
+      color: var(--secondary-text);
+      font-size: 0.75rem;
+      margin: 2px 0 8px 0;
     }
 
     .quantity-control {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       width: fit-content;
     }
 
-    .quantity-control button {
+    .qty-btn {
       width: 24px;
       height: 24px;
       border: 1px solid var(--border-color);
@@ -232,65 +264,93 @@ import { ModalStateServicio } from '../../services/modal-state.servicio';
       color: var(--light-text);
       cursor: pointer;
       border-radius: 2px;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       transition: all 0.2s;
+      padding: 0;
     }
 
-    .quantity-control button:hover {
+    .qty-btn:hover {
       background: var(--primary-red);
       border-color: var(--primary-red);
     }
 
-    .quantity-control span {
+    .qty-value {
       min-width: 24px;
       text-align: center;
       color: var(--light-text);
       font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .item-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 8px;
     }
 
     .remove-btn {
-      position: absolute;
-      top: 8px;
-      right: 8px;
       background: none;
       border: none;
       color: var(--secondary-text);
       cursor: pointer;
-      font-size: 1.2rem;
+      font-size: 1.3rem;
       padding: 0;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       transition: color 0.2s;
+      flex-shrink: 0;
     }
 
     .remove-btn:hover {
       color: var(--primary-red);
     }
 
+    .item-price {
+      color: var(--primary-red);
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-align: right;
+    }
+
     .cart-summary {
-      padding: 16px;
-      background: var(--card-bg);
+      padding: 20px;
+      background: rgba(26, 41, 64, 0.5);
       border-radius: 8px;
       border: 1px solid var(--border-color);
-      margin-bottom: 20px;
+      margin-top: auto;
+      flex-shrink: 0;
     }
 
-    .summary-row {
-      display: flex;
-      justify-content: space-between;
+    .summary-label {
       color: var(--secondary-text);
-      margin-bottom: 8px;
       font-size: 0.9rem;
+      margin-bottom: 8px;
     }
 
-    .summary-row.total {
-      border-top: 1px solid var(--border-color);
-      padding-top: 8px;
-      margin-top: 8px;
-      color: var(--light-text);
-      font-weight: 600;
-      font-size: 1rem;
+    .summary-total {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--primary-red);
+      margin-bottom: 16px;
     }
 
-    .btn-cotizar-final {
+    .info-text {
+      color: var(--secondary-text);
+      font-size: 0.8rem;
+      line-height: 1.4;
+      margin-bottom: 16px;
+      padding: 12px;
+      background: rgba(139, 155, 180, 0.1);
+      border-left: 2px solid var(--secondary-text);
+      border-radius: 4px;
+    }
+
+    .btn-solicitar {
       width: 100%;
       padding: 12px;
       background: var(--primary-red);
@@ -300,10 +360,26 @@ import { ModalStateServicio } from '../../services/modal-state.servicio';
       font-weight: 600;
       cursor: pointer;
       transition: background 0.2s;
+      margin-bottom: 12px;
+      font-size: 0.9rem;
     }
 
-    .btn-cotizar-final:hover {
+    .btn-solicitar:hover {
       background: #C0392B;
+    }
+
+    .link-continue {
+      display: block;
+      text-align: center;
+      color: var(--primary-red);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+
+    .link-continue:hover {
+      color: #C0392B;
     }
 
     @media (max-width: 768px) {
