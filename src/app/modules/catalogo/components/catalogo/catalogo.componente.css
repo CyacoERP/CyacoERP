@@ -196,6 +196,42 @@
   background: var(--card-bg);
   border-radius: 8px;
   border: 1px solid var(--border-color);
+  gap: 20px;
+}
+
+.btn-cotizacion {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--primary-red);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s ease;
+  position: relative;
+  white-space: nowrap;
+}
+
+.btn-cotizacion:hover {
+  background: #C0392B;
+}
+
+.badge-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #FFD700;
+  color: var(--dark-bg);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  font-size: 0.7rem;
+  font-weight: 700;
+  min-width: 20px;
 }
 
 .sort-control {

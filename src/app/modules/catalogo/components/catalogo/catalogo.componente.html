@@ -86,6 +86,12 @@
         <div class="result-count">
           {{ productos().length }} productos encontrados
         </div>
+        <button class="btn-cotizacion" (click)="abrirCarritoPreview()">
+          🛒 Cotización
+          @if (carritoServicio.totalItems() > 0) {
+            <span class="badge-count">{{ carritoServicio.totalItems() }}</span>
+          }
+        </button>
       </div>
 
       @if (cargando()) {
@@ -137,4 +143,6 @@
       }
     </main>
   </div>
+
+  <app-carrito-preview></app-carrito-preview>
 </div>

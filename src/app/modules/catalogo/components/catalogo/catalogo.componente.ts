@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductoServicio } from '../../services/producto.servicio';
 import { CarritoServicio } from '../../services/carrito.servicio';
+import { ModalStateServicio } from '../../services/modal-state.servicio';
+import { CarritoPreviewComponent } from '../carrito-preview/carrito-preview.componente';
 import { Producto } from '../../../../shared/models/producto.modelo';
 
 interface ProductFilter {
@@ -13,7 +15,7 @@ interface ProductFilter {
 
 @Component({
   selector: 'app-catalogo',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, CarritoPreviewComponent],
   standalone: true,
   templateUrl: './catalogo.componente.html',
   styleUrl: './catalogo.componente.css',
@@ -43,7 +45,8 @@ export class CatalogoComponente implements OnInit {
 
   constructor(
     private productoServicio: ProductoServicio,
-    private carritoServicio: CarritoServicio
+    public carritoServicio: CarritoServicio,
+    private modalState: ModalStateServicio
   ) {}
 
   get totalItemsCarrito(): number {
@@ -179,5 +182,9 @@ export class CatalogoComponente implements OnInit {
 
   isBrandChecked(brand: string): boolean {
     return this.filters.brands.has(brand);
+  }
+
+  abrirCarritoPreview(): void {
+    this.modalState.abrirCarritoDrawer();
   }
 }
