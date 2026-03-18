@@ -1,0 +1,262 @@
+
+ 
+Estudio de Viabilidad — CyacoERP
+Introducción
+El presente documento expone el estudio de viabilidad para el desarrollo e implementación de un sistema ERP (Enterprise Resource Planning) especializado para CYACO Industrial, empresa dedicada a la venta e implementación de tecnologías de manufactura avanzada (PLC, SCADA, Sensores, IoT, Robótica, Líneas de Producción). El sistema se centrará en cuatro pilares operativos:
+1.	Ventas y Cotizaciones: Gestión del proceso comercial donde el cliente o el vendedor arma un carrito de productos, genera una cotización formal y da seguimiento hasta el cierre. No todas las ventas requieren un proyecto asociado; se puede simplemente vender piezas o equipos sin necesidad de implementación.
+2.	Catálogo e Información Técnica de Productos: Fichas técnicas detalladas, documentación descargable e información centralizada de todos los productos que maneja CYACO.
+3.	Gestión de Proyectos de Implementación: Seguimiento de las instalaciones y configuraciones que CYACO realiza en sitio de cliente. Los proyectos pueden crearse a partir de una venta o de forma independiente.
+4.	Reportes y Métricas: Dashboards con analíticas de ventas, productos y proyectos para la toma de decisiones.
+Además de optimizar las operaciones internas, CyacoERP se proyecta como un producto comercializable para otros integradores tecnológicos del sector.
+________________________________________
+1. Análisis del Entorno y Mercado
+1.1. Investigación de Mercado
+Demanda
+El mercado de automatización industrial en México supera los $4,000 millones USD y crece un 8-10% anual gracias al nearshoring. Hay unas 2,500 PYMEs (Pequeñas y Medianas Empresas) que integran sistemas y distribuyen componentes. De ellas, el 70% usa tres o más herramientas desconectadas, lo que les genera pérdidas del 15-20% de sus ingresos. El ciclo de venta dura entre 45 y 90 días y la información se pierde entre correos y archivos desorganizados.
+Tendencias
+•	Digitalización acelerada de la manufactura (Industria 4.0).
+•	Complejidad creciente de las soluciones vendidas (hardware + software + servicios).
+•	Demanda de visibilidad en tiempo real de proyectos y operaciones.
+Toma de decisiones basada en datos: cada vez más PYMEs (Pequeñas y Medianas Empresas) buscan tablas de datos y métricas operativas sin necesidad de un ERP (Sistema de Planificación de Recursos Empresariales) empresarial.
+Segmentos de Cliente para el ERP como Producto
+1.	Primario: Integradores de automatización industrial (PYMEs, 5-50 empleados) — aproximadamente 800 empresas.
+2.	Secundario: Fabricantes que implementan sus propias soluciones tecnológicas — aproximadamente 1,200 empresas.
+3.	Terciario: Distribuidores de componentes industriales — aproximadamente 500 empresas.
+________________________________________
+1.2. Análisis PESTEL
+Político
+El entorno político en México presenta condiciones favorables para el proyecto. Existen incentivos gubernamentales orientados a la digitalización industrial a través de programas federales y estatales que promueven la innovación tecnológica en PYMEs. Sin embargo, es necesario considerar las regulaciones de comercio exterior para componentes importados, ya que la mayoría de los productos que maneja CYACO provienen de fabricantes internacionales. Esto implica que el catálogo de productos dentro del sistema deberá contemplar campos para registrar el origen y las normativas aplicables como referencia para el equipo comercial. La estabilidad en las políticas de apoyo al sector manufacturero, particularmente en el corredor industrial del Bajío y el norte del país, genera un contexto propicio para la adopción de herramientas digitales como CyacoERP. Adicionalmente, el sistema deberá cumplir con las disposiciones fiscales vigentes en materia de facturación electrónica (CFDI), conforme a las reglas del SAT y el Código Fiscal de la Federación.
+Económico
+El sector manufacturero mexicano experimenta un crecimiento sostenido impulsado por la tendencia de nearshoring, con inversiones anunciadas que superan los $30,000 millones de USD. Este dinamismo beneficia directamente a integradores como CYACO, que proveen la tecnología para modernizar plantas. No obstante, el tipo de cambio fluctuante representa un factor crítico, ya que afecta directamente el costo de los componentes importados que conforman la mayor parte del catálogo de CYACO. La inflación presiona los márgenes operativos, haciendo indispensable un control preciso de costos y márgenes en cada cotización. Por esta razón, el módulo de ventas debe manejar cotizaciones en múltiples monedas (MXN, USD, EUR) con tipo de cambio configurable, y los reportes deben reflejar márgenes reales para que la gerencia tome decisiones informadas sobre política de precios.
+Social
+La escasez de talento especializado en automatización industrial es un fenómeno creciente que aumenta la necesidad de centralizar el conocimiento técnico dentro de las organizaciones. Cuando un ingeniero de ventas deja la empresa, se lleva consigo el conocimiento sobre compatibilidades de productos, configuraciones recomendadas y particularidades técnicas que no están documentadas en ningún sistema. CyacoERP aborda este problema directamente al convertirse en la fuente única de verdad para información técnica de productos. Adicionalmente, la cultura del sector industrial mexicano valora la relación cercana cliente-proveedor, donde la confianza y el servicio personalizado son diferenciadores clave. El módulo de clientes del sistema debe reflejar esta realidad, capturando no solo datos transaccionales sino el historial completo de la relación comercial con cada cliente.
+Tecnológico
+Desde la perspectiva del usuario final, la plataforma web deberá ser accesible a través de navegadores modernos sin requerir software adicional, garantizando compatibilidad con dispositivos de escritorio, tablets y smartphones. Se requerirá una conexión a internet estable para operar en la nube. La experiencia de usuario deberá optimizarse para facilitar la navegación, búsqueda de productos y gestión de pedidos.
+Ecológico
+Los equipos industriales que comercializa CYACO tienen ciclos de vida largos, frecuentemente superiores a 10 años, lo que genera necesidades de trazabilidad de información a lo largo del tiempo. Las fichas técnicas del catálogo deben incluir datos sobre eficiencia energética, consumo y vida útil estimada, información cada vez más solicitada por los clientes finales que enfrentan presiones regulatorias y de mercado para optimizar el desempeño energético de sus plantas. La digitalización de procesos que propone CyacoERP también contribuye a la reducción del uso de papel en procesos administrativos, alineándose con las tendencias de sustentabilidad del sector.
+Legal
+El marco legal aplicable al proyecto incluye la Ley Federal de Protección de Datos Personales en Posesión de Particulares (LFPDPPP), que establece obligaciones sobre el manejo de datos de contacto de clientes industriales. El sistema deberá implementar protección de datos básica, incluyendo avisos de privacidad y control de acceso a información sensible. Las Normas Oficiales Mexicanas (NOMs) aplicables a equipos industriales pueden afectar las fichas técnicas y documentación de productos, por lo que el catálogo debe contemplar campos para registrar certificaciones y cumplimiento normativo. Finalmente, los contratos de servicio con Acuerdos de Nivel de Servicio (SLA) son legalmente exigibles en el sector, y el módulo de gestión de proyectos debe permitir registrar y dar seguimiento al cumplimiento de estos compromisos. En cuanto al comercio electrónico, la plataforma deberá sujetarse a lo dispuesto por el Código de Comercio y la Ley Federal de Protección al Consumidor en sus disposiciones aplicables a transacciones realizadas por medios electrónicos. Esto incluye la obligación de proporcionar información clara sobre los productos, precios, términos de venta, garantías y políticas de devolución, así como confirmar por escrito los pedidos y contratos celebrados a través del sitio web. Asimismo, se deberán implementar mecanismos seguros de pago y resguardar los comprobantes electrónicos de las operaciones durante los plazos legales establecidos.
+________________________________________
+1.3. Análisis de Competencia
+Competidores Directos
+Son aquellas empresas que ofrecen los mismos productos o servicios y se dirigen al mismo mercado que tu empresa. Para un cliente, son un "reemplazo directo".
+Amazon Business se presenta como un gigante de la eficiencia y la gestión del gasto. Su flujo está diseñado para simplificar las adquisiciones empresariales, aprovechando la familiaridad de la experiencia de compra de Amazon. El proceso comienza con un catálogo masivo y una búsqueda intuitiva que facilita la comparación de productos y precios entre múltiples vendedores. Un aspecto central de su propuesta son las herramientas para el control y análisis del gasto, que permiten a los administradores crear grupos de compra, establecer permisos y flujos de autorización. Una vez realizada la compra, los paneles visuales y reportes detallados proporcionan visibilidad sobre patrones de gasto, ayudando a las empresas a optimizar presupuestos y conciliar facturas de manera eficiente. Adicionalmente, funciones como "Guided Buying" dirigen a los compradores hacia opciones que cumplen con las políticas internas, integrando el cumplimiento normativo en el flujo de compra.
+Integrated Power Services (IPS) Su flujo de servicio no empieza y termina con la venta de una pieza, sino que se extiende a lo largo de toda la vida útil del activo industrial. IPS ofrece servicios que van desde la venta de componentes hasta la reparación, el mantenimiento predictivo y preventivo, y soluciones de ingeniería para sistemas de energía. Un elemento clave en su proceso es el "IPS Tracker”, una plataforma digital basada en la nube que permite una gestión de proyectos y activos muy detallada. A través de esta herramienta, los técnicos documentan el trabajo en tiempo real, y los clientes acceden a información sobre inspecciones, reparaciones y mantenimiento de sus equipos desde cualquier dispositivo, lo que aporta transparencia y un seguimiento riguroso. Además, IPS refuerza su propuesta de valor con un fuerte énfasis en el conocimiento, ofreciendo programas de entrenamiento y acceso a una base de conocimiento técnico, posicionándose como un socio estratégico.
+
+Competidores Indirectos
+Ofrecen productos o servicios diferentes pero que pueden satisfacer la misma necesidad del cliente. Son los llamados "productos sustitutos”. También se considera competencia indirecta cuando el cliente potencial decide no comprar nada y buscar una solución alternativa, como reparar la pieza vieja en lugar de comprar una nueva.
+Fixup no es una tienda de piezas, sino una empresa de servicios de reparación y mantenimiento. Su propuesta de valor para empresas se centra en la externalización del servicio técnico y la gestión de activos, ofreciendo un modelo de "reparación como servicio". El flujo de trabajo que proponen se estructura en torno a la resolución de un problema del cliente, no a la compra de un componente. En esencia, Fixup vende tranquilidad y solución de problemas, no catálogos. El cliente no necesita buscar la pieza; paga a Fixup para que se encargue de todo el ciclo de reparación.
+
+Ventaja Competitiva de CyacoERP
+Frente a este panorama, las funciones nativas definidas para la nueva plataforma la colocan en un punto medio muy interesante y especializado, combinando la profundidad técnica de IPS con la eficiencia transaccional de Amazon Business.
+El "Catálogo técnico con información detallada" y la "Verificación básica de compatibilidad" son funciones que atacan directamente una necesidad crítica del sector industrial: la precisión. Mientras que Amazon Business ofrece un catálogo extenso pero genérico, una plataforma especializada puede garantizar que la pieza es la correcta para una línea de producción específica, reduciendo el riesgo de errores y devoluciones. Esta constituye una ventaja competitiva clave frente a los gigantes del mercado.
+La inclusión tanto de un "Carrito y cotización de productos" como de una "Gestión de proyectos de implementación" refleja una comprensión profunda de las dos caras de la venta industrial: la compra rápida de un componente estándar y la venta consultiva de una solución compleja que requiere planificación. Esto permite diferenciarse de Amazon Business, más enfocado en la transacción automatizada, y posicionarse cerca de IPS, que integra el servicio en la venta, pero con la agilidad de un proceso digital nativo.
+Finalmente, el enfoque en la "Gestión de clientes para ventas técnicas" y las "Métricas de ventas y proyectos integradas" demuestra una visión estratégica orientada a la relación a largo plazo. No se busca solo vender una pieza, sino entender las necesidades del cliente técnico y medir el éxito no solo en unidades vendidas, sino en proyectos completados exitosamente. Esto va más allá de las analíticas de gasto de Amazon Business al vincular los datos directamente con la ejecución de proyectos, un enfoque más cercano al de IPS con su plataforma de seguimiento de activos.
+En resumen, la plataforma analizada está diseñada para competir no por el volumen bruto, sino por la especialización y el acompañamiento técnico. Mientras que Amazon Business opera como una "tienda por departamentos" eficiente e IPS como un "taller de ingeniería" con servicios profundos, esta solución se perfila como una "ferretería técnica especializada y digital", que conoce a sus clientes, habla su mismo idioma y los acompaña desde la especificación de la pieza hasta la puesta en marcha del proyecto.
+
+________________________________________
+2. Definición del Proyecto
+2.1. Objetivos del Proyecto
+Objetivo General:
+Desarrollar un sistema que centralice ventas, información técnica de productos, con la flexibilidad de manejar ventas de piezas sueltas y proyectos de implementación de forma independiente o vinculada según el caso.
+Objetivos Específicos:
+1.	Permitir armar un carrito de productos directamente desde el catálogo y generar la cotización de forma automática.
+2.	Centralizar el 100% de la información técnica de productos en una plataforma consultable por todo el equipo.
+3.	Contar con dashboards de ventas, productos y proyectos consultables por la gerencia.
+________________________________________
+2.2. Alcance del Proyecto
+El sistema está diseñado para la venta de piezas y refacciones para líneas de producción. Los módulos de ventas y proyectos son independientes pero pueden vincularse cuando sea necesario. De esta forma, se contemplan varios escenarios: desde la venta directa de componentes sin servicios adicionales, hasta ventas que derivan en un proyecto de implementación, proyectos que nacen de negociaciones externas al sistema, y cotizaciones que simplemente quedan como historial del cliente.
+Módulo de Gestión de Clientes
+•	Ficha de cliente industrial: Datos generales, información fiscal, dirección, sector industrial, tecnologías instaladas.
+•	Contactos clave: Registro de personas en las áreas de compras, mantenimiento e ingeniería, con sus datos de contacto y rol.
+•	Historial de interacciones: Seguimiento de llamadas, reuniones, correos y notas internas.
+•	Segmentación: Clasificación por industria, tamaño, tipo de maquinaria o productos adquiridos.
+•	Alertas y recordatorios: Notificaciones automáticas para seguimientos pendientes, cumpleaños de contactos o fechas de revisión.
+Módulo de Catálogo de Productos
+•	Ficha técnica de producto: Descripción, fabricante, especificaciones técnicas, documentación (manuales, fichas PDF), imágenes, precio de lista y categorías.
+•	Búsqueda avanzada: Por nombre, referencia del fabricante, características técnicas, compatibilidad.
+•	Compatibilidad básica: Tablas precargadas por el equipo técnico que relacionan productos compatibles entre sí (ej. rodamientos equivalentes de distintas marcas).
+•	Gestión de categorías: Estructura jerárquica para organizar los productos por tipo, línea o aplicación.
+•	Control de stock (opcional): Indicador de disponibilidad si se integra con inventario.
+Módulo de Ventas y Cotizaciones
+•	Carrito de ventas: El vendedor selecciona cliente, agrega productos del catálogo, ajusta cantidades y descuentos. Cálculo automático de subtotales, impuestos, márgenes y totales en múltiples monedas.
+•	Generación de cotizaciones: Plantilla PDF personalizable con los datos del cliente, productos, condiciones comerciales y vigencia.
+•	Historial de versiones: Cada modificación a una cotización guarda un historial accesible.
+•	Conversión a venta: Al confirmarse el pedido, la cotización se transforma en orden de venta, registrando fecha, vendedor y condiciones.
+•	Vinculación con proyectos: Si la venta incluye servicios de integración o montaje, se puede crear un proyecto asociado para su seguimiento.
+•	Verificador de compatibilidad: Durante la selección de productos, el sistema alerta sobre posibles incompatibilidades basadas en las tablas precargadas.
+Exclusiones
+•	Facturación, timbrado CFDI y todo proceso fiscal.
+•	Contabilidad, cuentas por cobrar/pagar, conciliación bancaria.
+•	Gestión de inventario físico (almacén, serialización, control de stock).
+•	Compras y órdenes de compra a proveedores.
+•	Logística y envíos.
+•	Nómina y recursos humanos.
+•	Soporte o ticketing postventa (considerado para el roadmap futuro).
+•	Aplicación móvil nativa (se priorizará responsividad web).
+________________________________________
+3. Análisis Técnico
+3.1. Requerimientos Técnicos
+Stack de Tecnología
+El desarrollo se apoya en Visual Studio Code como IDE principal, complementado con extensiones para Angular, Node.js, Prisma y Docker que facilitan la codificación y depuración. El stack unificado de TypeScript utiliza Angular 21+ en el frontend y Node.js 20 LTS con Express en el backend, garantizando tipado fuerte en toda la aplicación. Las dependencias se gestionan con npm, y el frontend se construye con Angular CLI. Para la interfaz se emplean librerías de componentes como Angular Material o PrimeNG, que agilizan la creación de tablas, formularios y dashboards. La gestión del estado en el frontend es nativa mediante Signals de Angular. En el backend, Prisma ORM proporciona acceso tipado a la base de datos y migraciones automatizadas a través de su CLI. La base de datos principal es PostgreSQL 16, complementada con Redis 7 para caché y sesiones. El almacenamiento de archivos se realiza en un sistema compatible con S3, utilizando el SDK de AWS para Node.js. Todo el entorno se ejecuta en contenedores Docker definidos con Docker Compose, asegurando reproducibilidad en desarrollo y producción.
+Infraestructura
+El código fuente se aloja en un repositorio Git gestionado en GitHub (o GitLab, a definir en Sprint 0), donde se aplican flujos de trabajo con pull requests y conventional commits. La arquitectura es cloud agnostic: basada en contenedores Docker, PostgreSQL, Redis y almacenamiento S3 compatible, puede desplegarse sin cambios en proveedores como AWS, Azure, GCP o alternativas más simples como DigitalOcean o Railway. La automatización de pruebas, construcción de imágenes y despliegue se realizará mediante GitHub Actions, integrando análisis de calidad con SonarQube y escaneo de vulnerabilidades con Snyk. Las imágenes Docker se almacenan en Docker Hub o en un registro privado. Durante el Sprint 0 se decidirá el proveedor cloud definitivo, buscando el equilibrio entre costo, simplicidad operativa y escalabilidad.
+Seguridad
+La protección del sistema se refuerza con herramientas específicas: Helmet.js para configurar cabeceras HTTP seguras en Express, y express-rate-limit para mitigar ataques de fuerza bruta. La autenticación utiliza JSON Web Tokens (JWT) implementados con la librería jsonwebtoken, mientras que en el frontend se emplean Route Guards e interceptores HTTP de Angular. El control de acceso basado en roles (RBAC) se gestiona mediante políticas en el backend. Se realiza validación estricta de entradas con librerías como Joi o class-validator. Para la calidad del código, se integran ESLint y Prettier en el flujo de desarrollo, ejecutados mediante Husky antes de cada commit. Las copias de seguridad automáticas de la base de datos se configuran con herramientas nativas de PostgreSQL o scripts programados, y los datos personales se tratan conforme a la normativa aplicable, apoyándose en el cifrado en tránsito (HTTPS) y en reposo (cifrado de disco en los servicios cloud).
+________________________________________
+3.2. Viabilidad Técnica
+El equipo cuenta con desarrolladores que “dominan” TypeScript y Angular, además de un profundo conocimiento del negocio de CYACO (productos, ventas y proyectos). No obstante, se enfrentan brechas en el desarrollo backend (APIs REST y modelado de bases de datos) y en la creación de reportes y dashboards. Para mitigarlas, se llevará a cabo una capacitación rápida en Node.js y Prisma, se emplearán componentes prediseñados de Angular Material y PrimeNG para la interfaz, y se contará con la validación de flujos por parte del personal de negocio. Asimismo, el uso de PrimeNG Charts simplificará la implementación de gráficos, aprovechando los datos ya disponibles en la base de datos.
+________________________________________
+4. Análisis Económico y Financiero
+1. Estimación de Costos.
+A continuación, se presenta un análisis de los costos relacionados al desarrollo del proyecto y el mantenimiento de este durante el primer año.
+Inversión Inicial
+•	Servidor de desarrollo y pruebas: Computadora de alto rendimiento con especificaciones: Procesador de 8 núcleos, 16 GB de RA, almacenamiento SSD de 500 GB. Costo estimado: $12,000 MXN.
+•	Laptops para el desarrollo: Tres laptops para cada integrante del equipo con especificaciones adecuadas para el desarrollo web: Costo estimado $8,000 MXN por unidad ($24,000 MXN total).
+2. Costos recurrentes de operación
+•	La adquisición de un dominio cuesta a aproximadamente $90.88 MXN el primer año y $702.99 MXN en años subsecuentes.
+•	Servicio de hosting y alojamiento web premium con soporte para las tecnologías a utilizar. Costo: $64.99 MXN/mes ($779.88 MXN anuales).
+3. Recursos Humanos
+•	Se estima una dedicación de 12 horas por semana por desarrollador durante las semanas que dura el proyecto (Fases 1 a 4 del cronograma).
+o	Total, de horas por desarrollador: 12 × 12 = 144 horas.
+o	Total, de horas del equipo (3 desarrolladores): 144 × 3 = 432 horas.
+o	Tarifa horaria estimada (nivel junior): $150.00 MXN/hora.
+o	Costo total de recursos humanos: 432 × 150 = $64,800.00 MXN
+4. Resumen de costos
+•	Costo total de implementación (año 1)
+o	Inversión inicial: $36,000 MXN
+o	Dominio 1 año: $90.88 MXN
+o	Hosting: $779.88 MXN
+o	TOTAL $101,661.81 MXN
+________________________________________
+4.1 Análisis de rentabilidad
+4.1 Ingresos proyectados
+•	Publicidad no intrusiva: Se integrará un sistema de publicidad contextual mediante banners discretos en interfaces no críticas. Utilizando redes de publicidad como Google Ads, se estima un ingreso mensual conservador de $1,000 MXN durante el primer año, con un crecimiento proyectado de 20% anual conforme aumente el tráfico obteniendo un ingreso anual proyectado de $12,000 MXN.
+•	Servicios de mantenimiento y actualización: Se ofrecerá un servicio premium de soporte técnico, actualizaciones y personalizaciones para empresas. Este servicio tendrá un costo anual de $15,000 MXN por empresa. Se proyecta la adhesión de al menos 3 empresas en el primer año de operación dándonos un ingreso anual proyectado de $45,000 MXN.
+________________________________________
+4.2 Proyección de flujo de Efectivo
+Concepto	Año 2	Año 3	Año 4
+Ingresos por publicidad	$12,000.00	$14,400.00	$17,280.00
+Ingresos por mantenimiento	$45,000.00	$45,000.00	$45,000.00
+Total, de Ingresos	$57,000.00	$59,400.00	$62,280.00
+Costos de mantenimiento	$1,392.87	$1,392.87	$1,392.87
+Flujo Neto Anual	$55,607.13	$58,007.00	$60,887.13
+________________________________________
+4.3 Punto de equilibrio y retorno de inversión
+El punto de equilibrio operativo se alcanzará inmediatamente en el primer año de operación (Año 2), ya que los ingresos proyectados ($57,000.00 MXN) superan ampliamente los costos de mantenimiento ($1,392.87 MXN). Para el retorno de la inversión inicial (recuperación de los $101,661.87 MXN), considerando el flujo neto anual del Año 2 ($55,607.13), la inversión se recuperaría en aproximadamente 1.83 años.
+________________________________________
+4.4 Fuentes de financiamiento
+•	Financiamiento propio: La inversión inicial en el desarrollo del proyecto que incluyen las laptops y el servidor serán cubiertas por los propios integrantes del equipo de desarrollo.
+•	Financiamiento externo para Honorarios: Los costos asociados a los recursos humanos y los costos recurrentes de operación del primer año deberán ser cubiertos mediante búsqueda de financiamiento externo, Las opciones potenciales incluyen:
+o	Fondos concursables para proyectos de innovación tecnológica.
+o	Patrocinios modestos de empresas locales del sector tecnológico.
+________________________________________
+5. Análisis de Riesgos
+(Aceptar (2-3), Transferir (4-5), Mitigar (6-8), Evitar (9-10))
+Riesgo	Probabilidad	Impacto	Acción	Plan de contingencia
+Falta un miembro del equipo.	3	3	Mitigar	Redistribuir la carga de trabajo entre los miembros del equipo disponibles
+Perdida de archivos de la página web.	3	5	Mitigar	Crear distintos repositorios y respaldos. Usar el repositorio con la versión más actual.
+Se daña un equipo de cómputo de algún integrante del equipo.	3	5	Mitigar	Siempre tener la información en más de un equipo y reparar en cuanto antes los daños. Usar otros equipos y redistribuir carga si es necesario.
+Eliminación de la base de datos.	1	5	Mitigar	Establecer respaldos de la base de datos con información importante. Usar el respaldo más actualizado.
+No se creó un respaldo de los archivos.	4	5	Evitar	Siempre guardar en repositorios y siempre guardar en distintos dispositivos. Crear respaldos constantemente.
+Insuficiencia del financiamiento asignado	5	5	Evitar	Conseguir nuevos medios de financiamiento y realizar un plan de financiamiento conservador en caso de imprevistos.
+Conflictos internos en el equipo.	1	5	Mitigar	Mantener respeto entre miembros del equipo, escuchando opiniones. Establecer acuerdos anticipadamente.
+Falta de conexión a internet.	5	5	Evitar	Trabajar y guardar archivos de manera local mientras regresa la línea. Tratar de ir a zonas donde hay internet.
+Falta de energía eléctrica.	1	5	Mitigar	Mantener batería en dispositivos inalámbricos y generadores de energía listos en caso de necesitarlo.
+Interrupciones por terceros.	2	4	Mitigar	Tratar de reanudar el trabajo de manera inmediata o trabajar en modalidad en línea. Establecer plazos más largos.
+Actualizaciones inesperadas del sistema operativo de algún equipo.	3	4	Mitigar	Tener siempre distintos equipos disponibles para evitar tiempos de espera largos. Usar otros equipos y redistribuir carga de trabajo.
+No hay disponibilidad del nombre de dominio.	2	3	Transferir	Conseguir otro nombre de dominio similar al esperado.
+Falta de cumplimiento de tareas de un miembro del equipo.	3	4	Transferir	Los miembros del equipo que no realicen sus trabajos serán sancionados y la carga de trabajo será redistribuida.
+Falta de servicios en la nube.	2	5	Mitigar	Tener respaldos localmente y usar diferentes servicos en nube para evitar tener toda la información en un solo lugar. Usar los otros servicios en caso de falla.
+Miembro del equipo con discapacidades físicas.	1	4	Transferir	Reorganizar la carga de trabajo para tener eficiencia en el desarrollo. El miembro del equipo incapacitado trabaja en modalidad en línea si es posible.
+Ataques al servidor o base de datos.	4	5	Evitar	Establecer medidas de seguridad y ciberseguridad en todos los sistemas y módulos. Tener respaldos de información vulnerable.
+Se elimina el repositorio.	1	5	Mitigar	Crear varios repositorios de respaldo para poder guardar documentos importantes. Usar otros repositorios distintos con la versión más actualizada del proyecto.
+Falta de documentación pertinente en tiempo y formal	3	5	Mitigar	Solicitar más tiempo de entrega. Pagar Extraordinario.
+________________________________________
+6. Evaluación Organizativa
+6.1 Recursos Humanos:
+El equipo de desarrollo tiene la capacidad técnica necesaria para desarrollar proyectos web con distintas tecnologías como, por ejemplo: Node.js, angular, HTML5 CSS, JavaScript, etc. Además de contar con experiencia en redes, enrutamiento de redes y computo nube haciendo que el desarrollo del proyecto no sea un proyecto en términos de recursos humanos. Sin embargo, se necesita la contribución de personas especializadas en el Marketing y en el diseño de la página web para asegura una experiencia de usuario complaciente. El equipo de desarrollo se organiza de la siguiente manera.
+6.2 Capacidades Organizativas.
+La viabilidad del proyecto no solo se sustenta en las habilidades individuales, sino en la capacidad colectiva del equipo para integrarlas de manera efectiva. La principal fortaleza organizativa reside en la complementariedad estratégica ́ de los perfiles; cada integrante posee una experiencia en un área crítica y distintiva del desarrollo web (Front-end, Back-end/Seguridad, QA/Documentación), lo que elimina cuellos de botella y permite una división natural y eficiente del trabajo. Esta sinergia asegura que todos los aspectos técnicos del proyecto estén cubiertos por alguien con conocimiento e interés especifico en el área.
+La ejecución se apalanca en un marco de trabajo ágil y herramientas modernas que facilitan la coordinación. El uso de ́Git con un repositorio en GitHub permite un control de versiones preciso y una integración continua del código. La comunicación ́ y se maneja a través de ́Discord, permitiendo la resolución rápida de dudas y la planificación diaria. El progreso y el estado de las tareas se visualizan en un tablero Kanban (Trello o GitHub Projects), lo que proporciona transparencia y permite ajustar la planificación en tiempo real.
+Si bien el CYACO representa el proyecto de desarrollo web más ambicioso emprendido por el equipo hasta la fecha, la combinación de su experiencia previa en proyectos modulares —propia de su plan de estudios—, la dedicación demostrada y el robusto andamiaje método ́ lógico ́ proporcionado por la supervisión académica, aseguran la capacidad para investigar, aprender sobre la marcha y resolver problemas de manera colaborativa y efectiva, transformando los imprevistos en oportunidades de aprendizaje más que en obstáculos.
+7. Conclusiones y Recomendaciones
+7.1. Conclusión del Estudio de Viabilidad
+El sistema CyacoERP es viable técnica, económica y organizativamente, siempre que el desarrollo se enfoque únicamente en los módulos esenciales definidos: gestión de clientes, catálogo de productos, cotización/ventas y gestión básica de proyectos, sin inventarios, compras, facturación ni funcionalidades administrativas fuera del alcance. La flexibilidad para cotizar y vender piezas sueltas sin requerir proyectos, así como la posibilidad de crear proyectos independientes, atiende exactamente a la operación real de CYACO. El equipo cuenta con la experiencia y compromiso para entregar en el tiempo y presupuesto establecidos. Dada la presencia de competidores y herramientas genéricas, es esencial asegurar que la interfaz sea simple, facilitar la adopción por parte de los usuarios y cuidar la calidad y precisión de los datos cargados por los responsables del contenido.
+7.2. Recomendaciones
+• Priorizar una interfaz limpia, clara y muy bien documentada para asegurar la adopción interna.
+• Agendar revisiones quincenales con usuarios clave de ventas e ingeniería para ajustar flujos y campos según retroalimentación real.
+• Limitar el alcance a los módulos y requerimientos acordados: cualquier añadido debe ser evaluado contra alcance, presupuesto y calendario.
+• Cargar desde el inicio los productos y reglas de compatibilidad básicos para poder generar cotizaciones funcionales desde la Fase 1.
+• Preparar documentación sencilla de uso para los usuarios internos.
+• Realizar un despliegue gradual: lanzar primero para ventas internas, después abrir el portal cliente y por último habilitar administración avanzada.
+• No desarrollar inventarios ni facturación hasta una próxima fase y solo si es fundamental para el negocio.
+________________________________________
+8. Plan de Implementación
+8.1. Cronograma (Diagrama de Gantt)
+(En documento adjunto)
+________________________________________
+8.2. Metodología de Desarrollo
+Se trabajará con un Scrum adaptado y altamente práctico. Dado que las tareas están desglosadas y secuenciadas. Los Sprints están alineados con los bloques principales del WBS (~1 semana cada uno para tareas chico/medianas, 2 semanas para bloques largos). • Sprint Planning: Al inicio de cada bloque, el equipo (Serna, Josue, Flavio) revisa las tareas próximas, asigna responsables y acuerda los criterios de éxito (por ejemplo, módulo CRUD y sus pruebas). • Daily Standup: Reunión corta diaria (10-15 min) donde cada integrante comparte avances, bloqueos y próximos pasos. Se actualizan tareas completadas en el tablero de gestión (GitHub). • Entregas Incrementales: Cada bloque/módulo se desarrolla hasta funcionalidad completa, se somete a code review y pruebas (unitarias, funcionales, integración), y se integra al entorno de pruebas. Si un desarrollador termina antes, toma la siguiente tarea priorizada del backlog. • Review y Retro: Al finalizar cada bloque/fase relevante (p.ej. Clientes y Catálogo, Cotización, Proyectos, Dashboards), se hace una demo interna y se recopila feedback para ajustes inmediatos antes de avanzar. • Validación con usuarios internos: Tras cada módulo clave, se valida el flujo con usuarios de ventas o ingeniería, asegurando que lo construido responde a las necesidades reales. • QA y Pruebas en cada fase: Los bloques específicos para testing (en el WBS como “tests unitarios, funcionales e integración”) aseguran calidad antes de pasar al siguiente gran módulo. . • Presentación y cierre: En la fase final, se ejecutan pruebas E2E y se hace una presentación formal a stakeholders antes del despliegue definitivo. La prioridad es entregar rápido lo esencial, probar cada módulo al terminarlo y validar su funcionalidad. No se espera a tener todo listo para probar o corregir.
+________________________________________
+8.3. Plan de Monitoreo
+El monitoreo se enfocará en asegurar el funcionamiento básico, la satisfacción del usuario y la protección de los datos:
+1.	Supervisión técnica semanal
+•	Verificación de estabilidad del sistema, servidor y base de datos.
+•	Registro y solución inmediata de errores críticos.
+2.	Revisión funcional quincenal
+•	Validación con usuarios clave de ventas e ingeniería para verificar que los flujos del sistema cubran las necesidades operativas.
+•	Registro de retroalimentación y ajustes priorizados para el siguiente sprint.
+3.	Respaldo de datos
+•	Programación de respaldos automáticos diarios de la base de datos.
+•	Revisión mensual de restauración de respaldos.
+4.	Actualización y soporte
+•	Aplicar actualizaciones de seguridad y dependencias una vez al mes.
+•	Atender reportes funcionales por correo institucional.
+•	Actualizar documentación de usuario conforme evoluciona el sistema.
+5.	Monitoreo de uso
+•	Revisión mensual del uso de módulos principales para detectar áreas no adoptadas y proponer mejoras de usabilidad si es necesario.
+________________________________________
+9. Revisión y Aprobación
+9.1. Presentación a Stakeholders
+• Se agendarán sesiones de presentación con los principales stakeholders: Director General, Gerente Comercial, Ingenieros y equipo de desarrollo.
+• En la presentación ejecutiva (aprox. 30-60 minutos) se revisará el estudio de viabilidad para aprobación presupuestal y definición de riesgos.
+• Se realizarán talleres prácticos y demostraciones de prototipos para validar los flujos de cotización, catálogo, gestión de proyectos y métricas.
+• En sesiones posteriores se consolidará la retroalimentación recogida, priorizando observaciones clave antes de avanzar con la siguiente etapa del desarrollo.
+Ejemplo de Agenda:
+Sesión	Semana	Duración	Objetivo
+Presentación Ejecutiva	1	60 minutos	Validar y aprobar presupuesto y riesgos
+Taller de Ventas + Productos	1	2 horas	Flujos de cotización y catálogo
+Taller Proyectos + Reportes	2	2 horas	Métricas, gestión y dashboards
+Consolidación Feedback	2	1 hora	Retro y ajustes finales de alcance
+9.2. Revisión y Feedback
+• Las decisiones finales se tomarán después de presentar el estudio ante los clientes clave y posibles inversores o directivos.
+• Se recogerán comentarios y sugerencias durante las sesiones y se documentarán en un acta de feedback.
+• El documento y plan de trabajo se ajustarán según las observaciones de los stakeholders antes de proceder formalmente al desarrollo e implementación.
+________________________________________
+Referencias Bibliográficas
+1.	INEGI. (2024). Estadística sobre la industria manufacturera en México. Instituto Nacional de Estadística y Geografía. Disponible en: https://www.inegi.org.mx/temas/industria/
+2.	IDC Latin America. (2022). El mercado de ERP y software empresarial en México. International Data Corporation. Disponible en: https://www.idc.com/getdoc.jsp?containerId=prLA48027022
+3.	IDC. (2023). Nearshoring and automation market trends in Mexico. International Data Corporation. Disponible en: https://www.idc.com/getdoc.jsp?containerId=prLA48027022
+4.	Odoo S.A. (2024). Odoo ERP Features & Pricing. Documentación oficial. Disponible en: https://www.odoo.com
+5.	Monday.com. (2024). Project management for industrial companies. Documentación oficial. Disponible en: https://monday.com
+6.	SAP SE. (2024). SAP Business One: Características y Alcance. Documentación comercial. Disponible en: https://www.sap.com/products/business-one.html
+7.	Salesforce Inc. (2024). CRM para pequeñas y medianas empresas. Documentación oficial. Disponible en: https://www.salesforce.com/es/crm/small-business/
+8.	HubSpot Inc. (2024). Free CRM Software & Tools. Documentación oficial. Disponible en: https://www.hubspot.com/products/crm
+9.	Angular Team, Google. (2024). Angular Official Documentation. Disponible en: https://angular.io/docs
+10.	PrimeTek. (2024). PrimeNG - Angular UI Component Library. Documentación oficial. Disponible en: https://www.primefaces.org/primeng/
+11.	Angular Team, Google. (2024). Angular Material - Component Dev Kit. Documentación oficial. Disponible en: https://material.angular.io/
+12.	OpenJS Foundation. (2024). Node.js Official Documentation. Disponible en: https://nodejs.org/en/docs/
+13.	Prisma Data Inc. (2024). Prisma ORM Documentation. Disponible en: https://www.prisma.io/docs
+14.	The PostgreSQL Global Development Group. (2024). PostgreSQL 16 Documentation. Disponible en: https://www.postgresql.org/docs/
+15.	Redis Ltd. (2024). Redis Official Documentation. Disponible en: https://redis.io/docs/
+16.	Docker Inc. (2024). Docker Official Documentation. Disponible en: https://docs.docker.com/
+17.	GitHub Inc. (2024). GitHub Actions Documentation. Disponible en: https://docs.github.com/en/actions
+18.	Functional Software Inc. (2024). Sentry Error Tracking Documentation. Disponible en: https://docs.sentry.io/
+19.	Mermaid Contributors. (2024). Mermaid - Diagramming and charting tool. Documentación oficial. Disponible en: https://mermaid-js.github.io/mermaid/
+20.	Cámara de Diputados del H. Congreso de la Unión. (2010). Ley Federal de Protección de Datos Personales en Posesión de los Particulares (LFPDPPP). Diario Oficial de la Federación. Disponible en: https://www.diputados.gob.mx/LeyesBiblio/pdf/LFPDPPP.pdf
+21.	Secretaría de Economía. (2024). Normas Oficiales Mexicanas (NOMs) aplicables al sector industrial. Disponible en: https://www.gob.mx/se/acciones-y-programas/normas-oficiales-mexicanas
+22.	Instituto Mexicano de la Propiedad Industrial. (2024). Registro de marcas. Disponible en: https://www.gob.mx/impi
+23.	Equipo CyacoERP y CYACO Industrial. (2026). Análisis de procesos internos, entrevistas con el equipo comercial y técnico, y experiencia directa con clientes de automatización industrial en México. Documento interno no publicado.
+24.	GitHub Copilot. (2026). Apoyo en la estructuración, redacción técnica y organización del estudio de viabilidad de CyacoERP. Referencia autocitada como colaborador en la elaboración del contenido.
+

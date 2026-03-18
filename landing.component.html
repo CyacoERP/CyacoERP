@@ -1,0 +1,42 @@
+<div class="landing-container">
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <span class="badge">TECNOLOGÍA INDUSTRIAL</span>
+      <h1>Soluciones Digitales para la <span class="highlight">Industria Moderna</span></h1>
+      <p>Distribuidores autorizados de las principales marcas mundiales. Instrumentación de precisión, automatización y servicios técnicos especializados para la industria latinoamericana.</p>
+      
+      <div class="cta-buttons">
+        <button class="btn btn-primary" routerLink="/catalogo">
+          Explorar Catálogo <span>→</span>
+        </button>
+        <button class="btn btn-secondary">
+          Solicitar Cotización
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <section class="stats">
+    <div class="stats-container">
+      <div *ngFor="let stat of stats" class="stat-card">
+        <div class="stat-number">{{ stat.number }}</div>
+        <div class="stat-label">{{ stat.label }}</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Brands Section -->
+  <section class="brands">
+    <div class="brands-header">
+      <span>MARCAS AUTORIZADAS:</span>
+    </div>
+    <div class="brands-list">
+      <div *ngFor="let brand of brands" class="brand-item">
+        {{ brand }}
+      </div>
+    </div>
+  </section>
+</div>

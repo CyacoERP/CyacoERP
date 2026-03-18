@@ -1,21 +1,140 @@
-<header class="header">
-  <h1>Catálogo</h1>
-  <a routerLink="/carrito" class="btn-carrito">
-    🛒 Carrito
-    @if (totalItemsCarrito > 0) {
-      <span class="badge">{{ totalItemsCarrito }}</span>
-    }
-  </a>
-</header>
-
-@if (cargando()) {
-  <div class="loading">Cargando productos...</div>
-} @else if (productos().length === 0) {
-  <div class="loading">No se encontraron productos</div>
-} @else {
-  <section class="grid">
-    @for (p of productos(); track p.id) {
-      <app-producto-card [producto]="p" (agregarAlCarrito)="onAgregarAlCarrito($event)"></app-producto-card>
-    }
+<div class="catalog-container">
+  <section class="hero-section">
+    <h1>Catálogo de Productos</h1>
+    <p>Explora nuestra amplia gama de equipos e instrumentacion industrial de las mejores marcas</p>
+    
+    <div class="search-bar">
+      <input 
+        type="text" 
+        placeholder="Buscar por nombre, descripcion o SKU..." 
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onSearchChange()"
+        class="search-input"
+      >
+    </div>
   </section>
-}
+
+  <section class="featured-section">
+    <h2>Videos destacados</h2>
+    <div class="videos-grid">
+      <iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" src="https://www.youtube.com/embed/9bZkp7q19f0" width="250" height="140" frameborder="0"></iframe>
+      <iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" src="https://www.youtube.com/embed/9bZkp7q19f0" width="250" height="140" frameborder="0"></iframe>
+      <iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" src="https://www.youtube.com/embed/9bZkp7q19f0" width="250" height="140" frameborder="0"></iframe>
+    </div>
+  </section>
+
+  <div class="main-content">
+    <aside class="sidebar">
+      <div class="filter-group">
+        <h3>Filtros</h3>
+        
+        <div class="filter-section">
+          <h4>Categorias</h4>
+          <div class="checkbox-group">
+            <label *ngFor="let category of categories" class="checkbox-label">
+              <input 
+                type="checkbox" 
+                [checked]="isCategoryChecked(category)"
+                (change)="toggleCategory(category)"
+              >
+              <span>{{ category }}</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="filter-section">
+          <h4>Marcas</h4>
+          <div class="checkbox-group">
+            <label *ngFor="let brand of brands" class="checkbox-label">
+              <input 
+                type="checkbox"
+                [checked]="isBrandChecked(brand)"
+                (change)="toggleBrand(brand)"
+              >
+              <span>{{ brand }}</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="filter-section">
+          <h4>Rango de Precio</h4>
+          <div class="price-buttons">
+            <button 
+              *ngFor="let range of priceRanges"
+              class="price-btn"
+              (click)="updatePriceRange(range.min, range.max)"
+              [class.active]="filters.priceRange.min === range.min && filters.priceRange.max === range.max"
+            >
+              {{ range.label }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="content">
+      <div class="toolbar">
+        <div class="sort-control">
+          <label>Ordenar por:</label>
+          <select [(ngModel)]="sortBy" (change)="onSortChange()" class="sort-select">
+            <option value="relevancia">Relevancia</option>
+            <option value="precio_asc">Precio (Menor a Mayor)</option>
+            <option value="precio_desc">Precio (Mayor a Menor)</option>
+            <option value="rating">Calificacion</option>
+          </select>
+        </div>
+        <div class="result-count">
+          {{ productos().length }} productos encontrados
+        </div>
+      </div>
+
+      @if (cargando()) {
+        <div class="loading">Cargando productos...</div>
+      } @else if (productos().length === 0) {
+        <div class="loading">No se encontraron productos</div>
+      } @else {
+        <div class="products-grid">
+          @for (producto of productos(); track producto.id) {
+            <div class="product-item">
+              <div class="product-image">
+                <img [src]="producto.imageUrl || 'https://via.placeholder.com/300x200'" [alt]="producto.name">
+                <div class="badges">
+                  <span class="badge-category">{{ producto.category }}</span>
+                  <span class="badge-stock" [class.out-of-stock]="!producto.inStock">
+                    {{ producto.inStock ? 'En Stock' : 'Agotado' }}
+                  </span>
+                </div>
+              </div>
+              <div class="product-info">
+                <div class="product-brand">Marca</div>
+                <h3 class="product-name">{{ producto.name }}</h3>
+                <div class="product-rating">
+                  <span class="stars">★ 4.0</span>
+                  <span class="reviews">(125 resenas)</span>
+                </div>
+                <div class="product-protocols">
+                  Protocolos: Modbus, Profinet
+                </div>
+                <div class="product-footer">
+                  <div>
+                    <span class="sku">SKU: 12345</span>
+                  </div>
+                  <span class="price">{{ formatPrice(producto.price) }}</span>
+                </div>
+              </div>
+              <div class="product-actions">
+                <button 
+                  class="btn-cotizar"
+                  (click)="onAgregarAlCarrito(producto)"
+                  [disabled]="!producto.inStock"
+                >
+                  Cotizar
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </main>
+  </div>
+</div>

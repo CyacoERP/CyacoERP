@@ -1,0 +1,156 @@
+<div class="catalog-container">
+  <!-- Header Hero -->
+  <div class="catalog-hero">
+    <div class="hero-content">
+      <h1>Catálogo de Productos</h1>
+      <p>8+ referencias de instrumentación industrial</p>
+      
+      <!-- Search Bar -->
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input 
+          type="text" 
+          placeholder="Buscar por nombre, SKU, especificación..."
+          [(ngModel)]="searchTerm"
+          (input)="onSearchChange()"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Featured Videos Section -->
+  <div class="featured-videos">
+    <span class="videos-label">▶ Vídeos destacados:</span>
+    <div class="video-list">
+      <a href="#" class="video-item">
+        <img src="https://via.placeholder.com/40" alt="video" />
+        <span>Instalación de Transmisor de Presión</span>
+      </a>
+      <a href="#" class="video-item">
+        <img src="https://via.placeholder.com/40" alt="video" />
+        <span>Configuración ProMag 400</span>
+      </a>
+      <a href="#" class="video-item">
+        <img src="https://via.placeholder.com/40" alt="video" />
+        <span>Calibración en Campo</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="catalog-content">
+    <!-- Sidebar Filters -->
+    <aside class="filters-sidebar">
+      <div class="filter-section">
+        <h3>Filtros</h3>
+      </div>
+
+      <!-- Categoría -->
+      <div class="filter-section">
+        <h4>CATEGORÍA</h4>
+        <button class="category-btn active">Todas las categorías</button>
+        <div class="category-list">
+          <label *ngFor="let cat of categories" class="checkbox-item">
+            <input 
+              type="checkbox" 
+              [checked]="selectedCategories.has(cat)"
+              (change)="toggleCategory(cat)"
+            />
+            <span>{{ cat }}</span>
+            <span class="count">{{ getCategoryCount(cat) }}</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Fabricante -->
+      <div class="filter-section">
+        <h4>FABRICANTE</h4>
+        <div class="brand-list">
+          <label *ngFor="let brand of brands" class="checkbox-item">
+            <input 
+              type="checkbox" 
+              [checked]="selectedBrands.has(brand)"
+              (change)="toggleBrand(brand)"
+            />
+            <span>{{ brand }}</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Precio -->
+      <div class="filter-section">
+        <h4>PRECIO</h4>
+        <button class="price-range-btn">Hasta $10,000</button>
+        <button class="price-range-btn">$10,000 - $25,000</button>
+        <button class="price-range-btn">$25,000 - $50,000</button>
+        <button class="price-range-btn">Más de $50,000</button>
+      </div>
+    </aside>
+
+    <!-- Products Grid -->
+    <div class="products-section">
+      <!-- Results Header -->
+      <div class="results-header">
+        <span>{{ filteredProducts.length }} productos</span>
+        <div class="sort-control">
+          <label>Ordenar:</label>
+          <select [(ngModel)]="sortBy" (change)="onSortChange()">
+            <option value="relevancia">Relevancia</option>
+            <option value="precio_asc">Precio: Menor a Mayor</option>
+            <option value="precio_desc">Precio: Mayor a Menor</option>
+            <option value="rating">Mejor Valorados</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Products Grid -->
+      <div class="products-grid">
+        <div *ngFor="let product of filteredProducts" class="product-card">
+          <!-- Badges -->
+          <div class="badges">
+            <span class="badge category-badge">{{ product.category }}</span>
+            <span class="badge available-badge" *ngIf="product.inStock">Disponible</span>
+            <span class="badge unavailable-badge" *ngIf="!product.inStock">Bajo pedido</span>
+          </div>
+
+          <!-- Product Image -->
+          <div class="product-image">
+            <img [src]="product.imageUrl" [alt]="product.name" />
+          </div>
+
+          <!-- Product Info -->
+          <div class="product-info">
+            <span class="brand">{{ product.brand }}</span>
+            <h3>{{ product.name }}</h3>
+            
+            <!-- Rating -->
+            <div class="rating" *ngIf="product.rating">
+              <span class="stars" [style.width.%]="product.rating * 20">★★★★★</span>
+              <span class="rating-text">{{ product.rating }} ({{ product.reviews }})</span>
+            </div>
+
+            <!-- Protocols/SKU -->
+            <div class="protocols" *ngIf="product.protocols">
+              <span *ngFor="let protocol of product.protocols" class="protocol-tag">
+                {{ protocol }}
+              </span>
+            </div>
+
+            <!-- Price -->
+            <div class="price-section">
+              <span class="price">{{ formatPrice(product.price) }}</span>
+            </div>
+
+            <!-- Add to Cart Button -->
+            <button 
+              class="add-to-cart-btn" 
+              (click)="addToCart(product)"
+              [disabled]="!product.inStock"
+            >
+              🛒 Cotizar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

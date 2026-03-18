@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { LandingComponente } from './modules/landing/components/landing/landing.componente';
 import { CatalogoComponente } from './modules/catalogo/components/catalogo/catalogo.componente';
 import { CarritoComponente } from './modules/catalogo/components/carrito/carrito.componente';
 import { LoginComponente } from './modules/auth/components/login/login.componente';
@@ -8,7 +9,7 @@ import { ListaBlogComponente } from './modules/blog/components/lista-blog/lista-
 import { FormularioContactoComponente } from './modules/contacto/components/formulario-contacto/formulario-contacto.componente';
 
 export const routes: Routes = [
-  { path: '', component: CatalogoComponente },
+  { path: '', component: LandingComponente },
   { path: 'catalogo', component: CatalogoComponente },
   { path: 'carrito', component: CarritoComponente },
   
