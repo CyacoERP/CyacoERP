@@ -465,12 +465,4 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 16px;
   }
-
-  .featured-section {
-    padding: 40px 20px;
-  }
-
-  .videos-grid {
-    grid-template-columns: 1fr;
-  }
 }
