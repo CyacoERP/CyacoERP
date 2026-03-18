@@ -62,31 +62,6 @@
   color: var(--secondary-text);
 }
 
-.featured-section {
-  padding: 60px 40px;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.featured-section h2 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin: 0 0 30px 0;
-  color: var(--light-text);
-}
-
-.videos-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
-}
-
-.videos-grid iframe {
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-  width: 100%;
-  height: auto;
-}
-
 .main-content {
   display: grid;
   grid-template-columns: 280px 1fr;
