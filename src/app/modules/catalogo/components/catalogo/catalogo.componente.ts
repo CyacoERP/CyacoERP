@@ -37,10 +37,10 @@ export class CatalogoComponente implements OnInit {
   categories: string[] = [];
   brands: string[] = [];
   priceRanges = [
-    { label: 'Menor a $500', min: 0, max: 500 },
-    { label: '$500 - $1,000', min: 500, max: 1000 },
-    { label: '$1,000 - $5,000', min: 1000, max: 5000 },
-    { label: 'Mayor a $5,000', min: 5000, max: 10000 },
+    { label: 'Hasta $10,000', min: 0, max: 10000 },
+    { label: '$10,000 - $25,000', min: 10000, max: 25000 },
+    { label: '$25,000 - $50,000', min: 25000, max: 50000 },
+    { label: 'Más de $50,000', min: 50000, max: Number.MAX_SAFE_INTEGER },
   ];
 
   constructor(
@@ -182,6 +182,22 @@ export class CatalogoComponente implements OnInit {
 
   isBrandChecked(brand: string): boolean {
     return this.filters.brands.has(brand);
+  }
+
+  isAllCategoriesSelected(): boolean {
+    return this.filters.categories.size === 0;
+  }
+
+  clearCategories(): void {
+    if (this.filters.categories.size === 0) {
+      return;
+    }
+    this.filters.categories.clear();
+    this.applyFilters();
+  }
+
+  getCategoryCount(category: string): number {
+    return this.productosOriginales().filter(p => p.category === category).length;
   }
 
   abrirCarritoPreview(): void {
