@@ -1,33 +1,28 @@
 <nav class="navbar">
-  <div class="navbar-contenedor">
-    <div class="navbar-logo">
-      <a routerLink="/">CyacoERP</a>
+  <div class="navbar-container">
+    <!-- Logo -->
+    <a routerLink="/" class="logo">
+      <div class="logo-icon">Cy</div>
+      <div class="logo-text-group">
+        <div class="logo-text">Cy<span class="logo-red">aco</span></div>
+        <div class="logo-subtitle">Tecnología Industrial</div>
+      </div>
+    </a>
+
+    <!-- Desktop Menu -->
+    <div class="nav-menu">
+      <a routerLink="/catalogo" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Catálogo</a>
+      <button class="nav-link">Cotizaciones</button>
+      <a routerLink="/proyectos" routerLinkActive="active" class="nav-link">Proyectos</a>
+      <button class="nav-link">Dashboards</button>
+      <a routerLink="/blog" routerLinkActive="active" class="nav-link">Blog</a>
+      <a routerLink="/contacto" routerLinkActive="active" class="nav-link">Contacto</a>
     </div>
 
-    <button class="navbar-toggle" (click)="toggleMenu()" [class.activo]="menuAbierto">
-      <span></span>
-      <span></span>
-      <span></span>
-    </button>
-
-    <div class="navbar-menu" [class.activo]="menuAbierto">
-      <div class="navbar-items">
-        <a routerLink="/catalogo" class="navbar-item">Catálogo</a>
-        <a routerLink="/cotizaciones" class="navbar-item">Cotizaciones</a>
-        <a routerLink="/proyectos" class="navbar-item">Proyectos</a>
-        <a routerLink="/blog" class="navbar-item">Blog</a>
-        <a routerLink="/contacto" class="navbar-item">Contacto</a>
-      </div>
-
-      <div class="navbar-usuario" *ngIf="usuarioActual">
-        <a routerLink="/perfil" class="navbar-item">{{ usuarioActual.nombre }}</a>
-        <button (click)="cerrarSesion()" class="btn-logout">Cerrar sesión</button>
-      </div>
-
-      <div *ngIf="!usuarioActual" class="navbar-auth">
-        <a routerLink="/auth/login" class="navbar-item">Iniciar sesión</a>
-        <a routerLink="/auth/registro" class="navbar-item btn-registro">Registrarse</a>
-      </div>
+    <!-- Right Actions -->
+    <div class="nav-actions">
+      <button class="btn-cotizacion">🛒 Cotización</button>
+      <button class="btn-login">⎓ Ingresar</button>
     </div>
   </div>
 </nav>
