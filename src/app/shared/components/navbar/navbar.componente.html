@@ -12,9 +12,32 @@
     <!-- Desktop Menu -->
     <div class="nav-menu">
       <a routerLink="/catalogo" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Catálogo</a>
-      <button class="nav-link">Cotizaciones</button>
+
+      <div class="nav-dropdown">
+        <button class="nav-link nav-dropdown-trigger" type="button">
+          Cotizaciones
+          <span class="nav-caret">▼</span>
+        </button>
+        <div class="dropdown-menu">
+          <button type="button" class="dropdown-item">Mis Cotizaciones</button>
+          <button type="button" class="dropdown-item">Solicitar Cotización</button>
+        </div>
+      </div>
+
       <a routerLink="/proyectos" routerLinkActive="active" class="nav-link">Proyectos</a>
-      <button class="nav-link">Dashboards</button>
+
+      <div class="nav-dropdown">
+        <button class="nav-link nav-dropdown-trigger" type="button">
+          Dashboards
+          <span class="nav-caret">▼</span>
+        </button>
+        <div class="dropdown-menu">
+          <button type="button" class="dropdown-item">Ventas</button>
+          <button type="button" class="dropdown-item">Clientes</button>
+          <button type="button" class="dropdown-item">Proyectos</button>
+        </div>
+      </div>
+
       <a routerLink="/blog" routerLinkActive="active" class="nav-link">Blog</a>
       <a routerLink="/contacto" routerLinkActive="active" class="nav-link">Contacto</a>
     </div>
