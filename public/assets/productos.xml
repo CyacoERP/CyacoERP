@@ -1,53 +1,119 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Catalogo de Productos 
-      Cambiar URLs por imagenes locales -->
+<!-- Catálogo de Productos Industriales - CyacoERP -->
 <products>
   <product>
     <id>1</id>
-    <name>Laptop Pro 15</name>
-    <price>25999</price>
-    <imageUrl>https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=600&amp;q=80</imageUrl>
-    <category>Computadoras</category>
-    <description>Laptop profesional con procesador de última generación, 16 GB RAM y 512 GB SSD.</description>
+    <name>Transmisor de Presión Diferencial FT-2500</name>
+    <price>12500</price>
+    <imageUrl>assets/images/photo-1672689956124-18666b4cdae4.jpg</imageUrl>
+    <category>Sensores de Presión</category>
+    <description>Transmisor de presión diferencial de última generación</description>
     <inStock>true</inStock>
+    <brand>Endress+Hauser</brand>
+    <rating>4.3</rating>
+    <reviews>32</reviews>
+    <protocols>HART 7.0, PROFIBUS/PA</protocols>
+    <sku>EH-FT2500-01</sku>
   </product>
   <product>
     <id>2</id>
-    <name>Teclado Mecánico RGB</name>
-    <price>2199</price>
-    <imageUrl>https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=600&amp;q=80</imageUrl>
-    <category>Periféricos</category>
-    <description>Teclado mecánico compacto con switches Cherry MX Red e iluminación RGB personalizable.</description>
+    <name>Medidor de Flujo Electromagnético</name>
+    <price>28000</price>
+    <imageUrl>assets/images/photo-1689942007858-7b12bf5864bd.jpg</imageUrl>
+    <category>Medidores de Flujo</category>
+    <description>Medidor de flujo electromagnético de precisión industrial</description>
     <inStock>true</inStock>
+    <brand>Yokogawa</brand>
+    <rating>4.3</rating>
+    <reviews>47</reviews>
+    <protocols>HART 7.0, PROFIBUS/DP</protocols>
+    <sku>YOK-FM4420-02</sku>
   </product>
   <product>
     <id>3</id>
-    <name>Mouse Inalámbrico Ergonómico</name>
-    <price>899</price>
-    <imageUrl>https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=600&amp;q=80</imageUrl>
-    <category>Periféricos</category>
-    <description>Mouse inalámbrico con diseño ergonómico, DPI ajustable y hasta 90 días de batería.</description>
+    <name>Transmisor de Temperatura iTEMP</name>
+    <price>8900</price>
+    <imageUrl>assets/images/photo-1761758674188-2b8e4c89c5e2.jpg</imageUrl>
+    <category>Instrumentos de Temperatura</category>
+    <description>Transmisor de temperatura inteligente con diagnóstico</description>
     <inStock>true</inStock>
+    <brand>Endress+Hauser</brand>
+    <rating>4.7</rating>
+    <reviews>35</reviews>
+    <protocols>HART 7.0, ISIAG100</protocols>
+    <sku>EH-TMT142-01</sku>
   </product>
   <product>
     <id>4</id>
-    <name>Auriculares Over-Ear Studio</name>
-    <price>3499</price>
-    <imageUrl>https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&amp;q=80</imageUrl>
-    <category>Audio</category>
-    <description>Auriculares de estudio con cancelación de ruido activa, drivers de 40 mm y 30 h de autonomía.</description>
+    <name>Analizador de Oxígeno Disuelto Liquilyg M</name>
+    <price>22000</price>
+    <imageUrl>assets/images/photo-1763889107827-8e7d7960d68a.jpg</imageUrl>
+    <category>Analizadores de Gas</category>
+    <description>Analizador de oxígeno disuelto para aplicaciones de agua</description>
     <inStock>true</inStock>
+    <brand>Emerson</brand>
+    <rating>4.4</rating>
+    <reviews>14</reviews>
+    <protocols>Modbus RTU, HART 7.0</protocols>
+    <sku>EMR-LqM500-01</sku>
   </product>
   <product>
     <id>5</id>
-    <name>SSD Externo 1 TB</name>
-    <price>1299</price>
-    <imageUrl>https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=600&amp;q=80</imageUrl>
-    <category>Almacenamiento</category>
-    <description>SSD externo USB-C con velocidades de lectura de hasta 1 050 MB/s y carcasa resistente a golpes.</description>
+    <name>Controlador PID Yokogawa UT55A</name>
+    <price>15400</price>
+    <imageUrl>assets/images/photo-1766325693346-6279a63b1fba.jpg</imageUrl>
+    <category>Controladores PID</category>
+    <description>Controlador PID compacto para aplicaciones industriales</description>
     <inStock>true</inStock>
+    <brand>Yokogawa</brand>
+    <rating>4.5</rating>
+    <reviews>58</reviews>
+    <protocols>EtherNet MODBUS/TCP</protocols>
+    <sku>YOK-UT55A-01</sku>
   </product>
   <product>
+    <id>6</id>
+    <name>Válvula de Control SAMSON 3241</name>
+    <price>45000</price>
+    <imageUrl>assets/images/photo-1672689956124-18666b4cdae4.jpg</imageUrl>
+    <category>Válvulas de Control</category>
+    <description>Válvula de control de precisión con actuador neumático</description>
+    <inStock>true</inStock>
+    <brand>ABB</brand>
+    <rating>4.2</rating>
+    <reviews>22</reviews>
+    <protocols>HART 7.0, 4-20 mA</protocols>
+    <sku>SAM-3241-01</sku>
+  </product>
+  <product>
+    <id>7</id>
+    <name>Sensor de Presión Absoluta Vega</name>
+    <price>18500</price>
+    <imageUrl>assets/images/photo-1689942007858-7b12bf5864bd.jpg</imageUrl>
+    <category>Sensores de Presión</category>
+    <description>Sensor de presión absoluta tipo flush para aplicaciones exigentes</description>
+    <inStock>false</inStock>
+    <brand>Vega</brand>
+    <rating>4.6</rating>
+    <reviews>41</reviews>
+    <protocols>HART 7.0, Profibus</protocols>
+    <sku>VGA-PA330-01</sku>
+  </product>
+  <product>
+    <id>8</id>
+    <name>Transmisor de Temperatura RTD Honeywell</name>
+    <price>6800</price>
+    <imageUrl>assets/images/photo-1761758674188-2b8e4c89c5e2.jpg</imageUrl>
+    <category>Instrumentos de Temperatura</category>
+    <description>Transmisor de temperatura RTD de respuesta rápida</description>
+    <inStock>true</inStock>
+    <brand>Honeywell</brand>
+    <rating>4.1</rating>
+    <reviews>28</reviews>
+    <protocols>4-20 mA, Modbus</protocols>
+    <sku>HNY-RTD500-01</sku>
+  </product>
+</products>
     <id></id>
     <name>Hub USB-C 7 en 1</name>
     <price>699</price>
