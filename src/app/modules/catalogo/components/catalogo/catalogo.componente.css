@@ -47,7 +47,7 @@
 }
 
 .search-bar {
-  max-width: 380px;
+  width: min(100%, 560px);
   margin: 0;
 }
 
@@ -526,11 +526,11 @@
     position: static;
   }
 
-  .hero-section {
-    padding: 40px 20px;
+  .hero-container {
+    padding: 24px 20px;
   }
 
-  .hero-section h1 {
+  .hero-container h1 {
     font-size: 1.8rem;
   }
 
