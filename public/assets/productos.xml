@@ -114,12 +114,3 @@
     <sku>HNY-RTD500-01</sku>
   </product>
 </products>
-    <id></id>
-    <name>Hub USB-C 7 en 1</name>
-    <price>699</price>
-    <imageUrl>https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?w=600&amp;q=80</imageUrl>
-    <category>Accesorios</category>
-    <description>Hub USB-C con HDMI 4K, 3× USB-A, SD/MicroSD y carga rápida PD 100 W.</description>
-    <inStock>true</inStock>
-  </product>
-</products>
