@@ -1,16 +1,17 @@
 <div class="catalog-container">
   <section class="hero-section">
-    <h1>Catálogo de Productos</h1>
-    <p>8+ referencias de instrumentación industrial</p>
-    
-    <div class="search-bar">
-      <input 
-        type="text" 
-        placeholder="Buscar por nombre, descripcion o SKU..." 
-        [(ngModel)]="searchTerm"
-        (ngModelChange)="onSearchChange()"
-        class="search-input"
-      >
+    <div class="hero-container">
+      <h1>Catálogo de Productos</h1>
+      <p>8+ referencias de instrumentación industrial</p>
+      <div class="search-bar">
+        <input 
+          type="text" 
+          placeholder="Buscar por nombre, descripcion o SKU..." 
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="onSearchChange()"
+          class="search-input"
+        >
+      </div>
     </div>
   </section>
 
