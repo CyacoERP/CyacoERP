@@ -1,0 +1,8 @@
+<div class="container">
+  <h2>Proyectos</h2>
+  <div *ngIf="!cargando() && proyectos().length > 0">
+    <div *ngFor="let p of proyectos()" class="item">
+      <h4>{{ p.nombre }}</h4>
+    </div>
+  </div>
+</div>

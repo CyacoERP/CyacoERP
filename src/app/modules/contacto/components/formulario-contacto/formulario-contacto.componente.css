@@ -1,0 +1,4 @@
+.container { padding: 20px; }
+form { display: flex; flex-direction: column; gap: 10px; }
+input, textarea { padding: 10px; border: 1px solid #ddd; }
+.success { color: green; }

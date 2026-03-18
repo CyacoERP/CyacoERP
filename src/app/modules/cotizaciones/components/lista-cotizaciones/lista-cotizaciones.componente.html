@@ -1,0 +1,16 @@
+<div class="container">
+  <h2>Cotizaciones</h2>
+  
+  <div *ngIf="cargando()" class="loading">Cargando...</div>
+  
+  <div *ngIf="!cargando() && cotizaciones().length > 0" class="lista">
+    <div *ngFor="let cotizacion of cotizaciones()" class="item">
+      <h4>{{ cotizacion.id }}</h4>
+      <p>Estado: {{ cotizacion.estado }}</p>
+    </div>
+  </div>
+  
+  <div *ngIf="!cargando() && cotizaciones().length === 0" class="empty">
+    No hay cotizaciones
+  </div>
+</div>

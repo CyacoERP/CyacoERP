@@ -1,0 +1,13 @@
+<div class="container">
+  <h2>Contacto</h2>
+  
+  <form (ngSubmit)="enviar()">
+    <input [(ngModel)]="nombre" name="nombre" placeholder="Nombre" />
+    <input [(ngModel)]="email" name="email" type="email" placeholder="Email" />
+    <input [(ngModel)]="asunto" name="asunto" placeholder="Asunto" />
+    <textarea [(ngModel)]="mensaje" name="mensaje" placeholder="Mensaje"></textarea>
+    <button type="submit">Enviar</button>
+  </form>
+  
+  <div *ngIf="enviado" class="success">Mensaje enviado</div>
+</div>

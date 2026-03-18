@@ -1,0 +1,35 @@
+.container {
+  padding: 20px;
+}
+
+h2 {
+  margin-bottom: 20px;
+}
+
+.loading, .empty {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+.lista {
+  display: grid;
+  gap: 15px;
+}
+
+.item {
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+}
+
+h4 {
+  margin: 0 0 10px 0;
+}
+
+p {
+  margin: 5px 0;
+  font-size: 14px;
+  color: #666;
+}

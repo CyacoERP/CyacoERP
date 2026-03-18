@@ -1,0 +1,33 @@
+<nav class="navbar">
+  <div class="navbar-contenedor">
+    <div class="navbar-logo">
+      <a routerLink="/">CyacoERP</a>
+    </div>
+
+    <button class="navbar-toggle" (click)="toggleMenu()" [class.activo]="menuAbierto">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <div class="navbar-menu" [class.activo]="menuAbierto">
+      <div class="navbar-items">
+        <a routerLink="/catalogo" class="navbar-item">Catálogo</a>
+        <a routerLink="/cotizaciones" class="navbar-item">Cotizaciones</a>
+        <a routerLink="/proyectos" class="navbar-item">Proyectos</a>
+        <a routerLink="/blog" class="navbar-item">Blog</a>
+        <a routerLink="/contacto" class="navbar-item">Contacto</a>
+      </div>
+
+      <div class="navbar-usuario" *ngIf="usuarioActual">
+        <a routerLink="/perfil" class="navbar-item">{{ usuarioActual.nombre }}</a>
+        <button (click)="cerrarSesion()" class="btn-logout">Cerrar sesión</button>
+      </div>
+
+      <div *ngIf="!usuarioActual" class="navbar-auth">
+        <a routerLink="/auth/login" class="navbar-item">Iniciar sesión</a>
+        <a routerLink="/auth/registro" class="navbar-item btn-registro">Registrarse</a>
+      </div>
+    </div>
+  </div>
+</nav>
