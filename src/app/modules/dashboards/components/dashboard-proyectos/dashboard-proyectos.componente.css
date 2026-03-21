@@ -1,0 +1,510 @@
+:host {
+  --bg-main: #eef0f4;
+  --bg-dark: #112958;
+  --bg-dark-soft: #1c3f6e;
+  --text-main: #132d54;
+  --text-soft: #7d8ea8;
+  --line: #dce4f0;
+  --red: #dc2626;
+  --blue: #3f82f1;
+  --green: #10b981;
+  --amber: #f59e0b;
+  --teal: #14b8a6;
+}
+
+.dashboard-shell {
+  background: var(--bg-main);
+  min-height: calc(100vh - var(--navbar-height));
+  padding-top: var(--navbar-height);
+}
+
+.hero-dashboard {
+  background: linear-gradient(180deg, #0f2755 0%, #112d63 100%);
+  color: #f1f5ff;
+  padding: 10px 0 18px;
+}
+
+.hero-content {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 6px;
+}
+
+nav {
+  display: flex;
+  gap: 8px;
+  font-size: 0.87rem;
+  color: #a8bbd7;
+  margin-bottom: 10px;
+}
+
+nav .sep {
+  opacity: 0.6;
+}
+
+.encabezado-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(1.8rem, 2.3vw, 2.2rem);
+  letter-spacing: -0.02em;
+}
+
+.hero-content > div > p {
+  margin: 4px 0 0;
+  color: #9fb2d2;
+  font-size: 0.97rem;
+}
+
+.controles {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn-filtro {
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.84rem;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+  background: rgba(255, 255, 255, 0.12);
+  color: #d2deea;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.btn-filtro:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.btn-filtro.active {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: white;
+}
+
+.contenido {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 20px 6px 34px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.kpis-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.kpi-card {
+  background: #f8f9fc;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: left;
+}
+
+.kpi-icono {
+  font-size: 1.8rem;
+  margin-bottom: 8px;
+}
+
+.kpi-valor {
+  display: block;
+  font-size: 1.95rem;
+  color: var(--text-main);
+  margin-bottom: 2px;
+}
+
+.kpi-label {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.85rem;
+  margin-bottom: 3px;
+}
+
+.card {
+  background: #f8f9fc;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.avance-promedio {
+  display: flex;
+  flex-direction: column;
+}
+
+.avance-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.avance-header h2 {
+  margin: 0;
+  color: var(--text-main);
+  font-size: 1.1rem;
+}
+
+.subtitulo {
+  margin: 3px 0 0;
+  color: var(--text-soft);
+  font-size: 0.83rem;
+}
+
+.avance-porcentaje {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #dc2626;
+}
+
+.barra-avance-grande {
+  height: 28px;
+  background: #e5ecf4;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.barra-progreso {
+  height: 100%;
+  background: linear-gradient(90deg, #dc2626 0%, #b91c1c 100%);
+  border-radius: 4px;
+  transition: width 0.3s;
+}
+
+.dos-columnas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.grafico-barras-proyecto,
+.grafico-linea-proyectos {
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+}
+
+.grafico-barras-proyecto h2,
+.grafico-linea-proyectos h2 {
+  margin: 0 0 12px;
+  color: var(--text-main);
+  font-size: 1rem;
+}
+
+.chart-barras-vertical {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  height: 200px;
+  flex: 1;
+  margin-bottom: 8px;
+}
+
+.barra-proyecto-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  gap: 6px;
+}
+
+.barra-proyecto-contenedor {
+  width: 100%;
+  height: 100%;
+  background: #e5ecf4;
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+}
+
+.barra-proyecto {
+  width: 100%;
+  background: linear-gradient(180deg, #3f82f1 0%, #1e40af 100%);
+  border-radius: 2px;
+  height: 100%;
+}
+
+.label-proyecto {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-main);
+  text-align: center;
+}
+
+.eje-x-proyectos {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--text-soft);
+}
+
+.chart-area {
+  position: relative;
+  height: 220px;
+  margin-bottom: 8px;
+}
+
+.grafico-svg-proyectos {
+  width: 100%;
+  height: 100%;
+}
+
+.grid-line {
+  stroke: #e5ecf4;
+  stroke-width: 1;
+}
+
+.area-fill {
+  fill: rgba(20, 184, 166, 0.1);
+}
+
+.linea {
+  fill: none;
+  stroke: #14b8a6;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.punto {
+  fill: #14b8a6;
+  stroke: white;
+  stroke-width: 2;
+}
+
+.eje-x-linea {
+  display: flex;
+  justify-content: space-around;
+  font-size: 0.75rem;
+  color: var(--text-soft);
+  padding: 0 40px;
+}
+
+.leyenda-linea {
+  display: flex;
+  gap: 16px;
+  font-size: 0.82rem;
+  color: var(--text-soft);
+}
+
+.leyenda-linea .item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.marca {
+  display: inline-block;
+  width: 12px;
+  height: 2px;
+}
+
+.marca.linea-teal {
+  background: #14b8a6;
+}
+
+.marca.linea-gris {
+  background: #d1d5db;
+}
+
+.tabla-card {
+  overflow-x: auto;
+}
+
+.tabla-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.tabla-header h2 {
+  margin: 0;
+  color: var(--text-main);
+  font-size: 1.1rem;
+}
+
+.exportar-excel {
+  color: #3f82f1;
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.exportar-excel:hover {
+  text-decoration: underline;
+}
+
+.tabla-proyectos {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.tabla-proyectos thead {
+  background: #f1f4f8;
+  border-bottom: 1px solid var(--line);
+}
+
+.tabla-proyectos th {
+  padding: 10px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-soft);
+  font-size: 0.82rem;
+}
+
+.tabla-proyectos td {
+  padding: 10px;
+  border-bottom: 1px solid #f0f2f5;
+  color: var(--text-main);
+}
+
+.proyecto-cell {
+  max-width: 280px;
+}
+
+.proyecto-link {
+  color: #3f82f1;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.proyecto-link:hover {
+  text-decoration: underline;
+}
+
+.proyecto-desc {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-soft);
+  margin-top: 2px;
+}
+
+.avance-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.barra-avance-tabla {
+  width: 80px;
+  height: 6px;
+  background: #e5ecf4;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.barra-fill-tabla {
+  height: 100%;
+  background: #3f82f1;
+  border-radius: 3px;
+}
+
+.porcentaje-tabla {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-main);
+  min-width: 40px;
+}
+
+.hitos-cell {
+  text-align: center;
+  font-weight: 600;
+}
+
+.presupuesto-cell {
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.estado-badge {
+  display: inline-block;
+  min-height: 24px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.estado-badge.en_proceso {
+  background: #d8e5ff;
+  color: #2c60b9;
+}
+
+.estado-badge.en_proceso_yellow {
+  background: #fdf0ce;
+  color: #9d7618;
+}
+
+.estado-badge.completado {
+  background: #d9f4e6;
+  color: #197f48;
+}
+
+.estado-wrap {
+  min-height: calc(100vh - 64px);
+  background: var(--bg-main);
+  display: grid;
+  place-items: center;
+  color: var(--text-main);
+}
+
+@media (max-width: 1024px) {
+  .kpis-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .dos-columnas {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .encabezado-flex {
+    flex-direction: column;
+  }
+
+  .controles {
+    width: 100%;
+  }
+
+  .btn-filtro {
+    flex: 1;
+  }
+
+  .kpis-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tabla-proyectos {
+    font-size: 0.8rem;
+  }
+
+  .tabla-proyectos th,
+  .tabla-proyectos td {
+    padding: 8px;
+  }
+
+  .proyecto-cell {
+    max-width: 120px;
+  }
+
+  .barra-avance-tabla {
+    width: 60px;
+  }
+}

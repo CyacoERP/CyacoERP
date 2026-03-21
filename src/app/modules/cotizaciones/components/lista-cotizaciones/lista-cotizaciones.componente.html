@@ -1,44 +1,121 @@
 <section class="quotes-page">
-  @if (cargando()) {
-    <div class="status-card">Cargando cotizaciones...</div>
-  } @else if (conError()) {
-    <div class="status-card">No se pudieron cargar las cotizaciones en este momento.</div>
-  } @else if (cotizaciones().length === 0) {
-    <div class="empty-state">
-      <h1>No hay cotizaciones solicitadas</h1>
-      <p>
-        Para generar una cotización, ve a la pestaña de Solicitar Cotización.
-      </p>
-      <div class="empty-actions">
-        <a routerLink="/cotizaciones/solicitar" class="btn btn-primary">Solicitar Cotización</a>
-        <div class="empty-actions-secondary">
-          <a routerLink="/" class="btn btn-secondary">Ir al inicio</a>
-          <a routerLink="/catalogo" class="btn btn-secondary">Ver catálogo</a>
-        </div>
+  <header class="quotes-hero">
+    <div class="hero-inner">
+      <div>
+        <p class="breadcrumb">Inicio <span>›</span> <strong>Historial de Cotizaciones</strong></p>
+        <h1>Mis Cotizaciones</h1>
+        <p class="subtitle">{{ cotizaciones().length }} cotizaciones en total</p>
       </div>
+
+      <a routerLink="/cotizaciones/solicitar" class="btn-new-quote">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M7 3h7l5 5v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm7 1.5V9h4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M9 13h6M9 17h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        Nueva Cotización
+      </a>
     </div>
-  } @else {
-    <header class="quotes-header">
-      <p class="breadcrumb">Inicio › Cotizaciones › Mis Cotizaciones</p>
-      <h1>Mis Cotizaciones</h1>
-      <p class="subtitle">Historial de solicitudes generadas desde tu carrito.</p>
-    </header>
+  </header>
 
-    <div class="quotes-grid">
-      @for (cotizacion of cotizaciones(); track cotizacion.id) {
-        <article class="quote-card">
-          <div class="quote-head">
-            <h3>{{ cotizacion.numero }}</h3>
-            <span class="quote-state">{{ cotizacion.estado }}</span>
-          </div>
+  <div class="quotes-content">
+    @if (cargando()) {
+      <div class="status-card">Cargando cotizaciones...</div>
+    } @else if (conError()) {
+      <div class="status-card">No se pudieron cargar las cotizaciones en este momento.</div>
+    } @else {
+      <section class="toolbar-card">
+        <div class="search-wrapper">
+          <span class="search-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="1.8"/>
+              <path d="M20 20l-4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <input
+            #searchInput
+            type="search"
+            placeholder="Buscar por número o cliente..."
+            [value]="terminoBusqueda()"
+            (input)="actualizarBusqueda(searchInput.value)"
+          />
+        </div>
 
-          <p class="quote-meta">Fecha: {{ formatDate(cotizacion.fechaCreacion) }}</p>
-          <p class="quote-meta">Productos: {{ cotizacion.items.length }}</p>
-          <p class="quote-total">{{ formatPrice(cotizacion.total) }}</p>
+        <div class="filters" role="group" aria-label="Filtrar por estado">
+          <span class="filter-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M4 6h16l-6.5 7v5l-3 1v-6L4 6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          @for (filtro of filtros(); track filtro.id) {
+            <button
+              type="button"
+              class="filter-chip"
+              [class.active]="filtroActivo() === filtro.id"
+              (click)="seleccionarFiltro(filtro.id)"
+            >
+              {{ filtro.label }}
+            </button>
+          }
+        </div>
+      </section>
 
-          <a routerLink="/cotizaciones/solicitar" class="quote-link">Solicitar otra cotización</a>
-        </article>
+      @if (cotizacionesFiltradas().length === 0) {
+        <div class="empty-inline">No se encontraron cotizaciones con los filtros actuales.</div>
+      } @else {
+        <section class="table-card">
+          <table>
+            <thead>
+              <tr>
+                <th>N° COTIZACIÓN</th>
+                <th>FECHA</th>
+                <th>CLIENTE</th>
+                <th>ÍTEMS</th>
+                <th>TOTAL</th>
+                <th>ESTADO</th>
+                <th class="acciones-col">ACCIONES</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (cotizacion of cotizacionesFiltradas(); track trackById($index, cotizacion)) {
+                <tr>
+                  <td class="numero-col">{{ cotizacion.numero }}</td>
+                  <td>{{ formatDate(cotizacion.fecha) }}</td>
+                  <td>
+                    <div class="cliente-nombre">{{ cotizacion.cliente }}</div>
+                    <div class="cliente-contacto">{{ cotizacion.contacto }}</div>
+                  </td>
+                  <td>{{ cotizacion.items }} productos</td>
+                  <td class="total-col">{{ formatPrice(cotizacion.total) }}</td>
+                  <td>
+                    <span class="estado-pill" [class]="'estado-pill ' + claseEstado(cotizacion.estadoFiltro)">
+                      {{ cotizacion.estadoLabel }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="acciones">
+                      <a [routerLink]="['/cotizaciones', cotizacion.id]" class="btn-action">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z" fill="none" stroke="currentColor" stroke-width="1.8"/>
+                          <circle cx="12" cy="12" r="2.8" fill="none" stroke="currentColor" stroke-width="1.8"/>
+                        </svg>
+                        Ver
+                      </a>
+                      <button type="button" class="btn-action btn-pdf">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M12 4v10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                          <path d="M8.5 11.5L12 15l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                          <rect x="4" y="17" width="16" height="3" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                        </svg>
+                        PDF
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </section>
       }
-    </div>
-  }
+    }
+  </div>
 </section>

@@ -1,0 +1,174 @@
+@if (cargando()) {
+  <section class="estado-wrap">
+    <p>Cargando detalle del proyecto...</p>
+  </section>
+} @else if (proyecto(); as detalle) {
+  <section class="detalle-shell">
+    <header class="hero-detalle">
+      <div class="hero-content">
+        <a routerLink="/proyectos" class="volver-link">Volver a proyectos</a>
+
+        <div class="encabezado-grid">
+          <div class="datos-principales">
+            <div class="linea-codigo">
+              <span class="codigo">{{ detalle.codigo }}</span>
+              <span
+                class="estado-pill"
+                [class.en-progreso]="detalle.estado === 'en_progreso'"
+                [class.completado]="detalle.estado === 'finalizado'"
+                [class.pendiente]="detalle.estado === 'planificacion'"
+              >
+                {{ detalle.estadoLabel }}
+              </span>
+            </div>
+
+            <h1>{{ detalle.nombre }}</h1>
+            <p>{{ detalle.descripcion }}</p>
+          </div>
+
+          <aside class="avance-box">
+            <strong>{{ detalle.porcentajeAvance }}%</strong>
+            <span>Avance General</span>
+            <div class="mini-track" role="progressbar" [attr.aria-valuenow]="detalle.porcentajeAvance" aria-valuemin="0" aria-valuemax="100">
+              <span [style.width.%]="detalle.porcentajeAvance"></span>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </header>
+
+    <div class="contenido-detalle">
+      <div class="grid-principal">
+        <section class="card hitos-card">
+          <h2>Plan de Hitos</h2>
+
+          <div class="lista-hitos">
+            @for (hito of detalle.hitos; track hito.id) {
+              <article class="hito-item">
+                <div class="icono-col">
+                  <span class="icono"
+                    [class.ok]="hito.estado === 'completado'"
+                    [class.proc]="hito.estado === 'en_proceso'"
+                    [class.pen]="hito.estado === 'pendiente'"
+                  >
+                    @if (hito.estado === 'completado') {<span>v</span>}
+                    @if (hito.estado === 'en_proceso') {<span>~</span>}
+                    @if (hito.estado === 'pendiente') {<span>o</span>}
+                  </span>
+                </div>
+
+                <div class="hito-contenido">
+                  <div class="hito-head">
+                    <div>
+                      <h3>{{ hito.nombre }}</h3>
+                      <p>{{ hito.fechaTexto }}</p>
+                    </div>
+                    <span class="estado-pill"
+                      [class.en-progreso]="hito.estado === 'en_proceso'"
+                      [class.completado]="hito.estado === 'completado'"
+                      [class.pendiente]="hito.estado === 'pendiente'"
+                    >
+                      {{ hito.estadoLabel }}
+                    </span>
+                  </div>
+
+                  @if (hito.estado !== 'pendiente') {
+                    <div class="progreso-wrap">
+                      <div class="progreso-top">
+                        <span>Progreso</span>
+                        <strong>{{ hito.progreso }}%</strong>
+                      </div>
+                      <div class="track">
+                        <span class="fill"
+                          [class.ok]="hito.estado === 'completado'"
+                          [style.width.%]="hito.progreso"
+                        ></span>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </article>
+            }
+          </div>
+        </section>
+
+        <aside class="columna-lateral">
+          <section class="card info-card">
+            <h2>Informacion del Proyecto</h2>
+
+            <div class="info-item">
+              <span class="simbolo">C</span>
+              <div>
+                <small>Cliente</small>
+                <p>{{ detalle.cliente }}</p>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <span class="simbolo">G</span>
+              <div>
+                <small>Gerente de Proyecto</small>
+                <p>{{ detalle.gerente }}</p>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <span class="simbolo">D</span>
+              <div>
+                <small>Inicio</small>
+                <p>{{ detalle.fechaInicio | date: 'dd/MM/yyyy' }}</p>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <span class="simbolo">D</span>
+              <div>
+                <small>Fin Estimado</small>
+                <p>{{ detalle.fechaFinEstimada | date: 'dd/MM/yyyy' }}</p>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <span class="simbolo">$</span>
+              <div>
+                <small>Presupuesto</small>
+                <p>{{ detalle.presupuesto | currency: 'USD':'symbol':'1.0-0' }}</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="card equipo-card">
+            <h2>Equipo del Proyecto</h2>
+
+            @for (miembro of detalle.equipo; track miembro.nombre) {
+              <div class="miembro-item">
+                <span class="avatar">{{ miembro.nombre.charAt(0) }}</span>
+                <div>
+                  <p>{{ miembro.nombre }}</p>
+                  <small>{{ miembro.rol }}</small>
+                </div>
+              </div>
+            }
+          </section>
+
+          <section class="card resumen-card">
+            <h2>Resumen de Hitos</h2>
+
+            <div class="resumen-row">
+              <span>Completados</span>
+              <strong class="ok">{{ resumenHitos().completados }}</strong>
+            </div>
+            <div class="resumen-row">
+              <span>En Proceso</span>
+              <strong class="proc">{{ resumenHitos().enProceso }}</strong>
+            </div>
+            <div class="resumen-row">
+              <span>Pendientes</span>
+              <strong class="pen">{{ resumenHitos().pendientes }}</strong>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </section>
+}

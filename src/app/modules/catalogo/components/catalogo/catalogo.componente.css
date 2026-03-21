@@ -20,7 +20,7 @@
 .hero-section {
   background: var(--dark-blue);
   border-bottom: 1px solid var(--border-color);
-  padding: 0;
+  padding: 64px 0 0;
 }
 
 .hero-container {

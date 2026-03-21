@@ -1,3 +1,240 @@
-<div class="dashboard">
-  <h2>Dashboard Ventas</h2>
-</div>
+@if (cargando()) {
+  <section class="estado-wrap">
+    <p>Cargando dashboard...</p>
+  </section>
+} @else {
+  <section class="dashboard-shell">
+    <header class="hero-dashboard">
+      <div class="hero-content">
+        <nav aria-label="breadcrumb">
+          <span>Inicio</span>
+          <span class="sep">&gt;</span>
+          <span>Dashboard de Ventas</span>
+        </nav>
+
+        <div class="encabezado-flex">
+          <div>
+            <h1>Dashboard de Ventas</h1>
+            <p>Indicadores clave de rendimiento comercial</p>
+          </div>
+
+          <div class="controles">
+            <button
+              type="button"
+              class="btn-filtro"
+              [class.active]="periodoSeleccionado() === 'mes'"
+              (click)="cambiarPeriodo('mes')"
+            >
+              Mes
+            </button>
+            <button
+              type="button"
+              class="btn-filtro"
+              [class.active]="periodoSeleccionado() === 'trimestre'"
+              (click)="cambiarPeriodo('trimestre')"
+            >
+              Trimestre
+            </button>
+            <button
+              type="button"
+              class="btn-filtro"
+              [class.active]="periodoSeleccionado() === 'año'"
+              (click)="cambiarPeriodo('año')"
+            >
+              Año
+            </button>
+            <button type="button" class="btn-exportar">Exportar</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="contenido">
+      <div class="kpis-grid">
+        @for (kpi of kpis(); track kpi.etiqueta) {
+          <article class="kpi-card">
+            <div class="kpi-icono">{{ kpi.icono }}</div>
+            <strong class="kpi-valor">{{ kpi.valor }}</strong>
+            <p class="kpi-label">{{ kpi.etiqueta }}</p>
+            <p class="kpi-trend" [class.positivo]="kpi.tendencia > 0" [class.negativo]="kpi.tendencia < 0">
+              <span class="flecha">@if (kpi.tendencia > 0) { ↗ } @else { ↘ }</span>
+              {{ kpi.tendencia > 0 ? '+' : '' }}{{ kpi.tendencia }}%
+            </p>
+          </article>
+        }
+      </div>
+
+      <div class="graficos-row">
+        <section class="card grafico-grande">
+          <h2>Ventas vs Cotizaciones 2024</h2>
+          <p class="subtitulo">Evolución mensual de ventas y cotizaciones generadas</p>
+
+          <div class="chart-linea" role="img" aria-label="Gráfico de líneas: Ventas vs Cotizaciones 2024">
+            <div class="eje-y">$1.5M</div>
+            <div class="eje-y">$1M</div>
+            <div class="eje-y">$750K</div>
+            <div class="eje-y">$305K</div>
+            <div class="eje-y">$0K</div>
+
+            <svg viewBox="0 0 1100 500" preserveAspectRatio="xMidYMid meet" class="grafico-svg">
+              <!-- Grid lines -->
+              @for (i of [1, 2, 3, 4]; track i) {
+                <line [attr.x1]="0" [attr.y1]="i * 100" [attr.x2]="1100" [attr.y2]="i * 100" class="grid-line" />
+              }
+
+              <!-- Línea de ventas (rojo) -->
+              <polyline
+                [attr.points]="datosLinea()
+                  .map(
+                    (d, i) =>
+                      `${50 + (i * 1050) / 11},${
+                        470 - (d.ventas / (maxVentasLinea() * 1000000)) * 440
+                      }`
+                  )
+                  .join(' ')"
+                class="linea ventas"
+              />
+              <!-- Punto -->
+              @for (d of datosLinea(); track d.mes; let i = $index) {
+                <circle
+                  [attr.cx]="50 + (i * 1050) / 11"
+                  [attr.cy]="470 - (d.ventas / (maxVentasLinea() * 1000000)) * 440"
+                  r="4"
+                  class="punto ventas"
+                />
+              }
+
+              <!-- Línea de cotizaciones -->
+              <polyline
+                [attr.points]="datosLinea()
+                  .map(
+                    (d, i) =>
+                      `${50 + (i * 1050) / 11},${470 - (d.cotizaciones / 28) * 440}`
+                  )
+                  .join(' ')"
+                class="linea cotizaciones"
+              />
+              @for (d of datosLinea(); track d.mes; let i = $index) {
+                <circle
+                  [attr.cx]="50 + (i * 1050) / 11"
+                  [attr.cy]="470 - (d.cotizaciones / 28) * 440"
+                  r="4"
+                  class="punto cotizaciones"
+                />
+              }
+            </svg>
+
+            <div class="eje-x">
+              @for (d of datosLinea(); track d.mes) {
+                <span>{{ d.mes }}</span>
+              }
+            </div>
+          </div>
+
+          <div class="leyenda">
+            <span class="item"><span class="marca ventas"></span> Ventas</span>
+            <span class="item"><span class="marca cotizaciones"></span> Cotizaciones</span>
+            <span class="item"><span class="marca meta"></span> Meta</span>
+          </div>
+        </section>
+      </div>
+
+      <div class="graficos-row dos-columnas">
+        <section class="card grafico-barras">
+          <h2>Ventas por Trimestre</h2>
+          <p class="subtitulo">Comparativo trimestral vs la meta</p>
+
+          <div class="chart-barras" role="img" aria-label="Gráfico de barras: Ventas por Trimestre">
+            <div class="barras">
+              @for (d of datosBarras(); track d.trimestre) {
+                <div class="barra-wrap">
+                  <div class="barra" [ngStyle]="calcularAlturaBarra(d.ventas)"></div>
+                  <span class="label">{{ d.trimestre }}</span>
+                </div>
+              }
+            </div>
+            <div class="eje-y-barras">
+              <span>$2.8M</span>
+              <span>$1.4M</span>
+              <span>$0</span>
+            </div>
+          </div>
+
+          <div class="leyenda">
+            <span class="item"><span class="marca ventas"></span> Ventas</span>
+            <span class="item"><span class="marca meta"></span> Meta</span>
+          </div>
+        </section>
+
+        <section class="card grafico-donut">
+          <h2>Ventas por Categoria</h2>
+          <p class="subtitulo">Distribucion porcentual del portafolio</p>
+
+          <svg viewBox="0 0 200 200" class="donut-chart">
+            @for (categoria of categorias(); track categoria.nombre; let i = $index) {
+              <circle
+                cx="100"
+                cy="100"
+                r="70"
+                [attr.stroke]="categoria.color"
+                stroke-width="28"
+                fill="none"
+                [attr.stroke-dasharray]="(categoria.porcentaje / 100) * 439.8 + ' 439.8'"
+                [attr.stroke-dashoffset]="-categorias()
+                  .slice(0, i)
+                  .map((c) => (c.porcentaje / 100) * 439.8)
+                  .reduce((a, b) => a + b, 0)"
+                class="donut-segment"
+              />
+            }
+          </svg>
+
+          <div class="leyenda-donut">
+            @for (categoria of categorias(); track categoria.nombre) {
+              <div class="leyenda-item">
+                <span class="dot" [style.background]="categoria.color"></span>
+                <span class="nombre">{{ categoria.nombre }}</span>
+                <span class="porcentaje">{{ categoria.porcentaje }}%</span>
+              </div>
+            }
+          </div>
+        </section>
+      </div>
+
+      <section class="card tabla-card">
+        <div class="tabla-header">
+          <h2>Cotizaciones Recientes</h2>
+          <a href="#" class="ver-todas">Ver todas →</a>
+        </div>
+
+        <table class="tabla-cotizaciones">
+          <thead>
+            <tr>
+              <th>Nº COTIZACIÓN</th>
+              <th>CLIENTE</th>
+              <th>TOTAL</th>
+              <th>ESTADO</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (cot of cotizacionesRecientes(); track trackPorCodigo($index, cot)) {
+              <tr>
+                <td class="codigo-col">
+                  <a href="#">{{ cot.codigo }}</a>
+                </td>
+                <td>{{ cot.cliente }}</td>
+                <td class="total-col">{{ cot.total | currency: 'USD':'symbol':'1.0-0' }}</td>
+                <td>
+                  <span class="estado-badge" [class]="cot.estadoClase">
+                    {{ cot.estado }}
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </section>
+}
+

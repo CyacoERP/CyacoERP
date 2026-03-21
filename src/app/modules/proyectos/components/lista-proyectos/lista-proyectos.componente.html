@@ -1,8 +1,115 @@
-<div class="container">
-  <h2>Proyectos</h2>
-  <div *ngIf="!cargando() && proyectos().length > 0">
-    <div *ngFor="let p of proyectos()" class="item">
-      <h4>{{ p.nombre }}</h4>
+<section class="proyectos-shell">
+  <header class="hero-proyectos">
+    <div class="hero-content">
+      <nav class="breadcrumbs" aria-label="breadcrumb">
+        <span>Inicio</span>
+        <span class="sep">&gt;</span>
+        <span class="actual">Proyectos de Implementacion</span>
+      </nav>
+
+      <h1>Proyectos de Implementacion</h1>
+      <p>4 proyectos activos y completados</p>
+
+      <div class="stats-grid">
+        <article class="stat-card">
+          <strong>{{ totalProyectos() }}</strong>
+          <span>Total Proyectos</span>
+        </article>
+
+        <article class="stat-card">
+          <strong>{{ enProceso() }}</strong>
+          <span>En Proceso</span>
+        </article>
+
+        <article class="stat-card">
+          <strong>{{ completados() }}</strong>
+          <span>Completados</span>
+        </article>
+
+        <article class="stat-card">
+          <strong>{{ presupuestoTotal() | currency: 'USD':'symbol':'1.0-0' }}</strong>
+          <span>Presupuesto Total</span>
+        </article>
+      </div>
     </div>
+  </header>
+
+  <div class="contenido">
+    <section class="filtros-wrap">
+      <label class="buscador" for="buscarProyecto">
+        <span class="search-icon" aria-hidden="true">o</span>
+        <input
+          id="buscarProyecto"
+          type="search"
+          placeholder="Buscar por proyecto o cliente..."
+          [value]="textoBusqueda()"
+          (input)="actualizarBusqueda($event)"
+        />
+      </label>
+
+      <div class="filtros" aria-label="Filtros por estado">
+        @for (filtro of opcionesFiltro; track filtro.key) {
+          <button
+            type="button"
+            class="chip"
+            [class.active]="estadoFiltro() === filtro.key"
+            (click)="cambiarFiltro(filtro.key)"
+          >
+            {{ filtro.label }}
+          </button>
+        }
+      </div>
+    </section>
+
+    @if (cargando()) {
+      <p class="estado">Cargando proyectos...</p>
+    } @else if (proyectosFiltrados().length === 0) {
+      <p class="estado">No se encontraron proyectos para los filtros seleccionados.</p>
+    } @else {
+      <section class="lista-proyectos" aria-label="Listado de proyectos">
+        @for (proyecto of proyectosFiltrados(); track trackPorCodigo($index, proyecto)) {
+          <article class="proyecto-card">
+            <div class="info-principal">
+              <div class="linea-titulo">
+                <span class="codigo">{{ proyecto.codigo }}</span>
+                <span class="estado-pill"
+                  [class.en-progreso]="proyecto.estado === 'en_progreso'"
+                  [class.completado]="proyecto.estado === 'finalizado'"
+                  [class.pendiente]="proyecto.estado === 'planificacion'"
+                >
+                  {{ proyecto.estadoLabel }}
+                </span>
+              </div>
+
+              <h3>
+                <a [routerLink]="['/proyectos', proyecto.id]" class="titulo-link">
+                  {{ proyecto.nombre }}
+                </a>
+              </h3>
+              <p class="descripcion">{{ proyecto.descripcion }}</p>
+
+              <div class="meta-grid">
+                <span>{{ proyecto.cliente }}</span>
+                <span>{{ proyecto.gerente }}</span>
+                <span>{{ proyecto.fechaInicio | date: 'yyyy-MM-dd' }} - {{ proyecto.fechaFinEstimada | date: 'yyyy-MM-dd' }}</span>
+                <span>{{ proyecto.presupuesto | currency: 'USD':'symbol':'1.0-0' }}</span>
+              </div>
+            </div>
+
+            <div class="avance-columna">
+              <p class="avance-texto">Avance <strong>{{ proyecto.porcentajeAvance }}%</strong></p>
+              <div class="progress-track" role="progressbar" [attr.aria-valuenow]="proyecto.porcentajeAvance" aria-valuemin="0" aria-valuemax="100">
+                <span
+                  class="progress-fill"
+                  [class.bajo]="proyecto.porcentajeAvance < 30"
+                  [style.width.%]="proyecto.porcentajeAvance"
+                ></span>
+              </div>
+              <p class="hitos">{{ proyecto.hitosCompletados }}/{{ proyecto.totalHitos }} hitos</p>
+            </div>
+          </article>
+        }
+      </section>
+    }
   </div>
-</div>
+</section>

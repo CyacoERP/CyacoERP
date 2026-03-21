@@ -1,13 +1,231 @@
-<div class="container">
-  <h2>Contacto</h2>
-  
-  <form (ngSubmit)="enviar()">
-    <input [(ngModel)]="nombre" name="nombre" placeholder="Nombre" />
-    <input [(ngModel)]="email" name="email" type="email" placeholder="Email" />
-    <input [(ngModel)]="asunto" name="asunto" placeholder="Asunto" />
-    <textarea [(ngModel)]="mensaje" name="mensaje" placeholder="Mensaje"></textarea>
-    <button type="submit">Enviar</button>
-  </form>
-  
-  <div *ngIf="enviado" class="success">Mensaje enviado</div>
-</div>
+<section class="contacto-shell">
+  <header class="hero-contacto">
+    <div class="hero-content">
+      <nav aria-label="breadcrumb">
+        <span>Inicio</span>
+        <span class="sep">&gt;</span>
+        <span>Contacto / Soporte</span>
+      </nav>
+
+      <h1>Contacto y Soporte Técnico</h1>
+      <p>Nuestro equipo de ingenieros está disponible para ayudarte</p>
+    </div>
+  </header>
+
+  <div class="contenido-principal">
+    <div class="layout-dos-columnas">
+      <main class="columna-formulario">
+        <section class="card seccion-formulario">
+          <h2>Envianos un Mensaje</h2>
+
+          <form (ngSubmit)="enviar()" class="formulario-contacto">
+            <div class="fila-dos-campos">
+              <div class="campo-grupo">
+                <label for="nombre">Nombre completo <span class="requerido">*</span></label>
+                <input
+                  #inputNombre
+                  id="nombre"
+                  type="text"
+                  placeholder="Tu nombre"
+                  [value]="nombre()"
+                  (input)="actualizarNombre(inputNombre.value)"
+                  required
+                />
+              </div>
+              <div class="campo-grupo">
+                <label for="email">Correo electrónico <span class="requerido">*</span></label>
+                <input
+                  #inputEmail
+                  id="email"
+                  type="email"
+                  placeholder="correo@empresa.com"
+                  [value]="email()"
+                  (input)="actualizarEmail(inputEmail.value)"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="fila-dos-campos">
+              <div class="campo-grupo">
+                <label for="telefono">Telefono</label>
+                <input
+                  #inputTelefono
+                  id="telefono"
+                  type="tel"
+                  placeholder="+52 81 8000 1234"
+                  [value]="telefono()"
+                  (input)="actualizarTelefono(inputTelefono.value)"
+                />
+              </div>
+              <div class="campo-grupo">
+                <label for="empresa">Empresa</label>
+                <input
+                  #inputEmpresa
+                  id="empresa"
+                  type="text"
+                  placeholder="Nombre de la empresa"
+                  [value]="empresa()"
+                  (input)="actualizarEmpresa(inputEmpresa.value)"
+                />
+              </div>
+            </div>
+
+            <div class="campo-grupo">
+              <label for="asunto">Asunto <span class="requerido">*</span></label>
+              <select
+                #selectAsunto
+                id="asunto"
+                [value]="asunto()"
+                (change)="actualizarAsunto(selectAsunto.value)"
+                required
+              >
+                <option value="">Selecciona un asunto</option>
+                @for (opt of asuntos(); track opt.id) {
+                  <option [value]="opt.id">{{ opt.label }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="campo-grupo">
+              <label for="mensaje">Mensaje <span class="requerido">*</span></label>
+              <textarea
+                #textareaMensaje
+                id="mensaje"
+                placeholder="Describe tu consulta, requerimiento o problema con el mayor detalle posible..."
+                rows="6"
+                [value]="mensaje()"
+                (input)="actualizarMensaje(textareaMensaje.value)"
+                required
+              ></textarea>
+            </div>
+
+            <button type="submit" class="btn-enviar">✉ Enviar Mensaje</button>
+          </form>
+
+          @if (enviado()) {
+            <div class="mensaje-exito">✓ Mensaje enviado correctamente</div>
+          }
+        </section>
+      </main>
+
+      <aside class="columna-info">
+        <section class="card seccion-info">
+          <h2>Información de Contacto</h2>
+
+          <div class="info-item">
+            <span class="info-icono">☎</span>
+            <div class="info-contenido">
+              <span class="info-label">Teléfono principal</span>
+              <span class="info-valor">+52 (81) 8000-1234</span>
+              <span class="info-detalle">Lun-Vie 8:00-5:00 CST</span>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <span class="info-icono">📞</span>
+            <div class="info-contenido">
+              <span class="info-label">Emergencias</span>
+              <span class="info-valor emergencia">+52 (81) 8000-5678</span>
+              <span class="info-detalle">Emergencias 24/7</span>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <span class="info-icono">📧</span>
+            <div class="info-contenido">
+              <span class="info-label">Ventas</span>
+              <a href="mailto:ventas@cyaco.mx" class="info-valor">ventas@cyaco.mx</a>
+              <span class="info-detalle">Respuesta en 24h hábiles</span>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <span class="info-icono">🔧</span>
+            <div class="info-contenido">
+              <span class="info-label">Soporte técnico</span>
+              <a href="mailto:soporte@cyaco.mx" class="info-valor">soporte@cyaco.mx</a>
+              <span class="info-detalle">Asistencia técnica especializada</span>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <span class="info-icono">📍</span>
+            <div class="info-contenido">
+              <span class="info-label">Oficinas corporativas</span>
+              <span class="info-valor">Av. Insurgentes Sur 1602</span>
+              <span class="info-detalle">Crédito Constructor, CDMX</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="card seccion-remota">
+          <div class="remota-icono">💻</div>
+          <h3>Soporte Remoto</h3>
+          <p>Nuestros ingenieros pueden asistirte de forma remota de acuerdo a tu horario. Previa coordinación.</p>
+          <a href="#" class="btn-remota">Iniciar Sesión Remota</a>
+        </section>
+      </aside>
+    </div>
+  </div>
+
+  <div class="seccion-faq-videos">
+    <div class="layout-dos-columnas-amplio">
+      <section class="card seccion-faq">
+        <h2>Preguntas Frecuentes</h2>
+
+        <div class="faq-list">
+          @for (pregunta of preguntasFAQ(); track trackPorId($index, pregunta)) {
+            <div class="faq-item" [class.abierta]="pregunta.abierta">
+              <button
+                type="button"
+                class="faq-header"
+                (click)="togglePregunta(pregunta.id)"
+              >
+                <span class="faq-pregunta">{{ pregunta.pregunta }}</span>
+                <span class="faq-icono">+</span>
+              </button>
+              @if (pregunta.abierta) {
+                <div class="faq-respuesta">
+                  <p>{{ pregunta.respuesta }}</p>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </section>
+
+      <section class="card seccion-videos">
+        <h2>Videos Tutoriales</h2>
+
+        <div class="videos-list">
+          @for (video of videosTutoriales(); track trackPorId($index, video)) {
+            <a href="#" class="video-item">
+              <div class="video-thumbnail">
+                <div class="play-icon">▶</div>
+              </div>
+              <div class="video-info">
+                <h3>{{ video.titulo }}</h3>
+                <span class="video-duracion">Duración: {{ video.duracion }}</span>
+              </div>
+            </a>
+          }
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <section class="seccion-mapa">
+    <div class="mapa-contenedor">
+      <div class="mapa-placeholder">
+        <div class="mapa-icono">📍</div>
+      </div>
+      <div class="mapa-info">
+        <p>Av. Insurgentes Sur 1602, Crédito Constructor</p>
+        <p>Benito Juárez, CDMX, C.P. 03940</p>
+        <a href="#" class="ver-maps">Ver en Google Maps →</a>
+      </div>
+    </div>
+  </section>
+</section>
+

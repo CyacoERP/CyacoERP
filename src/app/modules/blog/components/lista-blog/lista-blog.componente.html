@@ -1,6 +1,187 @@
-<div class="container">
-  <h2>Blog</h2>
-  <div *ngFor="let post of posts()" class="post">
-    <h3>{{ post.titulo }}</h3>
-  </div>
-</div>
+@if (cargando()) {
+  <section class="blog-wrap-loading">
+    <p>Cargando blog...</p>
+  </section>
+} @else {
+  <section class="blog-shell">
+    <header class="hero-blog">
+      <div class="hero-content">
+        <nav aria-label="breadcrumb">
+          <span class="nav-item">Inicio</span>
+          <span class="nav-sep">&gt;</span>
+          <span class="nav-item active">Blog & Noticias</span>
+        </nav>
+
+        <h1>Blog Técnico & Noticias</h1>
+        <p>Recursos, tutoriales y tendencias en instrumentación industrial</p>
+
+        <div class="search-box">
+          <input
+            type="text"
+            placeholder="Buscar artículos..."
+            class="search-input"
+            #searchInput
+            (keyup)="actualizarBusqueda(searchInput.value)"
+          />
+          <span class="search-icon">🔍</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="contenido">
+      <div class="categorias-chips">
+        <button
+          type="button"
+          class="chip"
+          [class.active]="categoriaSeleccionada() === 'todos'"
+          (click)="cambiarCategoria('todos')"
+        >
+          Todos
+        </button>
+        <button
+          type="button"
+          class="chip"
+          [class.active]="categoriaSeleccionada() === 'instrumentacion'"
+          (click)="cambiarCategoria('instrumentacion')"
+        >
+          Instrumentación
+        </button>
+        <button
+          type="button"
+          class="chip"
+          [class.active]="categoriaSeleccionada() === 'tecnologia'"
+          (click)="cambiarCategoria('tecnologia')"
+        >
+          Tecnología
+        </button>
+        <button
+          type="button"
+          class="chip"
+          [class.active]="categoriaSeleccionada() === 'seguridad'"
+          (click)="cambiarCategoria('seguridad')"
+        >
+          Seguridad
+        </button>
+        <button
+          type="button"
+          class="chip"
+          [class.active]="categoriaSeleccionada() === 'industria_40'"
+          (click)="cambiarCategoria('industria_40')"
+        >
+          Industria 4.0
+        </button>
+        <button
+          type="button"
+          class="chip"
+          [class.active]="categoriaSeleccionada() === 'mantenimiento'"
+          (click)="cambiarCategoria('mantenimiento')"
+        >
+          Mantenimiento
+        </button>
+        <button
+          type="button"
+          class="chip"
+          [class.active]="categoriaSeleccionada() === 'comunicacion'"
+          (click)="cambiarCategoria('comunicacion')"
+        >
+          Comunicación
+        </button>
+      </div>
+
+      <div class="blog-layout">
+        <main class="blog-main">
+          @if (articuloDestacado(); as destacado) {
+            <article class="articulo-destacado">
+              <div class="imagen-destacada">
+                <div
+                  class="imagen-placeholder"
+                  [style.background-color]="getImagenPlaceholder(destacado.categoria)"
+                >
+                  @if (destacado.tieneVideo) {
+                    <div class="play-button">▶</div>
+                  }
+                </div>
+                <span class="badge-destacado">Destacado</span>
+              </div>
+
+              <div class="contenido-destacado">
+                <span class="categoria-tag">{{ destacado.categoriaLabel }}</span>
+                <h2>{{ destacado.titulo }}</h2>
+                <p class="descripcion">{{ destacado.descripcion }}</p>
+
+                <div class="meta-info">
+                  <span class="autor">Ing. {{ destacado.autor }}</span>
+                  <span class="separador">•</span>
+                  <span class="tiempo">{{ destacado.tiempoLectura }} min de lectura</span>
+                  <span class="separador">•</span>
+                  <span class="fecha">{{ destacado.fecha }}</span>
+                </div>
+
+                <div class="etiquetas">
+                  @for (tag of destacado.etiquetas; track tag) {
+                    <a href="#" class="etiqueta">{{ tag }}</a>
+                  }
+                </div>
+
+                <a href="#" class="btn-leer-articulo">Leer artículo completo →</a>
+              </div>
+            </article>
+          }
+
+          <div class="articulos-grid">
+            @for (articulo of articulosGrid(); track trackPorId($index, articulo)) {
+              <article class="articulo-card">
+                <div class="card-imagen">
+                  <div
+                    class="imagen-placeholder"
+                    [style.background-color]="getImagenPlaceholder(articulo.categoria)"
+                  >
+                    @if (articulo.tieneVideo) {
+                      <div class="play-button">▶</div>
+                    }
+                  </div>
+                  <span class="categoria-badge">{{ articulo.categoriaLabel }}</span>
+                </div>
+
+                <div class="card-contenido">
+                  <h3>{{ articulo.titulo }}</h3>
+                  <p>{{ articulo.descripcion }}</p>
+
+                  <div class="card-meta">
+                    <span class="tiempo-lectura">{{ articulo.tiempoLectura }} min</span>
+                    <span class="separador-meta">•</span>
+                    <span class="fecha-articulo">{{ articulo.fecha }}</span>
+                  </div>
+
+                  <a href="#" class="leer-link">Leer →</a>
+                </div>
+              </article>
+            }
+          </div>
+        </main>
+
+        <aside class="blog-sidebar">
+          <div class="sidebar-section">
+            <h3>Temas</h3>
+            <div class="temas-cloud">
+              @for (tema of temas(); track tema) {
+                <a href="#" class="tema-link">{{ tema }}</a>
+              }
+            </div>
+          </div>
+
+          <div class="sidebar-cta">
+            <div class="cta-icono">❓</div>
+            <h4>¿Necesitas asesoría técnica?</h4>
+            <p>
+              Nuestros ingenieros están listos para resolver tus dudas sobre
+              instrumentación de procesos y control.
+            </p>
+            <a href="#" class="btn-cta">Contactar Especialista</a>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+}
+

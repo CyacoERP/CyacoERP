@@ -1,22 +1,20 @@
 <nav class="navbar">
   <div class="navbar-container">
-    <!-- Logo -->
     <a routerLink="/" class="logo">
-      <div class="logo-icon">Cy</div>
+      <div class="logo-icon" aria-hidden="true">⚙</div>
       <div class="logo-text-group">
         <div class="logo-text">Cy<span class="logo-red">aco</span></div>
         <div class="logo-subtitle">Tecnología Industrial</div>
       </div>
     </a>
 
-    <!-- Desktop Menu -->
     <div class="nav-menu">
       <a routerLink="/catalogo" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Catálogo</a>
 
       <div class="nav-dropdown">
-        <button class="nav-link nav-dropdown-trigger" type="button">
+        <button class="nav-link nav-dropdown-trigger" type="button" aria-label="Abrir menú de cotizaciones">
           Cotizaciones
-          <span class="nav-caret">▼</span>
+          <span class="nav-caret" aria-hidden="true">▾</span>
         </button>
         <div class="dropdown-menu">
           <a routerLink="/cotizaciones/mis" class="dropdown-item">Mis Cotizaciones</a>
@@ -27,14 +25,14 @@
       <a routerLink="/proyectos" routerLinkActive="active" class="nav-link">Proyectos</a>
 
       <div class="nav-dropdown">
-        <button class="nav-link nav-dropdown-trigger" type="button">
+        <button class="nav-link nav-dropdown-trigger" type="button" aria-label="Abrir menú de dashboards">
           Dashboards
-          <span class="nav-caret">▼</span>
+          <span class="nav-caret" aria-hidden="true">▾</span>
         </button>
         <div class="dropdown-menu">
-          <button type="button" class="dropdown-item">Ventas</button>
-          <button type="button" class="dropdown-item">Clientes</button>
-          <button type="button" class="dropdown-item">Proyectos</button>
+          <a routerLink="/dashboards/ventas" class="dropdown-item">Ventas</a>
+          <a routerLink="/dashboards/clientes" class="dropdown-item">Clientes</a>
+          <a routerLink="/dashboards/proyectos" class="dropdown-item">Proyectos</a>
         </div>
       </div>
 
@@ -42,10 +40,19 @@
       <a routerLink="/contacto" routerLinkActive="active" class="nav-link">Contacto</a>
     </div>
 
-    <!-- Right Actions -->
     <div class="nav-actions">
-      <button class="btn-cotizacion">🛒 Cotización</button>
-      <button class="btn-login">⎓ Ingresar</button>
+      <a routerLink="/cotizaciones/mis" class="btn-cotizacion" aria-label="Ir a cotizaciones">
+        <span class="btn-icon" aria-hidden="true">🛒</span>
+        Cotización
+        @if (totalItemsCarrito() > 0) {
+          <span class="quote-count" [attr.aria-label]="totalItemsCarrito() + ' productos en cotización'">{{ totalItemsCarrito() }}</span>
+        }
+      </a>
+
+      <a routerLink="/auth/login" class="btn-login" aria-label="Ir a inicio de sesión">
+        <span class="btn-icon" aria-hidden="true">◌</span>
+        Ingresar
+      </a>
     </div>
   </div>
 </nav>

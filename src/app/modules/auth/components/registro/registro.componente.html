@@ -1,0 +1,96 @@
+<div class="registro-shell">
+  <header class="brand-header" aria-label="Cyaco">
+    <div class="brand-icon">◻</div>
+    <div class="brand-copy">
+      <div class="brand-name">Cy<span>aco</span></div>
+      <p>TECNOLOGIA INDUSTRIAL</p>
+    </div>
+  </header>
+
+  <main class="registro-main">
+    <section class="registro-card">
+      <h1>Crear Cuenta</h1>
+      <p>Accede al catálogo completo, cotizaciones y seguimiento de proyectos</p>
+
+      <form class="registro-form" [formGroup]="formulario" (ngSubmit)="registrar()">
+        <div class="grid-two">
+          <label>
+            Nombre completo <span>*</span>
+            <input type="text" formControlName="nombreCompleto" placeholder="Ing. Juan Pérez" />
+          </label>
+
+          <label>
+            Empresa / Organización <span>*</span>
+            <input type="text" formControlName="empresa" placeholder="PEMEX Refinación" />
+          </label>
+
+          <label>
+            Correo electrónico <span>*</span>
+            <input type="email" formControlName="correo" placeholder="tu@empresa.com" />
+          </label>
+
+          <label>
+            Teléfono / WhatsApp <span>*</span>
+            <input type="text" formControlName="telefono" placeholder="+52 81 0000 0000" />
+          </label>
+
+          <label>
+            Cargo / Puesto
+            <input type="text" formControlName="cargo" placeholder="Gerente de Compras" />
+          </label>
+
+          <div class="spacer"></div>
+
+          <label>
+            Contraseña <span>*</span>
+            <div class="password-wrap">
+              <input
+                [type]="mostrarPassword() ? 'text' : 'password'"
+                formControlName="password"
+                placeholder="Mínimo 8 caracteres"
+              />
+              <button type="button" class="eye-btn" (click)="toggleMostrarPassword()" aria-label="Mostrar contraseña">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z" fill="none" stroke="currentColor" stroke-width="1.8"/>
+                  <circle cx="12" cy="12" r="2.8" fill="none" stroke="currentColor" stroke-width="1.8"/>
+                </svg>
+              </button>
+            </div>
+          </label>
+
+          <label>
+            Confirmar contraseña <span>*</span>
+            <input type="password" formControlName="confirmarPassword" placeholder="Repite tu contraseña" />
+          </label>
+        </div>
+
+        <label class="terms-row">
+          <input type="checkbox" formControlName="aceptaTerminos" />
+          <span>
+            Acepto los <a href="#">Términos de Uso</a> y el <a href="#">Aviso de Privacidad</a> de Cyaco.
+          </span>
+        </label>
+
+        @if (error()) {
+          <p class="error">{{ error() }}</p>
+        }
+
+        <button type="submit" class="btn-submit" [disabled]="cargando()">
+          @if (cargando()) {
+            Creando cuenta...
+          } @else {
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <circle cx="9.5" cy="7" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/>
+              <path d="M19 8v6M16 11h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+            Crear Cuenta
+          }
+        </button>
+      </form>
+
+      <div class="divider"></div>
+      <p class="login-link">¿Ya tienes cuenta? <a routerLink="/auth/login">Inicia sesión</a></p>
+    </section>
+  </main>
+</div>

@@ -1,0 +1,140 @@
+<section class="quote-detail-page">
+  @if (cargando()) {
+    <div class="status-card">Cargando detalle de cotización...</div>
+  } @else if (conError() || !cotizacion()) {
+    <div class="status-card">No se pudo cargar esta cotización.</div>
+  } @else {
+    <header class="detail-hero">
+      <div class="hero-inner">
+        <div>
+          <a routerLink="/cotizaciones/mis" class="back-link">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Volver al historial
+          </a>
+          <h1>{{ cotizacion()!.numero }}</h1>
+          <p>Proyecto {{ cotizacion()!.proyecto?.nombre || cotizacion()!.contacto?.empresa || 'Sin proyecto' }}</p>
+        </div>
+
+        <div class="hero-actions">
+          <span class="status-pill">{{ estadoBadge() }}</span>
+          <button type="button" class="btn-pdf" (click)="descargarPdf()">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 4v10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <path d="M8.5 11.5L12 15l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Descargar PDF
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="detail-content">
+      <section class="card process-card">
+        <h2>Estado del Proceso</h2>
+        <div class="timeline">
+          <div class="step" [class.active]="pasoActivo() >= 1">
+            <span>1</span>
+            <label>Recibida</label>
+          </div>
+          <div class="line" [class.active]="pasoActivo() >= 2"></div>
+          <div class="step" [class.active]="pasoActivo() >= 2">
+            <span>2</span>
+            <label>En Revisión</label>
+          </div>
+          <div class="line" [class.active]="pasoActivo() >= 3"></div>
+          <div class="step" [class.active]="pasoActivo() >= 3">
+            <span>3</span>
+            <label>En Proceso</label>
+          </div>
+          <div class="line" [class.active]="pasoActivo() >= 4"></div>
+          <div class="step" [class.active]="pasoActivo() >= 4">
+            <span>4</span>
+            <label>Atendido</label>
+          </div>
+        </div>
+      </section>
+
+      <div class="detail-grid">
+        <aside class="left-cards">
+          <article class="card info-card">
+            <h3>
+              <span class="card-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <circle cx="12" cy="8" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M5 19a7 7 0 0 1 14 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+              </span>
+              Cliente
+            </h3>
+            <strong>{{ cotizacion()!.contacto?.empresa || 'Cliente sin empresa' }}</strong>
+            <p>{{ cotizacion()!.contacto?.nombreCompleto || 'Sin contacto' }}</p>
+          </article>
+
+          <article class="card info-card">
+            <h3>
+              <span class="card-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <rect x="4" y="6" width="16" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M8 3v5M16 3v5M4 10h16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+              </span>
+              Fecha
+            </h3>
+            <strong class="date-value">{{ formatDate(cotizacion()!.fechaCreacion) }}</strong>
+          </article>
+
+          <article class="card info-card">
+            <h3>
+              <span class="card-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path d="M7 7h10v10H7z" fill="none" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M7 12l5-3 5 3-5 3-5-3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              Notas
+            </h3>
+            <p class="note">{{ cotizacion()!.observaciones || cotizacion()!.proyecto?.nombre || 'Sin notas adicionales' }}</p>
+          </article>
+        </aside>
+
+        <section class="card products-card">
+          <header>
+            <h3>Productos Cotizados ({{ totalItems() }})</h3>
+          </header>
+
+          <table>
+            <thead>
+              <tr>
+                <th>PRODUCTO</th>
+                <th>CANT.</th>
+                <th>PRECIO U.</th>
+                <th>TOTAL</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of cotizacion()!.items; track item.producto.id) {
+                <tr>
+                  <td class="product-name">{{ item.producto.name }}</td>
+                  <td>{{ item.cantidad }}</td>
+                  <td>{{ formatPrice(item.precioUnitario) }}</td>
+                  <td class="row-total">{{ formatPrice(item.subtotal) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+
+          <div class="total-bar">
+            <span>Total Estimado:</span>
+            <strong>{{ formatPrice(cotizacion()!.total) }}</strong>
+          </div>
+
+          <p class="disclaimer">
+            * Los precios mostrados son referenciales. El precio final, condiciones de entrega y garantías serán confirmados en la propuesta formal del equipo de ventas.
+          </p>
+        </section>
+      </div>
+    </div>
+  }
+</section>

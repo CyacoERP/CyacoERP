@@ -1,0 +1,402 @@
+:host {
+  --bg-main: #eef0f4;
+  --bg-dark: #102957;
+  --line: #dce4f0;
+  --blue: #3f82f1;
+  --green: #20be63;
+  --soft: #7d90ad;
+  --text-main: #132d55;
+}
+
+.detalle-shell {
+  background: var(--bg-main);
+  min-height: calc(100vh - var(--navbar-height));
+  padding-top: var(--navbar-height);
+}
+
+.hero-detalle {
+  background: #102957;
+  color: #f1f5ff;
+  padding: 12px 0 22px;
+}
+
+.hero-content {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 6px;
+}
+
+.volver-link {
+  color: #b8c9e3;
+  text-decoration: none;
+  font-size: 0.93rem;
+}
+
+.volver-link:hover,
+.volver-link:focus-visible {
+  text-decoration: underline;
+}
+
+.encabezado-grid {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.linea-codigo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.codigo {
+  font-size: 0.84rem;
+  color: #9ab0d2;
+  font-weight: 600;
+}
+
+.estado-pill {
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.77rem;
+  font-weight: 700;
+}
+
+.estado-pill.en-progreso {
+  background: #d8e5ff;
+  color: #2c60b9;
+}
+
+.estado-pill.completado {
+  background: #d9f4e6;
+  color: #197f48;
+}
+
+.estado-pill.pendiente {
+  background: #f0f2f5;
+  color: #7f8ea5;
+}
+
+h1 {
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(1.5rem, 2.2vw, 2.3rem);
+  letter-spacing: -0.02em;
+}
+
+.datos-principales > p {
+  margin: 8px 0 0;
+  max-width: 760px;
+  color: #9fb2d2;
+  line-height: 1.38;
+  font-size: 0.97rem;
+}
+
+.avance-box {
+  background: rgba(160, 186, 224, 0.22);
+  border: 1px solid rgba(174, 196, 226, 0.22);
+  border-radius: 16px;
+  min-width: 150px;
+  min-height: 110px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.avance-box strong {
+  font-size: 3rem;
+  line-height: 1;
+  color: #f7fbff;
+}
+
+.avance-box span {
+  margin-top: 3px;
+  color: #a2b6d4;
+  font-size: 0.81rem;
+}
+
+.mini-track {
+  margin-top: 10px;
+  width: 100%;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.26);
+  overflow: hidden;
+}
+
+.mini-track span {
+  display: block;
+  height: 100%;
+  background: #ef3838;
+  border-radius: 999px;
+}
+
+.contenido-detalle {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px 8px 36px;
+}
+
+.grid-principal {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 14px;
+}
+
+.card {
+  background: #f8f9fc;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.hitos-card {
+  padding: 14px;
+}
+
+.card h2 {
+  margin: 0 0 14px;
+  color: #112b54;
+  font-size: 1.05rem;
+}
+
+.lista-hitos {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.hito-item {
+  display: flex;
+  gap: 12px;
+}
+
+.icono-col {
+  width: 26px;
+  display: flex;
+  justify-content: center;
+}
+
+.icono {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 0.79rem;
+  font-weight: 700;
+}
+
+.icono.ok {
+  color: #1aae56;
+  border: 2px solid #1aae56;
+}
+
+.icono.proc {
+  color: #3f82f1;
+  border: 2px solid #3f82f1;
+}
+
+.icono.pen {
+  color: #9aa9be;
+  border: 2px solid #c7d1de;
+}
+
+.hito-contenido {
+  flex: 1;
+  background: #f1f4f8;
+  border: 1px solid #e3eaf4;
+  border-radius: 12px;
+  padding: 10px;
+}
+
+.hito-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.hito-head h3 {
+  margin: 0;
+  color: #15305a;
+  font-size: 1rem;
+}
+
+.hito-head p {
+  margin: 2px 0 0;
+  color: #90a2bc;
+  font-size: 0.8rem;
+}
+
+.progreso-wrap {
+  margin-top: 8px;
+}
+
+.progreso-top {
+  display: flex;
+  justify-content: space-between;
+  color: #768aa8;
+  font-size: 0.78rem;
+  margin-bottom: 5px;
+}
+
+.track {
+  height: 6px;
+  border-radius: 999px;
+  background: #d5deea;
+  overflow: hidden;
+}
+
+.fill {
+  display: block;
+  height: 100%;
+  background: var(--blue);
+}
+
+.fill.ok {
+  background: var(--green);
+}
+
+.columna-lateral {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.info-card,
+.equipo-card,
+.resumen-card {
+  padding: 14px;
+}
+
+.info-item {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.simbolo {
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  background: #f1f4f9;
+  color: #ef3d3d;
+  display: grid;
+  place-items: center;
+  font-size: 0.83rem;
+  font-weight: 700;
+}
+
+.info-item small {
+  display: block;
+  color: #8da0bb;
+  font-size: 0.77rem;
+}
+
+.info-item p {
+  margin: 1px 0 0;
+  color: #18345f;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.miembro-item {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #102957;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.miembro-item p {
+  margin: 0;
+  color: #1a3761;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.miembro-item small {
+  color: #8ea0b9;
+  font-size: 0.78rem;
+}
+
+.resumen-card {
+  background: linear-gradient(135deg, #102957 0%, #1f3f84 100%);
+  border-color: transparent;
+}
+
+.resumen-card h2 {
+  color: #f4f8ff;
+  margin-bottom: 10px;
+}
+
+.resumen-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(214, 227, 255, 0.17);
+  padding: 10px 0;
+}
+
+.resumen-row:first-of-type {
+  border-top: none;
+}
+
+.resumen-row span {
+  color: #b8caea;
+  font-size: 0.87rem;
+}
+
+.resumen-row strong {
+  font-size: 1.35rem;
+}
+
+.resumen-row .ok {
+  color: #2be37c;
+}
+
+.resumen-row .proc {
+  color: #8db7ff;
+}
+
+.resumen-row .pen {
+  color: #c2d2ee;
+}
+
+.estado-wrap {
+  min-height: calc(100vh - 64px);
+  background: var(--bg-main);
+  display: grid;
+  place-items: center;
+  color: var(--text-main);
+}
+
+@media (max-width: 980px) {
+  .encabezado-grid {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .grid-principal {
+    grid-template-columns: 1fr;
+  }
+
+  .avance-box {
+    min-width: 0;
+    width: 100%;
+  }
+}

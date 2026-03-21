@@ -87,7 +87,9 @@ export class SolicitarCotizacionComponente {
     // Espera breve para que el navegador inicie la descarga antes de redirigir.
     setTimeout(() => {
       this.carritoServicio.vaciarCarrito();
-      this.router.navigate(['/cotizaciones/mis']);
+      this.router.navigate(['/cotizaciones/enviada'], {
+        queryParams: { numero: cotizacionCreada.numero },
+      });
     }, 500);
   }
 

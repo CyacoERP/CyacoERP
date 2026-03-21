@@ -1,0 +1,202 @@
+@if (cargando()) {
+  <section class="estado-wrap">
+    <p>Cargando dashboard...</p>
+  </section>
+} @else {
+  <section class="dashboard-shell">
+    <header class="hero-dashboard">
+      <div class="hero-content">
+        <nav aria-label="breadcrumb">
+          <span>Inicio</span>
+          <span class="sep">&gt;</span>
+          <span>Dashboards</span>
+          <span class="sep">&gt;</span>
+          <span>Proyectos</span>
+        </nav>
+
+        <div class="encabezado-flex">
+          <div>
+            <h1>Dashboard de Proyectos</h1>
+            <p>Estado general de implementaciones</p>
+          </div>
+
+          <div class="controles">
+            <button
+              type="button"
+              class="btn-filtro"
+              [class.active]="filtroSeleccionado() === 'ventas'"
+              (click)="cambiarFiltro('ventas')"
+            >
+              Ventas
+            </button>
+            <button
+              type="button"
+              class="btn-filtro"
+              [class.active]="filtroSeleccionado() === 'clientes'"
+              (click)="cambiarFiltro('clientes')"
+            >
+              Clientes
+            </button>
+            <button
+              type="button"
+              class="btn-filtro"
+              [class.active]="filtroSeleccionado() === 'proyectos'"
+              (click)="cambiarFiltro('proyectos')"
+            >
+              Proyectos
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="contenido">
+      <div class="kpis-grid">
+        @for (kpi of kpis(); track kpi.etiqueta) {
+          <article class="kpi-card">
+            <div class="kpi-icono">{{ kpi.icono }}</div>
+            <strong class="kpi-valor">{{ kpi.valor }}</strong>
+            <p class="kpi-label">{{ kpi.etiqueta }}</p>
+          </article>
+        }
+      </div>
+
+      <section class="card avance-promedio">
+        <div class="avance-header">
+          <div>
+            <h2>Avance Promedio del Portafolio</h2>
+            <p class="subtitulo">Promedio de avance de todos los proyectos activos</p>
+          </div>
+          <span class="avance-porcentaje">{{ avancePromedio() }}%</span>
+        </div>
+
+        <div class="barra-avance-grande">
+          <div
+            class="barra-progreso"
+            [ngStyle]="{ width: avancePromedio() + '%' }"
+          ></div>
+        </div>
+      </section>
+
+      <div class="graficos-row dos-columnas">
+        <section class="card grafico-barras-proyecto">
+          <h2>Avance por Proyecto</h2>
+
+          <div class="chart-barras-vertical" role="img" aria-label="Gráfico: Avance por Proyecto">
+            @for (proyecto of proyectosAvance(); track trackPorCodigo($index, proyecto)) {
+              <div class="barra-proyecto-wrap">
+                <div class="barra-proyecto-contenedor">
+                  <div
+                    class="barra-proyecto"
+                    [ngStyle]="calcularAnchoBarraAvance(proyecto.avance)"
+                  ></div>
+                </div>
+                <span class="label-proyecto">{{ proyecto.codigo }}</span>
+              </div>
+            }
+          </div>
+
+          <div class="eje-x-proyectos">
+            <span>0%</span>
+            <span>25%</span>
+            <span>50%</span>
+            <span>75%</span>
+            <span>100%</span>
+          </div>
+        </section>
+
+        <section class="card grafico-linea-proyectos">
+          <h2>Proyectos Abiertos vs Cerrados</h2>
+
+          <div class="chart-area" role="img" aria-label="Gráfico: Proyectos Abiertos vs Cerrados">
+            <svg viewBox="0 0 600 250" preserveAspectRatio="xMidYMid meet" class="grafico-svg-proyectos">
+              <!-- Grid lines -->
+              <line x1="0" y1="60" x2="600" y2="60" class="grid-line" />
+              <line x1="0" y1="120" x2="600" y2="120" class="grid-line" />
+              <line x1="0" y1="180" x2="600" y2="180" class="grid-line" />
+
+              <!-- Área de relleno -->
+              <polygon
+                points="50,100 160,60 270,80 380,40 490,80 490,220 50,220"
+                class="area-fill"
+              />
+
+              <!-- Línea de abiertos -->
+              <polyline
+                points="50,100 160,60 270,80 380,40 490,80"
+                class="linea"
+              />
+
+              <!-- Puntos -->
+              <circle cx="50" cy="100" r="5" class="punto" />
+              <circle cx="160" cy="60" r="5" class="punto" />
+              <circle cx="270" cy="80" r="5" class="punto" />
+              <circle cx="380" cy="40" r="5" class="punto" />
+              <circle cx="490" cy="80" r="5" class="punto" />
+            </svg>
+
+            <div class="eje-x-linea">
+              @for (d of datosLineaProyectos(); track d.mes) {
+                <span>{{ d.mes }}</span>
+              }
+            </div>
+          </div>
+
+          <div class="leyenda-linea">
+            <span class="item"><span class="marca linea-teal"></span>Abiertos</span>
+            <span class="item"><span class="marca linea-gris"></span>Cerrados</span>
+          </div>
+        </section>
+      </div>
+
+      <section class="card tabla-card">
+        <div class="tabla-header">
+          <h2>Estado de Proyectos</h2>
+          <a href="#" class="exportar-excel">⬇ Exportar</a>
+        </div>
+
+        <table class="tabla-proyectos">
+          <thead>
+            <tr>
+              <th>PROYECTO</th>
+              <th>CLIENTE</th>
+              <th>AVANCE</th>
+              <th>HITOS</th>
+              <th>PRESUPUESTO</th>
+              <th>ESTADO</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (proyecto of estadosProyectos(); track trackPorId($index, proyecto)) {
+              <tr>
+                <td class="proyecto-cell">
+                  <a href="#" class="proyecto-link">{{ proyecto.codigo }}</a>
+                  <span class="proyecto-desc">{{ proyecto.nombre }}</span>
+                </td>
+                <td>{{ proyecto.cliente }}</td>
+                <td class="avance-cell">
+                  <div class="barra-avance-tabla">
+                    <div
+                      class="barra-fill-tabla"
+                      [ngStyle]="{ width: proyecto.avance + '%' }"
+                    ></div>
+                  </div>
+                  <span class="porcentaje-tabla">{{ proyecto.avance }}%</span>
+                </td>
+                <td class="hitos-cell">{{ proyecto.hitosCompletados }}/{{ proyecto.hitosTotal }}</td>
+                <td class="presupuesto-cell">
+                  {{ proyecto.presupuesto | currency: 'USD':'symbol':'1.0-0' }}
+                </td>
+                <td>
+                  <span class="estado-badge" [class]="proyecto.estadoClase">
+                    {{ proyecto.estado }}
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </section>
+}

@@ -1,154 +1,45 @@
 
  
-Documento de Especificación de Requerimientos de Software (SRS)
+Anexo del Documento de Especificación de Requerimientos de Software (SRS)
 ________________________________________
-1. Introducción
-1.1 Propósito
-Este documento define los requisitos funcionales, no funcionales e interfaces para el desarrollo del sistema CyacoERP, una solución digital centrada en e-commerce y gestión básica para CYACO Industrial y clientes similares. El objetivo es garantizar un alcance claro, medible y asequible, alineado al MVP y evitando funciones fuera de este propósito.
-1.2 Alcance
-CyacoERP permitirá la venta en línea de productos industriales (piezas, refacciones) mediante un catálogo digital, cotización automática y un panel básico de administración. El sistema habilitará a clientes a consultar el catálogo, armar carritos y recibir cotizaciones, mientras que los administradores podrán gestionar productos, clientes y cotizaciones. El MVP prioriza el flujo de e-commerce/cotización; módulos adicionales (proyectos, reportes) solo cumplirán requerimientos esenciales.
-1.3 Definiciones, Acrónimos y Abreviaturas
-•	ERP: Enterprise Resource Planning
-•	CRUD: Create-Read-Update-Delete
-•	PDF: Portable Document Format
-•	JWT: JSON Web Token
-•	RBAC: Role-Based Access Control
-•	SRS: Software Requirements Specification
-•	MVP: Minimum Viable Product
-•	API: Application Programming Interface
-•	SKU: Stock Keeping Unit
-•	PDF: Portable Document Format
-1.4 Referencias
-•	Angular Team. (2024). Angular Official Documentation. https://angular.io/docs
-•	PrimeTek. (2024). PrimeNG - Angular UI Component Library. https://www.primefaces.org/primeng/
-•	OpenJS Foundation. (2024). Node.js official documentation. https://nodejs.org/en/docs/
-•	Prisma Data Inc. (2024). Prisma ORM Documentation. https://www.prisma.io/docs
-•	The PostgreSQL Global Development Group. (2024). PostgreSQL 16 Documentation. https://www.postgresql.org/docs/
-•	Docker Inc. (2024). Docker Official Documentation. https://docs.docker.com/
-1.5 Descripción General
-El sistema proporciona una solución centralizada para administración comercial, técnica y operativa. Permite manejar desde carritos y cotizaciones hasta el seguimiento de proyectos y visualización analítica, adaptado a los flujos específicos del sector industrial.
-________________________________________
-2. Descripción General del Producto
-2.1 Perspectiva del Producto
-CyacoERP es una aplicación web modular, orientada a procesos comerciales industriales, accesible vía navegador, desplegada en infraestructura cloud o local, con gestión simple de usuarios y capaz de crecer por módulos.
-2.2 Funciones del Producto
-•	Registro y gestión de clientes.
-•	Visualización/búsqueda de productos en catálogo.
-•	Ver ficha técnica de producto (imágenes, descripción técnicas, PDF/manuales).
-•	Carrito de productos.
-•	Conversión de cotizaciones en órdenes y registro de proyectos.
-•	Asociación de equipos/proyectos a clientes.
-•	Reportes de ventas, productos y proyectos.
-•	Gestión de roles y permisos.
-•	Aprobación y modificación manual de cotizaciones.
-•	Documentación para usuarios finales
-2.3 Características del Usuario
-•	Cliente: Puede consultar el catálogo, solicitar cotización y revisar historial y estatus de sus cotizaciones.
-•	Administrador: Gestiona catálogo, productos, usuarios, revisa y aprueba/edita cotizaciones, puede marcar pedidos como atendidos.
-2.4 Restricciones
-•	Solo funciona en navegadores modernos (Chrome, Firefox, Edge, Safari, 2 versiones previas).
-•	Sólo web responsivo, sin app móvil nativa.
-•	No se integra directamente con hardware industrial.
-2.5 Suposiciones y Dependencias
-•	Se asume que los usuarios cuentan con acceso a internet estable.
-•	Se requiere un servidor web (propio, o nube), dominio y certificados SSL.
-•	Puede depender de un servicio de email externo para notificaciones de sistema.
-•	El sistema asume entradas válidas y uso correcto por parte de operadores entrenados.
-________________________________________
-3. Requerimientos Específicos
-3.1 Requerimientos Funcionales
-3.1.1 Módulo de Gestión de Usuarios
-•	RQF1: El sistema debe permitir registrar un usuario cliente mediante formulario, solicitando nombre completo, correo electrónico, nombre de empresa, teléfono y contraseña.
-•	RQF2: El sistema debe almacenar automáticamente la fecha y hora de registro de cada usuario.
-•	RQF3: El sistema debe permitir iniciar sesión a los usuarios registrados usando correo electrónico y contraseña válidos.
-•	RQF4: El sistema debe enviar un correo electrónico con un enlace de recuperación de contraseña cuando sea solicitado por el usuario.
-•	RQF5: El sistema debe permitir editar el perfil usuario (nombre, teléfono, nombre de empresa) desde la cuenta personal.
-•	RQF6: El sistema debe asignar el rol "Cliente" a nuevos usuarios creados mediante el registro público.
-•	RQF7: El sistema debe cerrar la sesión del usuario pasados 30 minutos de inactividad.
+Diagrama de Casos de Uso
 
-3.1.2 Módulo de Catálogo de Productos
-•	RQF8: El sistema debe mostrar una lista paginada de productos, presentando imagen, nombre, fabricante, categoría y precio de lista.
-•	RQF9: El sistema debe permitir filtrar el catálogo por categoría, familia, fabricante y rango de precio.
-•	RQF10: El sistema debe permitir buscar productos mediante texto libre que coincida con nombre, fabricante o número de parte.
-•	RQF11: El sistema debe mostrar la ficha técnica detallada de un producto incluyendo nombre, descripción, fabricante, número de parte, SKU interno, categoría, familia, precio, moneda, imagen y especificaciones técnicas.
-•	RQF12: El sistema debe permitir descargar documentos PDF asociados a productos (datasheets, manuales).
-•	RQF13: El sistema debe mostrar en la ficha técnica de un producto la lista de productos compatibles o incompatibles registrados en el sistema.
+Diagramas de Clases
 
-3.1.3 Módulo de Cotización (E-Commerce B2B)
-•	RQF14: El sistema debe permitir agregar productos al carrito de cotización, indicando para cada producto la cantidad deseada.
-•	RQF15: El sistema debe permitir modificar la cantidad o eliminar productos del carrito antes de enviar la solicitud de cotización.
-•	RQF16: El sistema debe verificar la existencia de incompatibilidad entre productos al agregarlos al carrito, mostrando un mensaje de alerta si corresponde.
-•	RQF17: El sistema debe calcular y mostrar automáticamente el subtotal por línea de producto y el total general del carrito en la moneda seleccionada.
-•	RQF18: El sistema debe permitir enviar una solicitud de cotización, registrándola en la base de datos con estado "Pendiente", incluyendo fecha de envío y los productos seleccionados.
-•	RQF19: El sistema debe enviar un correo de confirmación al cliente tras registrar la solicitud de cotización, con un resumen de sus productos.
-•	RQF20: El sistema debe permitir consultar el historial de cotizaciones de un cliente, mostrando folio, fecha, estado y total estimado.
-•	RQF21: El sistema debe permitir visualizar el detalle de cada cotización, incluyendo productos, cantidades, precios unitarios y total.
-•	RQF22: El sistema debe permitir descargar la cotización en formato PDF para cada solicitud realizada.
-•	
-3.1.4 Módulo de Administración
-•	RQF23: El sistema debe permitir crear un nuevo producto, solicitando nombre, descripción, fabricante, número de parte, SKU interno, categoría, familia, precio, moneda e imagen.
-•	RQF24: El sistema debe permitir editar los datos de productos existentes.
-•	RQF25: El sistema debe permitir desactivar un producto sin eliminarlo, ocultándolo del catálogo público.
-•	RQF26: El sistema debe permitir asociar documentos PDF a un producto específico.
-•	RQF27: El sistema debe permitir crear y editar relaciones de compatibilidad o incompatibilidad entre productos, incluyendo notas adicionales.
-•	RQF28: El sistema debe permitir gestionar (crear, editar, desactivar) categorías y familias de productos.
-•	RQF29: El sistema debe permitir consultar la lista de todos los usuarios registrados, incluyendo su estado de activación.
-•	RQF30: El sistema debe permitir activar o desactivar cuentas de usuario cliente.
-•	RQF31: El sistema debe permitir consultar todas las cotizaciones recibidas, filtrando por estado, cliente y fecha.
-•	RQF32: El sistema debe permitir cambiar el estado de una cotización a "Pendiente", "Atendida", "Rechazada" o "Confirmada".
-•	RQF33: El sistema debe permitir editar precios y descuentos de las líneas de cotización antes de marcarla como atendida.
-•	RQF34: El sistema debe generar automáticamente el PDF de cotización actualizado cuando la cotización es marcada como atendida.
-•	RQF35: El sistema debe enviar un correo al cliente notificado cuando su cotización fue atendida, adjuntando el PDF correspondiente o un enlace de descarga.
-________________________________________
-3.2 Requisitos No Funcionales
-3.2.1 Seguridad
-•	RQNF1: El sistema debe almacenar las contraseñas utilizando el algoritmo de hashing bcrypt con un factor de costo mínimo de 10.
-•	RQNF2: El sistema debe asegurar toda la comunicación con el usuario mediante HTTPS (TLS 1.2 o superior).
-•	RQNF3: El sistema debe validar y sanear toda la entrada recibida para evitar inyección SQL o ataques XSS.
-•	RQNF4: El sistema debe autenticar el acceso a la API mediante tokens JWT, con vigencia máxima de 60 minutos.
-•	RQNF5: El sistema debe restringir el acceso a funciones de administración sólo a usuarios con rol "Administrador".
-•	RQNF6: El sistema debe limitar el uso de los datos personales a los procesos de registro, autenticación y generación de cotizaciones, aplicando controles de acceso basados en roles.
-•	RQNF7: El sistema no debe compartir datos personales de usuarios con terceros, salvo requerimiento legal explícito.
-3.2.2 Rendimiento
-•	RQNF8: El sistema debe responder a cualquier consulta del catálogo o cotización en menos de 2 segundos con hasta 50 usuarios concurrentes.
-•	RQNF9: El sistema debe generar y entregar el PDF de cotización en menos de 3 segundos.
-•	RQNF10: El sistema debe cargar la página del catálogo principal (20 productos) en menos de 2 segundos.
-3.2.3 Usabilidad
-•	RQNF11: El sistema debe ser navegable y funcional en pantallas de al menos 1024×600 píxeles (desktop y tablet).
-•	RQNF12: El sistema debe mostrar mensajes de error claros y en español.
-•	RQNF13: El sistema debe permitir a un usuario nuevo completar registro y solicitar una cotización sin capacitación previa en menos de 10 minutos.
-3.2.3	Mantenibilidad
-•	RQNF14: El código fuente debe estar desarrollado íntegramente en TypeScript.
-•	RQNF15: El sistema debe tener al menos 40% de cobertura en pruebas unitarias sobre los servicios críticos de la API.
-•	RQNF16: Cada función pública de la API y cada modelo de datos debe tener comentarios que describan su propósito.
-3.2.4	Escalabilidad
-•	RQNF17: El sistema debe operar sobre contenedores Docker en todos los ambientes.
-•	RQNF18: La arquitectura debe mantener frontend, backend y base de datos desacoplados, permitiendo agregar nuevos módulos sin alterar los existentes.
-________________________________________
-3.3 Requisitos de Interfaces
-3.3.1 Interfaz de Usuario
-•	RQIU1: El sistema debe presentar un formulario de registro que permita ingresar nombre completo, correo electrónico, empresa, teléfono y contraseña.
-•	RQIU2: El sistema debe mostrar formularios claros en cada proceso clave (login, búsqueda de productos, solicitud de cotización, etc.) con campos obligatorios marcados visualmente.
-•	RQIU3: El sistema debe ofrecer menús de navegación accesibles desde una barra superior (navbar), permitiendo acceso directo a Catálogo, Mis Cotizaciones, Perfil y Cerrar Sesión.
-•	RQIU4: El sistema debe incluir un panel lateral o superior visible para clientes, mostrando el resumen del carrito de cotización en todo momento.
-•	RQIU5: El sistema debe mostrar las fichas de producto con imágenes, descripciones y botones para agregar al carrito o descargar ficha PDF.
-•	RQIU6: El sistema debe proporcionar una vista de historial de cotizaciones en el perfil del usuario, permitiendo consultar y descargar PDFs previos.
-•	RQIU7: El sistema debe incluir mensajes de error, confirmación y alerta en modales o notificaciones visibles, siempre en español.
-3.3.2 Interfaz de Software / Modelos
-•	RQIU1: El sistema debe exponer una API RESTful sobre HTTPS para la gestión de usuarios, productos, cotizaciones y archivos, utilizando formatos JSON estándar en las peticiones y respuestas.
-•	RQIS2: El sistema debe implementar autenticación de API por medio de JWT y control de acceso basado en roles para endpoints administrativos.
-•	RQIS3: El sistema debe proporcionar endpoints separados para la subida y descarga de archivos PDF asociados a productos y cotizaciones.
-•	RQIS4: El sistema debe estructurar las respuestas de error de la API con un campo "mensaje" (tipo string) y un "código de error" (tipo numérico) para simplificar la gestión en frontend.
-•	RQIS5: El sistema debe permitir la integración futura con otros sistemas empresariales mediante endpoints bien definidos y documentación OpenAPI/Swagger.
+   Diagrama de SPA
+ 
 
-3.3.2 Interfaz de Hardware
-•	RQIH1: El sistema debe ser accesible desde computadoras, laptops y tabletas con cualquier navegador moderno, sin necesidad de hardware adicional o instalación de plugins.
-•	RQIH2: El sistema debe permitir su uso mediante touch en pantallas táctiles estándar soportadas por navegadores modernos.
 
-________________________________________
-4. Anexos
-4.1 Diagramas
-•	Anexo A: Diagrama de componentes del sistema.
-•	Anexo B: Diagramas de arquitectura de módulos.
-•	Anexo C: Prototipos de pantalla principal, ficha de cliente/proyecto/producto (figuras o protos Figma adjuntos si aplica).
+
+
+Diagrama de Navegación
+
+ 
+
+Maquetados
+Landing Page
+
+Catalogo
+
+Carrito Preview 
+
+Solicitar Cotización 
+
+Proyectos
+
+
+Dashboard Ventas
+
+Dashboard Clientes
+
+
+
+Dashboard Proyectos
+
+
+Contacto 
+
+
+Login 
+
 

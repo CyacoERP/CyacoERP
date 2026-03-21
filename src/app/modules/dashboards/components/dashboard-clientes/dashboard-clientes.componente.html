@@ -1,0 +1,210 @@
+@if (cargando()) {
+  <section class="estado-wrap">
+    <p>Cargando dashboard...</p>
+  </section>
+} @else {
+  <section class="dashboard-shell">
+    <header class="hero-dashboard">
+      <div class="hero-content">
+        <nav aria-label="breadcrumb">
+          <span>Inicio</span>
+          <span class="sep">&gt;</span>
+          <span>Dashboards</span>
+          <span class="sep">&gt;</span>
+          <span>Clientes</span>
+        </nav>
+
+        <div class="encabezado-flex">
+          <div>
+            <h1>Dashboard de Clientes</h1>
+            <p>Análisis de portafolio de clientes</p>
+          </div>
+
+          <div class="controles">
+            <button
+              type="button"
+              class="btn-filtro"
+              [class.active]="filtroSeleccionado() === 'ventas'"
+              (click)="cambiarFiltro('ventas')"
+            >
+              Ventas
+            </button>
+            <button
+              type="button"
+              class="btn-filtro"
+              [class.active]="filtroSeleccionado() === 'clientes'"
+              (click)="cambiarFiltro('clientes')"
+            >
+              Clientes
+            </button>
+            <button
+              type="button"
+              class="btn-filtro"
+              [class.active]="filtroSeleccionado() === 'proyectos'"
+              (click)="cambiarFiltro('proyectos')"
+            >
+              Proyectos
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="contenido">
+      <div class="kpis-grid">
+        @for (kpi of kpis(); track kpi.etiqueta) {
+          <article class="kpi-card">
+            <div class="kpi-icono">{{ kpi.icono }}</div>
+            <strong class="kpi-valor">{{ kpi.valor }}</strong>
+            <p class="kpi-label">{{ kpi.etiqueta }}</p>
+            <p class="kpi-subtexto">{{ kpi.subtexto }}</p>
+          </article>
+        }
+      </div>
+
+      <div class="graficos-row dos-columnas">
+        <section class="card grafico-barras-h">
+          <div class="chart-header">
+            <h2>Ventas por Cliente Principal</h2>
+            <p class="subtitulo">Top 7 clientes por volumen anual</p>
+          </div>
+
+          <div class="chart-barras-h" role="img" aria-label="Gráfico: Ventas por Cliente Principal">
+            @for (cliente of clientesPrincipales(); track trackPorNombre($index, cliente); let i = $index) {
+              <div class="barra-h-wrap">
+                <span class="label-cliente">{{ cliente.nombre }}</span>
+                <div class="barra-h-contenedor">
+                  <div
+                    class="barra-h"
+                    [ngStyle]="calcularAnchoBarraCliente(cliente.ventas)"
+                  ></div>
+                </div>
+                <span class="valor-ventas">{{ cliente.ventas | currency: 'USD':'symbol':'1.0-0' }}</span>
+              </div>
+            }
+          </div>
+
+          <div class="leyenda-barras">
+            <span class="rango">$0K</span>
+            <span class="rango">$850K</span>
+            <span class="rango">$1.7M</span>
+            <span class="rango">$2.5M</span>
+            <span class="rango">$3.3M</span>
+          </div>
+        </section>
+
+        <section class="card grafico-hexagon">
+          <div class="chart-header">
+            <h2>Índice de Salud del Portafolio</h2>
+            <p class="subtitulo">Métricas clave de desempeño de clientes</p>
+          </div>
+
+          <div class="hexagon-container">
+            <svg viewBox="0 0 200 200" class="hexagon-chart">
+              <!-- Hexágono de fondo (grid) -->
+              <polyline
+                [attr.points]="pointsHexagon()"
+                class="hexagon-grid"
+              />
+
+              <!-- Líneas desde centro a vértices -->
+              @for (metric of metricasSalud(); track metric.nombre; let i = $index) {
+                @if (i === 0) {
+                  <line x1="100" y1="100" x2="100" y2="40" class="grid-line" />
+                } @else if (i === 1) {
+                  <line x1="100" y1="100" x2="152" y2="60" class="grid-line" />
+                } @else if (i === 2) {
+                  <line x1="100" y1="100" x2="152" y2="140" class="grid-line" />
+                } @else if (i === 3) {
+                  <line x1="100" y1="100" x2="100" y2="160" class="grid-line" />
+                } @else if (i === 4) {
+                  <line x1="100" y1="100" x2="48" y2="140" class="grid-line" />
+                } @else if (i === 5) {
+                  <line x1="100" y1="100" x2="48" y2="60" class="grid-line" />
+                }
+              }
+
+              <!-- Polígono de datos (relleno) -->
+              <polyline
+                [attr.points]="pointsDataHexagon()"
+                class="hexagon-data"
+              />
+
+              <!-- Puntos de datos -->
+              @for (metric of metricasSalud(); track metric.nombre; let i = $index) {
+                @if (i === 0) {
+                  <circle cx="100" cy="40" r="3" class="data-point" />
+                } @else if (i === 1) {
+                  <circle cx="152" cy="60" r="3" class="data-point" />
+                } @else if (i === 2) {
+                  <circle cx="152" cy="140" r="3" class="data-point" />
+                } @else if (i === 3) {
+                  <circle cx="100" cy="160" r="3" class="data-point" />
+                } @else if (i === 4) {
+                  <circle cx="48" cy="140" r="3" class="data-point" />
+                } @else if (i === 5) {
+                  <circle cx="48" cy="60" r="3" class="data-point" />
+                }
+              }
+            </svg>
+
+            <div class="hexagon-labels">
+              @for (metric of metricasSalud(); track metric.nombre; let i = $index) {
+                <div
+                  class="hexagon-label"
+                  [ngStyle]="calcularPosicionEtiquetaHexagon(i)"
+                >
+                  <span class="label-text">{{ metric.nombre }}</span>
+                  <span class="label-valor">{{ metric.valor }}%</span>
+                </div>
+              }
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <section class="card tabla-card">
+        <div class="tabla-header">
+          <h2>Detalle por Cliente</h2>
+          <a href="#" class="exportar-excel">⬇ Exportar Excel</a>
+        </div>
+
+        <table class="tabla-clientes">
+          <thead>
+            <tr>
+              <th>CLIENTE</th>
+              <th>PROYECTOS</th>
+              <th>COTIZACIONES</th>
+              <th>VENTAS ANUALES</th>
+              <th>PARTICIPACIÓN</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (cliente of clientesDetalle(); track trackPorId($index, cliente)) {
+              <tr>
+                <td class="cliente-cell">
+                  <span class="avatar">{{ cliente.id }}</span>
+                  <span>{{ cliente.nombre }}</span>
+                </td>
+                <td class="numero-cell">{{ cliente.proyectos }}</td>
+                <td class="numero-cell">{{ cliente.cotizaciones }}</td>
+                <td class="ventas-cell">
+                  {{ cliente.ventasAnuales | currency: 'USD':'symbol':'1.0-0' }}
+                </td>
+                <td class="participacion-cell">
+                  <div class="barra-participacion">
+                    <div
+                      class="barra-fill"
+                      [ngStyle]="{ width: cliente.participacion + '%' }"
+                    ></div>
+                  </div>
+                  <span class="porcentaje">{{ cliente.participacion }}%</span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </section>
+}

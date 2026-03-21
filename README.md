@@ -57,3 +57,44 @@ Angular CLI does not come with an end-to-end testing framework by default. You c
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+
+## Local Database Infrastructure (PostgreSQL + pgAdmin)
+
+The repository now includes a local Docker setup for PostgreSQL and pgAdmin.
+
+### 1. Prepare environment variables
+
+Create a local `.env` file from `.env.example`:
+
+```bash
+copy .env.example .env
+```
+
+Then adjust credentials and ports if needed.
+
+### 2. Start containers
+
+```bash
+docker compose up -d
+```
+
+### 3. Verify services
+
+```bash
+docker compose ps
+```
+
+Expected endpoints:
+
+- PostgreSQL: `localhost:5432`
+- pgAdmin: `http://localhost:5050`
+
+Default pgAdmin credentials are configured in `.env`.
+
+### 4. Stop containers
+
+```bash
+docker compose down
+```
+
+Use `docker compose down -v` only if you want to remove persisted local data volumes.

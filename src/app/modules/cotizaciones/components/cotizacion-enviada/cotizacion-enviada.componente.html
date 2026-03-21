@@ -1,0 +1,52 @@
+<section class="quote-sent-page">
+  <div class="quote-sent-wrapper">
+    <div class="success-icon" aria-hidden="true">
+      <span>✓</span>
+    </div>
+
+    <h1>¡Cotización Enviada!</h1>
+    <p class="subtitle">Tu solicitud de cotización ha sido recibida exitosamente.</p>
+
+    <div class="quote-number-card" aria-label="Número de cotización">
+      <p>NÚMERO DE COTIZACIÓN</p>
+      <strong>{{ numeroMostrado() }}</strong>
+    </div>
+
+    <article class="next-steps" aria-label="Próximos pasos">
+      <h2>¿Qué sigue?</h2>
+
+      <ul>
+        <li>
+          <span class="step-icon step-blue" aria-hidden="true">◷</span>
+          <div>
+            <h3>Revisión del equipo técnico</h3>
+            <p>Nuestros ingenieros analizarán tu solicitud en las próximas horas.</p>
+          </div>
+        </li>
+
+        <li>
+          <span class="step-icon step-orange" aria-hidden="true">▣</span>
+          <div>
+            <h3>Propuesta formal en 24 horas</h3>
+            <p>Recibirás un PDF con la cotización detallada y condiciones comerciales.</p>
+          </div>
+        </li>
+
+        <li>
+          <span class="step-icon step-green" aria-hidden="true">✓</span>
+          <div>
+            <h3>Seguimiento personalizado</h3>
+            <p>Un ingeniero de ventas te contactará para resolver dudas y definir plazos.</p>
+          </div>
+        </li>
+      </ul>
+    </article>
+
+    <div class="actions">
+      <a routerLink="/cotizaciones/mis" class="btn btn-primary">Ver mis cotizaciones</a>
+      <a routerLink="/catalogo" class="btn btn-outline">Seguir explorando</a>
+    </div>
+
+    <a routerLink="/" class="back-home">Ir al inicio</a>
+  </div>
+</section>
