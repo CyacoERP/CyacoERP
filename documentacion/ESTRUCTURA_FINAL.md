@@ -249,9 +249,9 @@ ng serve
 
 ## 📚 Archivos de Documentación
 
-- **ESTRUCTURA_PROYECTO.md** - Guía de arquitectura original
+- **ESTRUCTURA_FINAL.md** - Guía de arquitectura vigente
 - **ROADMAP.md** - Plan de desarrollo
-- **REORGANIZACION_ESTRUCTURA.md** - Detalles de la reestructuración (este archivo)
+- **TERMINOS_Y_CONDICIONES.md** - Términos y condiciones del sitio
 
 ---
 

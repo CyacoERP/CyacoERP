@@ -157,4 +157,4 @@ ng build --prod
 
 ## 📞 Contacto y Soporte
 
-Para cualquier duda: revisar documentación en ESTRUCTURA_PROYECTO.md
+Para cualquier duda: revisar documentación en ESTRUCTURA_FINAL.md
