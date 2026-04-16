@@ -12,6 +12,27 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum RolUsuario {
+  cliente
+  admin
+}
+
+model Usuario {
+  id            Int        @id @default(autoincrement())
+  nombre        String     @db.VarChar(160)
+  email         String     @unique @db.VarChar(160)
+  passwordHash  String     @map("password_hash") @db.VarChar(255)
+  telefono      String?    @db.VarChar(30)
+  empresa       String?    @db.VarChar(180)
+  cargo         String?    @db.VarChar(120)
+  rol           RolUsuario @default(cliente)
+  activo        Boolean    @default(true)
+  creadoEn      DateTime   @default(now())
+  actualizadoEn DateTime   @updatedAt
+
+  @@map("usuarios")
+}
+
 model Cliente {
   id          Int      @id @default(autoincrement())
   razonSocial String   @db.VarChar(180)

@@ -36,6 +36,18 @@
         </div>
       </div>
 
+      @if (esAdmin()) {
+        <div class="nav-dropdown">
+          <button class="nav-link nav-dropdown-trigger" type="button" aria-label="Abrir menú de administración">
+            Administración
+            <span class="nav-caret" aria-hidden="true">▾</span>
+          </button>
+          <div class="dropdown-menu">
+            <a routerLink="/admin/usuarios" class="dropdown-item">Gestionar Usuarios</a>
+          </div>
+        </div>
+      }
+
       <a routerLink="/blog" routerLinkActive="active" class="nav-link">Blog</a>
       <a routerLink="/contacto" routerLinkActive="active" class="nav-link">Contacto</a>
     </div>
@@ -49,10 +61,17 @@
         }
       </a>
 
-      <a routerLink="/auth/login" class="btn-login" aria-label="Ir a inicio de sesión">
-        <span class="btn-icon" aria-hidden="true">◌</span>
-        Ingresar
-      </a>
+      @if (usuarioActual(); as usuario) {
+        <button type="button" class="btn-login" (click)="cerrarSesion()" aria-label="Cerrar sesión">
+          <span class="btn-icon" aria-hidden="true">●</span>
+          {{ usuario.nombre }}
+        </button>
+      } @else {
+        <a routerLink="/auth/login" class="btn-login" aria-label="Ir a inicio de sesión">
+          <span class="btn-icon" aria-hidden="true">◌</span>
+          Ingresar
+        </a>
+      }
     </div>
   </div>
 </nav>

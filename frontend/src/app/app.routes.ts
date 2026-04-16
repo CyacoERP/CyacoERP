@@ -15,6 +15,8 @@ import { FormularioContactoComponente } from './modules/contacto/components/form
 import { DashboardVentasComponente } from './modules/dashboards/components/dashboard-ventas/dashboard-ventas.componente';
 import { DashboardClientesComponente } from './modules/dashboards/components/dashboard-clientes/dashboard-clientes.componente';
 import { DashboardProyectosComponente } from './modules/dashboards/components/dashboard-proyectos/dashboard-proyectos.componente';
+import { GestionarUsuariosComponente } from './modules/admin/components/gestionar-usuarios/gestionar-usuarios.componente';
+import { authGuard, roleGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', component: LandingComponente },
@@ -27,19 +29,38 @@ export const routes: Routes = [
   
   // Cotizaciones
   { path: 'cotizaciones', redirectTo: 'cotizaciones/mis', pathMatch: 'full' },
-  { path: 'cotizaciones/mis', component: ListaCotizacionesComponente },
-  { path: 'cotizaciones/solicitar', component: SolicitarCotizacionComponente },
-  { path: 'cotizaciones/enviada', component: CotizacionEnviadaComponente },
-  { path: 'cotizaciones/:id', component: DetalleCotizacionComponente },
+  { path: 'cotizaciones/mis', component: ListaCotizacionesComponente, canActivate: [authGuard] },
+  { path: 'cotizaciones/solicitar', component: SolicitarCotizacionComponente, canActivate: [authGuard] },
+  { path: 'cotizaciones/enviada', component: CotizacionEnviadaComponente, canActivate: [authGuard] },
+  { path: 'cotizaciones/:id', component: DetalleCotizacionComponente, canActivate: [authGuard] },
   
   // Proyectos
-  { path: 'proyectos', component: ListaProyectosComponente },
-  { path: 'proyectos/:id', component: DetalleProyectoComponente },
+  { path: 'proyectos', component: ListaProyectosComponente, canActivate: [authGuard] },
+  { path: 'proyectos/:id', component: DetalleProyectoComponente, canActivate: [authGuard] },
   
   // Dashboards
-  { path: 'dashboards/ventas', component: DashboardVentasComponente },
-  { path: 'dashboards/clientes', component: DashboardClientesComponente },
-  { path: 'dashboards/proyectos', component: DashboardProyectosComponente },
+  {
+    path: 'dashboards/ventas',
+    component: DashboardVentasComponente,
+    canActivate: [authGuard, roleGuard(['admin'])],
+  },
+  {
+    path: 'dashboards/clientes',
+    component: DashboardClientesComponente,
+    canActivate: [authGuard, roleGuard(['admin'])],
+  },
+  {
+    path: 'dashboards/proyectos',
+    component: DashboardProyectosComponente,
+    canActivate: [authGuard, roleGuard(['admin'])],
+  },
+
+  // Admin
+  {
+    path: 'admin/usuarios',
+    component: GestionarUsuariosComponente,
+    canActivate: [authGuard, roleGuard(['admin'])],
+  },
   
   // Blog
   { path: 'blog', component: ListaBlogComponente },

@@ -1,6 +1,7 @@
-import { Injectable, inject } from '@angular/core';
-import { Router, CanActivateFn } from '@angular/router';
+import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
 import { AuthServicio } from '../../modules/auth/services/auth.servicio';
+import { Usuario } from '../../shared/models/usuario.modelo';
 
 export const authGuard: CanActivateFn = (route, state) => {
   const authServicio = inject(AuthServicio);
@@ -14,19 +15,20 @@ export const authGuard: CanActivateFn = (route, state) => {
   return false;
 };
 
-@Injectable({ providedIn: 'root' })
-export class RoleGuard {
-  constructor(
-    private authServicio: AuthServicio,
-    private router: Router
-  ) {}
+export const roleGuard = (rolesPermitidos: Usuario['rol'][]): CanActivateFn => {
+  return (_route, _state) => {
+    const authServicio = inject(AuthServicio);
+    const router = inject(Router);
 
-  tieneRol(rolesPermitidos: string[]): boolean {
-    const usuario = this.authServicio.obtenerUsuarioActual();
-    if (!usuario || !rolesPermitidos.includes(usuario.rol)) {
-      this.router.navigate(['/no-autorizado']);
-      return false;
+    const usuario = authServicio.obtenerUsuarioActual();
+    if (!usuario) {
+      return router.parseUrl('/auth/login');
     }
+
+    if (!rolesPermitidos.includes(usuario.rol)) {
+      return router.parseUrl('/');
+    }
+
     return true;
-  }
-}
+  };
+};
