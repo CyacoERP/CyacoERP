@@ -42,7 +42,34 @@ model Cliente {
   sector      String?  @db.VarChar(120)
   activo      Boolean  @default(true)
   creadoEn    DateTime @default(now())
+	actualizadoEn DateTime @updatedAt
+
+	@@map("clientes")
+}
+
+model Categoria {
+  id          Int        @id @default(autoincrement())
+  nombre      String     @unique @db.VarChar(100)
+  descripcion String?    @db.VarChar(255)
+  productos   Producto[]
+  creadoEn    DateTime   @default(now())
   actualizadoEn DateTime @updatedAt
 
-  @@map("clientes")
+  @@map("categorias")
+}
+
+model Producto {
+  id            Int        @id @default(autoincrement())
+  nombre        String     @db.VarChar(180)
+  descripcion   String?    @db.VarChar(255)
+  precio        Float
+  stock         Int        @default(0)
+  imagenUrl     String?    @db.VarChar(255)
+  categoriaId   Int
+  categoria     Categoria  @relation(fields: [categoriaId], references: [id])
+  activo        Boolean    @default(true)
+  creadoEn      DateTime   @default(now())
+  actualizadoEn DateTime   @updatedAt
+
+  @@map("productos")
 }
