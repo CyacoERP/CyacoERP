@@ -1,18 +1,17 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError } from 'rxjs';
-import { Producto } from '../../../shared/models/producto.modelo';
 
 @Injectable({ providedIn: 'root' })
-export class ProductoServicio {
-  private apiUrl = '/api/productos';
+export class CategoriaServicio {
+  private apiUrl = '/api/categorias';
 
   constructor(private http: HttpClient) {}
 
-  obtenerTodos(): Observable<any[]> {
+  obtenerTodas(): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl).pipe(
       catchError((error) => {
-        console.error('Error obteniendo productos del backend:', error);
+        console.error('Error obteniendo categorías del backend:', error);
         throw error;
       })
     );
@@ -21,25 +20,25 @@ export class ProductoServicio {
   obtenerPorId(id: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/${id}`).pipe(
       catchError((error) => {
-        console.error('Error obteniendo producto:', error);
+        console.error('Error obteniendo categoría:', error);
         throw error;
       })
     );
   }
 
-  crear(producto: any): Observable<any> {
-    return this.http.post<any>(this.apiUrl, producto).pipe(
+  crear(categoria: any): Observable<any> {
+    return this.http.post<any>(this.apiUrl, categoria).pipe(
       catchError((error) => {
-        console.error('Error creando producto:', error);
+        console.error('Error creando categoría:', error);
         throw error;
       })
     );
   }
 
-  actualizar(id: number, producto: any): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/${id}`, producto).pipe(
+  actualizar(id: number, categoria: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/${id}`, categoria).pipe(
       catchError((error) => {
-        console.error('Error actualizando producto:', error);
+        console.error('Error actualizando categoría:', error);
         throw error;
       })
     );
@@ -48,7 +47,7 @@ export class ProductoServicio {
   eliminar(id: number): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/${id}`).pipe(
       catchError((error) => {
-        console.error('Error eliminando producto:', error);
+        console.error('Error eliminando categoría:', error);
         throw error;
       })
     );

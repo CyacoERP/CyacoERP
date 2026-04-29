@@ -1,14 +1,22 @@
+export interface Categoria {
+  id: number;
+  nombre: string;
+  descripcion?: string;
+  creadoEn: Date;
+  actualizadoEn: Date;
+}
+
 export interface Producto {
   id: number;
-  name: string;
-  price: number;
-  imageUrl: string;
-  category: string;
-  description: string;
-  inStock: boolean;
-  brand?: string;
-  rating?: number;
-  reviews?: number;
-  protocols?: string;
-  sku?: string;
+  nombre: string;
+  descripcion?: string;
+  precio: number;
+  stock: number;
+  imagenUrl?: string;
+  categoriaId: number;
+  categoria?: Categoria;
+  activo: boolean;
+  creadoEn: Date;
+  actualizadoEn: Date;
 }
+

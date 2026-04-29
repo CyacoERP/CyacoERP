@@ -116,7 +116,7 @@
             <tbody>
               @for (item of cotizacion()!.items; track item.producto.id) {
                 <tr>
-                  <td class="product-name">{{ item.producto.name }}</td>
+                  <td class="product-name">{{ item.producto.nombre }}</td>
                   <td>{{ item.cantidad }}</td>
                   <td>{{ formatPrice(item.precioUnitario) }}</td>
                   <td class="row-total">{{ formatPrice(item.subtotal) }}</td>

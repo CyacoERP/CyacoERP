@@ -46,36 +46,21 @@
             <button
               type="button"
               class="category-pill"
-              [class.active]="isAllCategoriesSelected()"
-              (click)="clearCategories()"
+              [class.active]="filters.categories.size === 0"
+              (click)="filters.categories.clear(); applyFilters()"
             >
               Todas las categorías
             </button>
 
             <button
               type="button"
-              *ngFor="let category of categories"
+              *ngFor="let categoria of categorias()"
               class="category-item"
-              [class.active]="isCategoryChecked(category)"
-              (click)="toggleCategory(category)"
+              [class.active]="filters.categories.has(categoria.id)"
+              (click)="toggleCategory(categoria.id)"
             >
-              <span>{{ category }}</span>
-              <span class="category-count">{{ getCategoryCount(category) }}</span>
+              <span>{{ categoria.nombre }}</span>
             </button>
-          </div>
-        </div>
-
-        <div class="filter-section">
-          <h4>Fabricante</h4>
-          <div class="checkbox-group">
-            <label *ngFor="let brand of brands" class="checkbox-label">
-              <input 
-                type="checkbox"
-                [checked]="isBrandChecked(brand)"
-                (change)="toggleBrand(brand)"
-              >
-              <span>{{ brand }}</span>
-            </label>
           </div>
         </div>
 
@@ -126,36 +111,29 @@
           @for (producto of productos(); track producto.id) {
             <div class="product-item">
               <div class="product-image">
-                <img [src]="producto.imageUrl || 'https://via.placeholder.com/300x200'" [alt]="producto.name">
+                <img [src]="producto.imagenUrl || 'https://via.placeholder.com/300x200'" [alt]="producto.nombre">
                 <div class="badges">
-                  <span class="badge-category">{{ producto.category }}</span>
-                  <span class="badge-stock" [class.out-of-stock]="!producto.inStock">
-                    {{ producto.inStock ? 'En Stock' : 'Agotado' }}
+                  <span class="badge-category">{{ producto.categoria?.nombre || 'Sin categoría' }}</span>
+                  <span class="badge-stock" [class.out-of-stock]="producto.stock === 0">
+                    {{ producto.stock > 0 ? 'En Stock' : 'Agotado' }}
                   </span>
                 </div>
               </div>
               <div class="product-info">
-                <div class="product-brand">{{ producto.brand }}</div>
-                <h3 class="product-name">{{ producto.name }}</h3>
-                <div class="product-rating">
-                  <span class="stars">★ {{ producto.rating }}.0</span>
-                  <span class="reviews">({{ producto.reviews }} resenas)</span>
-                </div>
-                <div class="product-protocols">
-                  Protocolos: {{ producto.protocols }}
-                </div>
+                <h3 class="product-name">{{ producto.nombre }}</h3>
+                <p class="product-description">{{ producto.descripcion || 'Sin descripción' }}</p>
                 <div class="product-footer">
                   <div>
-                    <span class="sku">SKU: {{ producto.sku }}</span>
+                    <span class="sku">ID: {{ producto.id }}</span>
                   </div>
-                  <span class="price">{{ formatPrice(producto.price) }}</span>
+                  <span class="price">{{ formatPrice(producto.precio) }}</span>
                 </div>
               </div>
               <div class="product-actions">
                 <button 
                   class="btn-cotizar"
                   (click)="onAgregarAlCarrito(producto)"
-                  [disabled]="!producto.inStock"
+                  [disabled]="producto.stock === 0"
                 >
                   Cotizar
                 </button>

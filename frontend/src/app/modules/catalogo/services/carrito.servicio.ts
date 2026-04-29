@@ -17,7 +17,7 @@ export class CarritoServicio {
   );
 
   readonly totalPrecio = computed(() =>
-    this.items().reduce((acc, item) => acc + item.producto.price * item.cantidad, 0)
+    this.items().reduce((acc, item) => acc + item.producto.precio * item.cantidad, 0)
   );
 
   agregarProducto(producto: Producto): void {
@@ -62,12 +62,12 @@ export class CarritoServicio {
 
     const lineas = this.items()
       .map((item) => {
-        const subtotal = (item.producto.price * item.cantidad).toFixed(2);
+        const subtotal = (item.producto.precio * item.cantidad).toFixed(2);
         return `    <item>
       <id>${item.producto.id}</id>
-      <nombre>${this.escaparXml(item.producto.name)}</nombre>
-      <categoria>${this.escaparXml(item.producto.category)}</categoria>
-      <precioUnitario>${item.producto.price.toFixed(2)}</precioUnitario>
+      <nombre>${this.escaparXml(item.producto.nombre)}</nombre>
+      <categoria>${this.escaparXml(item.producto.categoria?.nombre || 'Sin categoría')}</categoria>
+      <precioUnitario>${item.producto.precio.toFixed(2)}</precioUnitario>
       <cantidad>${item.cantidad}</cantidad>
       <subtotal>${subtotal}</subtotal>
     </item>`;

@@ -64,8 +64,8 @@ export class SolicitarCotizacionComponente {
     const items: ItemCotizacion[] = this.itemsCarrito().map((item) => ({
       producto: item.producto,
       cantidad: item.cantidad,
-      precioUnitario: item.producto.price,
-      subtotal: item.producto.price * item.cantidad,
+      precioUnitario: item.producto.precio,
+      subtotal: item.producto.precio * item.cantidad,
     }));
 
     const payload: SolicitudCotizacion = {
@@ -101,7 +101,7 @@ export class SolicitarCotizacionComponente {
       .map((item) => `
     <articulo>
       <id>${this.escapeXml(String(item.producto.id))}</id>
-      <nombre>${this.escapeXml(item.producto.name)}</nombre>
+      <nombre>${this.escapeXml(item.producto.nombre)}</nombre>
       <cantidad>${item.cantidad}</cantidad>
       <precioUnitario>${item.precioUnitario}</precioUnitario>
       <subtotal>${item.subtotal}</subtotal>

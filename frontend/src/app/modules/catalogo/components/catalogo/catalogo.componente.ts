@@ -2,14 +2,14 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductoServicio } from '../../services/producto.servicio';
+import { CategoriaServicio } from '../../services/categoria.servicio';
 import { CarritoServicio } from '../../services/carrito.servicio';
 import { ModalStateServicio } from '../../services/modal-state.servicio';
 import { CarritoPreviewComponent } from '../carrito-preview/carrito-preview.componente';
 import { Producto } from '../../../../shared/models/producto.modelo';
 
 interface ProductFilter {
-  categories: Set<string>;
-  brands: Set<string>;
+  categories: Set<number>;
   priceRange: { min: number; max: number };
 }
 
@@ -23,6 +23,7 @@ interface ProductFilter {
 export class CatalogoComponente implements OnInit {
   readonly productosOriginales = signal<Producto[]>([]);
   readonly productos = signal<Producto[]>([]);
+  readonly categorias = signal<any[]>([]);
   readonly cargando = signal(true);
   
   searchTerm = '';
@@ -30,12 +31,9 @@ export class CatalogoComponente implements OnInit {
   
   filters: ProductFilter = {
     categories: new Set(),
-    brands: new Set(),
-    priceRange: { min: 0, max: 10000 },
+    priceRange: { min: 0, max: 100000 },
   };
 
-  categories: string[] = [];
-  brands: string[] = [];
   priceRanges = [
     { label: 'Hasta $10,000', min: 0, max: 10000 },
     { label: '$10,000 - $25,000', min: 10000, max: 25000 },
@@ -45,6 +43,7 @@ export class CatalogoComponente implements OnInit {
 
   constructor(
     private productoServicio: ProductoServicio,
+    private categoriaServicio: CategoriaServicio,
     public carritoServicio: CarritoServicio,
     private modalState: ModalStateServicio
   ) {}
@@ -54,46 +53,35 @@ export class CatalogoComponente implements OnInit {
   }
 
   ngOnInit(): void {
+    // Cargar categorías
+    this.categoriaServicio.obtenerTodas().subscribe({
+      next: (cats) => {
+        this.categorias.set(cats);
+      },
+      error: (error) => {
+        console.error('Error cargando categorías:', error);
+      },
+    });
+
+    // Cargar productos
     this.productoServicio.obtenerTodos().subscribe({
       next: (prods) => {
         this.productosOriginales.set(prods);
         this.productos.set(prods);
         this.cargando.set(false);
-        this.extractFilters(prods);
       },
-      error: () => {
+      error: (error) => {
+        console.error('Error cargando productos:', error);
         this.cargando.set(false);
       },
     });
   }
 
-  private extractFilters(productos: Producto[]): void {
-    const categories = new Set<string>();
-    const brands = new Set<string>();
-
-    productos.forEach(p => {
-      if (p.category) categories.add(p.category);
-      if (p.brand) brands.add(p.brand);
-    });
-
-    this.categories = Array.from(categories).sort();
-    this.brands = Array.from(brands).sort();
-  }
-
-  toggleCategory(category: string): void {
-    if (this.filters.categories.has(category)) {
-      this.filters.categories.delete(category);
+  toggleCategory(categoryId: number): void {
+    if (this.filters.categories.has(categoryId)) {
+      this.filters.categories.delete(categoryId);
     } else {
-      this.filters.categories.add(category);
-    }
-    this.applyFilters();
-  }
-
-  toggleBrand(brand: string): void {
-    if (this.filters.brands.has(brand)) {
-      this.filters.brands.delete(brand);
-    } else {
-      this.filters.brands.add(brand);
+      this.filters.categories.add(categoryId);
     }
     this.applyFilters();
   }
@@ -110,25 +98,19 @@ export class CatalogoComponente implements OnInit {
     if (this.searchTerm) {
       const term = this.searchTerm.toLowerCase();
       filtered = filtered.filter(p =>
-        p.name.toLowerCase().includes(term) ||
-        p.description?.toLowerCase().includes(term) ||
-        p.sku?.toLowerCase().includes(term)
+        p.nombre.toLowerCase().includes(term) ||
+        p.descripcion?.toLowerCase().includes(term)
       );
     }
 
     // Filtro por categorías
     if (this.filters.categories.size > 0) {
-      filtered = filtered.filter(p => this.filters.categories.has(p.category || ''));
-    }
-
-    // Filtro por marcas
-    if (this.filters.brands.size > 0) {
-      filtered = filtered.filter(p => this.filters.brands.has(p.brand || ''));
+      filtered = filtered.filter(p => this.filters.categories.has(p.categoriaId));
     }
 
     // Filtro por precio
     filtered = filtered.filter(p =>
-      p.price >= this.filters.priceRange.min && p.price <= this.filters.priceRange.max
+      p.precio >= this.filters.priceRange.min && p.precio <= this.filters.priceRange.max
     );
 
     // Ordenamiento
@@ -140,16 +122,15 @@ export class CatalogoComponente implements OnInit {
 
     switch (this.sortBy) {
       case 'precio_asc':
-        sorted.sort((a, b) => a.price - b.price);
+        sorted.sort((a, b) => a.precio - b.precio);
         break;
       case 'precio_desc':
-        sorted.sort((a, b) => b.price - a.price);
+        sorted.sort((a, b) => b.precio - a.precio);
         break;
-      case 'rating':
-        sorted.sort((a, b) => (b.price || 0) - (a.price || 0));
-        break;
+      case 'relevancia':
       default:
-        // Mantener orden original (relevancia)
+        // Mantener el orden original
+        break;
     }
 
     this.productos.set(sorted);
@@ -174,30 +155,6 @@ export class CatalogoComponente implements OnInit {
 
   onAgregarAlCarrito(producto: Producto): void {
     this.carritoServicio.agregarProducto(producto);
-  }
-
-  isCategoryChecked(category: string): boolean {
-    return this.filters.categories.has(category);
-  }
-
-  isBrandChecked(brand: string): boolean {
-    return this.filters.brands.has(brand);
-  }
-
-  isAllCategoriesSelected(): boolean {
-    return this.filters.categories.size === 0;
-  }
-
-  clearCategories(): void {
-    if (this.filters.categories.size === 0) {
-      return;
-    }
-    this.filters.categories.clear();
-    this.applyFilters();
-  }
-
-  getCategoryCount(category: string): number {
-    return this.productosOriginales().filter(p => p.category === category).length;
   }
 
   abrirCarritoPreview(): void {

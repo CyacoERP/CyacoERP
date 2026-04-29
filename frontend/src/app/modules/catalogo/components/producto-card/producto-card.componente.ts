@@ -13,10 +13,17 @@ export class ProductoCardComponente {
   @Output() agregarAlCarrito = new EventEmitter<Producto>();
 
   get precioFormateado(): string {
-    return `$${this.producto.price.toLocaleString('es-MX')} MXN`;
+    return `$${this.producto.precio.toLocaleString('es-MX')} MXN`;
+  }
+
+  get imagenUrl(): string {
+    return this.producto.imagenUrl || '/assets/default-product.png';
   }
 
   onAgregarAlCarrito(): void {
-    this.agregarAlCarrito.emit(this.producto);
+    if (this.producto.stock > 0) {
+      this.agregarAlCarrito.emit(this.producto);
+    }
   }
 }
+

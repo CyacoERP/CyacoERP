@@ -95,8 +95,8 @@
         <ul>
           @for (item of itemsCarrito(); track item.producto.id) {
             <li>
-              <span>{{ item.producto.name }} x{{ item.cantidad }}</span>
-              <strong>{{ formatPrice(item.producto.price * item.cantidad) }}</strong>
+              <span>{{ item.producto.nombre }} x{{ item.cantidad }}</span>
+              <strong>{{ formatPrice(item.producto.precio * item.cantidad) }}</strong>
             </li>
           }
         </ul>

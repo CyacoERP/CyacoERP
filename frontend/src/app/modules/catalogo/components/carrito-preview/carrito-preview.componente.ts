@@ -35,10 +35,10 @@ import { ModalStateServicio } from '../../services/modal-state.servicio';
           <div class="cart-items">
             @for (item of items(); track item.producto.id) {
               <div class="cart-item">
-                <img [src]="item.producto.imageUrl" [alt]="item.producto.name" class="item-image">
+                <img [src]="item.producto.imagenUrl || '/assets/default-product.png'" [alt]="item.producto.nombre" class="item-image">
                 <div class="item-details">
-                  <h4>{{ item.producto.name }}</h4>
-                  <p class="item-sku">{{ item.producto.sku }}</p>
+                  <h4>{{ item.producto.nombre }}</h4>
+                  <p class="item-sku">ID: {{ item.producto.id }}</p>
                   <div class="quantity-control">
                     <button (click)="decrementarCantidad(item.producto.id)" class="qty-btn">−</button>
                     <span class="qty-value">{{ item.cantidad }}</span>
@@ -47,7 +47,7 @@ import { ModalStateServicio } from '../../services/modal-state.servicio';
                 </div>
                 <div class="item-right">
                   <button class="remove-btn" (click)="removerProducto(item.producto.id)" title="Eliminar">×</button>
-                  <div class="item-price">{{ formatPrice(item.producto.price) }}</div>
+                  <div class="item-price">{{ formatPrice(item.producto.precio) }}</div>
                 </div>
               </div>
             }

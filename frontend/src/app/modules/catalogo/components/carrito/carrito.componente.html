@@ -13,11 +13,11 @@
     <section class="lista">
       @for (item of items; track item.producto.id) {
         <div class="item">
-          <img [src]="item.producto.imageUrl" [alt]="item.producto.name" class="img" />
+          <img [src]="item.producto.imagenUrl || '/assets/default-product.png'" [alt]="item.producto.nombre" class="img" />
           <div class="info">
-            <h3 class="nombre">{{ item.producto.name }}</h3>
-            <p class="categoria">{{ item.producto.category }}</p>
-            <p class="precio-unit">${{ item.producto.price.toLocaleString('es-MX') }} MXN / pieza</p>
+            <h3 class="nombre">{{ item.producto.nombre }}</h3>
+            <p class="categoria">{{ item.producto.categoria?.nombre || 'Sin categoría' }}</p>
+            <p class="precio-unit">${{ item.producto.precio.toLocaleString('es-MX') }} MXN / pieza</p>
           </div>
           <div class="controles">
             <label class="lbl-cantidad">Cantidad</label>
@@ -28,7 +28,7 @@
               min="1"
               (change)="onActualizarCantidad(item.producto.id, $event)"
             />
-            <p class="subtotal">{{ subtotalFormateado(item.producto.price, item.cantidad) }}</p>
+            <p class="subtotal">{{ subtotalFormateado(item.producto.precio, item.cantidad) }}</p>
             <button class="btn-quitar" (click)="onQuitarProducto(item.producto.id)">Quitar</button>
           </div>
         </div>
