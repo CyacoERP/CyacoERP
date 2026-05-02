@@ -27,4 +27,11 @@ export class ProductosService {
   async remove(id: number): Promise<Producto> {
     return this.prisma.producto.delete({ where: { id } });
   }
+
+  async actualizarUrlDocumento(id: number, urlDocumento: string): Promise<Producto> {
+    const producto = await this.prisma.producto.findUnique({ where: { id } });
+    if (!producto) throw new NotFoundException(`Producto ${id} no encontrado.`);
+    return this.prisma.producto.update({ where: { id }, data: { urlDocumento } });
+  }
 }
+

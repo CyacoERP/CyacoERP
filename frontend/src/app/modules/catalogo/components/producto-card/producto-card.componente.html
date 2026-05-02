@@ -10,5 +10,23 @@
     } @else {
       <span class="sin-stock">Sin stock</span>
     }
+    <div class="doc-actions">
+      @if (urlDocumento) {
+        <button class="btn-doc" (click)="abrirDocumento()">📄 Ver ficha técnica</button>
+      }
+      @if (esAdmin) {
+        <label class="btn-subir" [class.cargando]="subiendo()">
+          @if (subiendo()) {
+            Subiendo…
+          } @else {
+            📤 {{ urlDocumento ? 'Actualizar PDF' : 'Subir ficha PDF' }}
+          }
+          <input type="file" accept="application/pdf" (change)="onSeleccionarArchivo($event)" hidden />
+        </label>
+        @if (errorSubida()) {
+          <p class="doc-error">{{ errorSubida() }}</p>
+        }
+      }
+    </div>
   </div>
 </article>

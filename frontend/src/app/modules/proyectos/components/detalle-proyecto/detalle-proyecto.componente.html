@@ -2,11 +2,21 @@
   <section class="estado-wrap">
     <p>Cargando detalle del proyecto...</p>
   </section>
+} @else if (errorCarga()) {
+  <section class="estado-wrap">
+    <p class="error-msg">{{ errorCarga() }}</p>
+    <a routerLink="/proyectos" class="volver-link">← Volver a proyectos</a>
+  </section>
 } @else if (proyecto(); as detalle) {
   <section class="detalle-shell">
     <header class="hero-detalle">
       <div class="hero-content">
-        <a routerLink="/proyectos" class="volver-link">Volver a proyectos</a>
+        <div class="hero-nav">
+          <a routerLink="/proyectos" class="volver-link">← Volver a proyectos</a>
+          @if (esAdmin()) {
+            <span class="badge-admin">Modo Admin</span>
+          }
+        </div>
 
         <div class="encabezado-grid">
           <div class="datos-principales">
@@ -39,57 +49,94 @@
 
     <div class="contenido-detalle">
       <div class="grid-principal">
+
+        <!-- Tareas (antes: hitos) -->
         <section class="card hitos-card">
-          <h2>Plan de Hitos</h2>
+          <div class="card-header-row">
+            <h2>Tareas del Proyecto</h2>
+            @if (esAdmin()) {
+              <button type="button" class="btn-sm" (click)="abrirFormTarea()">+ Nueva Tarea</button>
+            }
+          </div>
 
-          <div class="lista-hitos">
-            @for (hito of detalle.hitos; track hito.id) {
-              <article class="hito-item">
-                <div class="icono-col">
-                  <span class="icono"
-                    [class.ok]="hito.estado === 'completado'"
-                    [class.proc]="hito.estado === 'en_proceso'"
-                    [class.pen]="hito.estado === 'pendiente'"
-                  >
-                    @if (hito.estado === 'completado') {<span>v</span>}
-                    @if (hito.estado === 'en_proceso') {<span>~</span>}
-                    @if (hito.estado === 'pendiente') {<span>o</span>}
-                  </span>
-                </div>
-
-                <div class="hito-contenido">
-                  <div class="hito-head">
-                    <div>
-                      <h3>{{ hito.nombre }}</h3>
-                      <p>{{ hito.fechaTexto }}</p>
-                    </div>
-                    <span class="estado-pill"
-                      [class.en-progreso]="hito.estado === 'en_proceso'"
-                      [class.completado]="hito.estado === 'completado'"
-                      [class.pendiente]="hito.estado === 'pendiente'"
+          @if (detalle.hitos.length === 0) {
+            <p class="sin-items">Sin tareas registradas aún.</p>
+          } @else {
+            <div class="lista-hitos">
+              @for (hito of detalle.hitos; track hito.id) {
+                <article class="hito-item">
+                  <div class="icono-col">
+                    <span class="icono"
+                      [class.ok]="hito.estado === 'completado'"
+                      [class.proc]="hito.estado === 'en_proceso'"
+                      [class.pen]="hito.estado === 'pendiente'"
                     >
-                      {{ hito.estadoLabel }}
+                      @if (hito.estado === 'completado') {<span>✔</span>}
+                      @if (hito.estado === 'en_proceso') {<span>~</span>}
+                      @if (hito.estado === 'pendiente') {<span>○</span>}
                     </span>
                   </div>
 
-                  @if (hito.estado !== 'pendiente') {
-                    <div class="progreso-wrap">
-                      <div class="progreso-top">
-                        <span>Progreso</span>
-                        <strong>{{ hito.progreso }}%</strong>
+                  <div class="hito-contenido">
+                    <div class="hito-head">
+                      <div>
+                        <h3>{{ hito.nombre }}</h3>
+                        <p>{{ hito.fechaTexto }}</p>
                       </div>
-                      <div class="track">
-                        <span class="fill"
-                          [class.ok]="hito.estado === 'completado'"
-                          [style.width.%]="hito.progreso"
-                        ></span>
-                      </div>
+                      <span class="estado-pill"
+                        [class.en-progreso]="hito.estado === 'en_proceso'"
+                        [class.completado]="hito.estado === 'completado'"
+                        [class.pendiente]="hito.estado === 'pendiente'"
+                      >
+                        {{ hito.estadoLabel }}
+                      </span>
                     </div>
-                  }
-                </div>
-              </article>
-            }
+
+                    @if (hito.estado !== 'pendiente') {
+                      <div class="progreso-wrap">
+                        <div class="progreso-top">
+                          <span>Progreso</span>
+                          <strong>{{ hito.progreso }}%</strong>
+                        </div>
+                        <div class="track">
+                          <span class="fill"
+                            [class.ok]="hito.estado === 'completado'"
+                            [style.width.%]="hito.progreso"
+                          ></span>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </article>
+              }
+            </div>
+          }
+        </section>
+
+        <!-- Bitácora -->
+        <section class="card bitacora-card">
+          <div class="card-header-row">
+            <h2>Bitácora de Avance</h2>
+            <button type="button" class="btn-sm" (click)="abrirFormBitacora()">+ Agregar Nota</button>
           </div>
+
+          @if (bitacora().length === 0) {
+            <p class="sin-items">Sin entradas en la bitácora.</p>
+          } @else {
+            <ul class="lista-bitacora">
+              @for (entrada of bitacora(); track entrada.id) {
+                <li class="bitacora-item">
+                  <div class="bitacora-meta">
+                    <span class="bitacora-fecha">{{ formatearFechaISO(entrada.creadoEn) }}</span>
+                    @if (entrada.avance > 0) {
+                      <span class="bitacora-avance">{{ entrada.avance }}% avance</span>
+                    }
+                  </div>
+                  <p>{{ entrada.nota }}</p>
+                </li>
+              }
+            </ul>
+          }
         </section>
 
         <aside class="columna-lateral">
@@ -137,25 +184,11 @@
             </div>
           </section>
 
-          <section class="card equipo-card">
-            <h2>Equipo del Proyecto</h2>
-
-            @for (miembro of detalle.equipo; track miembro.nombre) {
-              <div class="miembro-item">
-                <span class="avatar">{{ miembro.nombre.charAt(0) }}</span>
-                <div>
-                  <p>{{ miembro.nombre }}</p>
-                  <small>{{ miembro.rol }}</small>
-                </div>
-              </div>
-            }
-          </section>
-
           <section class="card resumen-card">
-            <h2>Resumen de Hitos</h2>
+            <h2>Resumen de Tareas</h2>
 
             <div class="resumen-row">
-              <span>Completados</span>
+              <span>Completadas</span>
               <strong class="ok">{{ resumenHitos().completados }}</strong>
             </div>
             <div class="resumen-row">
@@ -171,4 +204,66 @@
       </div>
     </div>
   </section>
+}
+
+<!-- Modal: Nueva Tarea -->
+@if (mostrarFormTarea()) {
+  <div class="modal-overlay" (click)="cerrarFormTarea()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Nueva Tarea</h2>
+        <button type="button" class="btn-cerrar" (click)="cerrarFormTarea()" aria-label="Cerrar">&#x2715;</button>
+      </div>
+      <form (ngSubmit)="guardarTarea()" class="form-nuevo">
+        <label>
+          Título *
+          <input type="text" [ngModel]="formTarea().titulo" (ngModelChange)="actualizarCampoTarea('titulo', $event)" name="tituloTarea" required />
+        </label>
+        <label>
+          Descripción
+          <textarea [ngModel]="formTarea().descripcion" (ngModelChange)="actualizarCampoTarea('descripcion', $event)" name="descTarea" rows="2"></textarea>
+        </label>
+        @if (errorTarea()) {
+          <p class="form-error">{{ errorTarea() }}</p>
+        }
+        <div class="form-actions">
+          <button type="button" class="btn-secundario" (click)="cerrarFormTarea()">Cancelar</button>
+          <button type="submit" class="btn-primario" [disabled]="guardandoTarea()">
+            {{ guardandoTarea() ? 'Guardando...' : 'Crear Tarea' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- Modal: Agregar Entrada Bitácora -->
+@if (mostrarFormBitacora()) {
+  <div class="modal-overlay" (click)="cerrarFormBitacora()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Agregar Nota de Avance</h2>
+        <button type="button" class="btn-cerrar" (click)="cerrarFormBitacora()" aria-label="Cerrar">&#x2715;</button>
+      </div>
+      <form (ngSubmit)="guardarBitacora()" class="form-nuevo">
+        <label>
+          Nota *
+          <textarea [ngModel]="formBitacora().nota" (ngModelChange)="actualizarCampoBitacora('nota', $event)" name="notaBitacora" rows="3" required></textarea>
+        </label>
+        <label>
+          % de Avance actual
+          <input type="number" min="0" max="100" [ngModel]="formBitacora().avance" (ngModelChange)="actualizarCampoBitacora('avance', $event)" name="avanceBitacora" />
+        </label>
+        @if (errorBitacora()) {
+          <p class="form-error">{{ errorBitacora() }}</p>
+        }
+        <div class="form-actions">
+          <button type="button" class="btn-secundario" (click)="cerrarFormBitacora()">Cancelar</button>
+          <button type="submit" class="btn-primario" [disabled]="guardandoBitacora()">
+            {{ guardandoBitacora() ? 'Guardando...' : 'Guardar' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 }

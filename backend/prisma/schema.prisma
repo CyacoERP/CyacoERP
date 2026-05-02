@@ -25,6 +25,20 @@ enum EstadoCotizacion {
   cancelada
 }
 
+enum EstadoProyecto {
+  planificacion
+  en_progreso
+  pausado
+  finalizado
+}
+
+enum EstadoTareaProyecto {
+  pendiente
+  en_progreso
+  bloqueada
+  completada
+}
+
 model Usuario {
   id            Int        @id @default(autoincrement())
   nombre        String     @db.VarChar(160)
@@ -38,6 +52,7 @@ model Usuario {
   creadoEn      DateTime   @default(now())
   actualizadoEn DateTime   @updatedAt
   cotizaciones  Cotizacion[]
+  proyectos     Proyecto[]
 
   @@map("usuarios")
 }
@@ -74,6 +89,7 @@ model Producto {
   precio        Float
   stock         Int        @default(0)
   imagenUrl     String?    @db.VarChar(255)
+  urlDocumento  String?    @db.VarChar(255)
   categoriaId   Int
   categoria     Categoria  @relation(fields: [categoriaId], references: [id])
   activo        Boolean    @default(true)
@@ -124,4 +140,54 @@ model ItemCotizacion {
   actualizadoEn DateTime  @updatedAt
 
   @@map("cotizacion_items")
+}
+
+model Proyecto {
+  id               Int                 @id @default(autoincrement())
+  nombre           String              @db.VarChar(180)
+  descripcion      String              @db.VarChar(500)
+  cliente          String              @db.VarChar(180)
+  estado           EstadoProyecto      @default(planificacion)
+  porcentajeAvance Int                 @default(0)
+  fechaInicio      DateTime
+  fechaFinEstimada DateTime
+  gerente          String?             @db.VarChar(160)
+  presupuesto      Float               @default(0)
+  activo           Boolean             @default(true)
+  usuarioId        Int
+  usuario          Usuario             @relation(fields: [usuarioId], references: [id])
+  tareas           TareaProyecto[]
+  bitacora         BitacoraProyecto[]
+  creadoEn         DateTime            @default(now())
+  actualizadoEn    DateTime            @updatedAt
+
+  @@map("proyectos")
+}
+
+model TareaProyecto {
+  id            Int                 @id @default(autoincrement())
+  proyectoId    Int
+  proyecto      Proyecto            @relation(fields: [proyectoId], references: [id], onDelete: Cascade)
+  titulo        String              @db.VarChar(180)
+  descripcion   String?             @db.VarChar(500)
+  estado        EstadoTareaProyecto @default(pendiente)
+  progreso      Int                 @default(0)
+  orden         Int                 @default(0)
+  fechaEstimada DateTime?
+  fechaReal     DateTime?
+  creadoEn      DateTime            @default(now())
+  actualizadoEn DateTime            @updatedAt
+
+  @@map("proyecto_tareas")
+}
+
+model BitacoraProyecto {
+  id         Int      @id @default(autoincrement())
+  proyectoId Int
+  proyecto   Proyecto @relation(fields: [proyectoId], references: [id], onDelete: Cascade)
+  nota       String   @db.VarChar(500)
+  avance     Int      @default(0)
+  creadoEn   DateTime @default(now())
+
+  @@map("proyecto_bitacora")
 }

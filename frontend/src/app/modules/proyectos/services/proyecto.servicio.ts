@@ -3,6 +3,26 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Proyecto } from '../models/proyecto.modelo';
 
+export interface TareaProyectoApi {
+  id: number;
+  proyectoId: number;
+  titulo: string;
+  descripcion?: string | null;
+  estado: 'pendiente' | 'en_progreso' | 'bloqueada' | 'completada';
+  progreso: number;
+  orden: number;
+  fechaEstimada?: string | null;
+  fechaReal?: string | null;
+}
+
+export interface BitacoraProyectoApi {
+  id: number;
+  proyectoId: number;
+  nota: string;
+  avance: number;
+  creadoEn: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ProyectoServicio {
   constructor(private http: HttpClient) {}
@@ -33,5 +53,35 @@ export class ProyectoServicio {
 
   obtenerProyectosActivos(): Observable<Proyecto[]> {
     return this.http.get<Proyecto[]>('/api/proyectos/filtro/activos');
+  }
+
+  obtenerTareas(idProyecto: number): Observable<TareaProyectoApi[]> {
+    return this.http.get<TareaProyectoApi[]>(`/api/proyectos/${idProyecto}/tareas`);
+  }
+
+  crearTarea(idProyecto: number, tarea: Partial<TareaProyectoApi>): Observable<TareaProyectoApi> {
+    return this.http.post<TareaProyectoApi>(`/api/proyectos/${idProyecto}/tareas`, tarea);
+  }
+
+  actualizarTarea(
+    idProyecto: number,
+    idTarea: number,
+    cambios: Partial<TareaProyectoApi>,
+  ): Observable<TareaProyectoApi> {
+    return this.http.patch<TareaProyectoApi>(
+      `/api/proyectos/${idProyecto}/tareas/${idTarea}`,
+      cambios,
+    );
+  }
+
+  obtenerBitacora(idProyecto: number): Observable<BitacoraProyectoApi[]> {
+    return this.http.get<BitacoraProyectoApi[]>(`/api/proyectos/${idProyecto}/bitacora`);
+  }
+
+  agregarBitacora(
+    idProyecto: number,
+    payload: { nota: string; avance?: number },
+  ): Observable<BitacoraProyectoApi> {
+    return this.http.post<BitacoraProyectoApi>(`/api/proyectos/${idProyecto}/bitacora`, payload);
   }
 }

@@ -1,0 +1,144 @@
+<section class="clientes-shell">
+  <div class="page-header">
+    <h1>Gestión de Clientes</h1>
+    <button type="button" class="btn-nuevo" (click)="abrirCrear()">+ Nuevo Cliente</button>
+  </div>
+
+  <div class="toolbar">
+    <label class="buscador" for="buscarCliente">
+      <input
+        id="buscarCliente"
+        type="search"
+        placeholder="Buscar por razón social, RFC o email..."
+        (input)="buscar($event)"
+      />
+    </label>
+    <span class="total-badge">{{ total() }} clientes</span>
+  </div>
+
+  @if (cargando()) {
+    <p class="estado">Cargando clientes...</p>
+  } @else if (errorCarga()) {
+    <p class="estado error">{{ errorCarga() }}</p>
+  } @else if (clientes().length === 0) {
+    <p class="estado">No se encontraron clientes.</p>
+  } @else {
+    <div class="tabla-wrap">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Razón Social</th>
+            <th>RFC</th>
+            <th>Email</th>
+            <th>Teléfono</th>
+            <th>Sector</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (cliente of clientes(); track cliente.id) {
+            <tr [class.inactivo]="!cliente.activo">
+              <td>{{ cliente.id }}</td>
+              <td>{{ cliente.razonSocial }}</td>
+              <td class="mono">{{ cliente.rfc }}</td>
+              <td>{{ cliente.email }}</td>
+              <td>{{ cliente.telefono ?? '—' }}</td>
+              <td>{{ cliente.sector ?? '—' }}</td>
+              <td>
+                <span class="badge" [class.activo]="cliente.activo" [class.inactivo-badge]="!cliente.activo">
+                  {{ cliente.activo ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td class="acciones">
+                <button type="button" class="btn-accion editar" (click)="abrirEditar(cliente)" title="Editar">✏️</button>
+                @if (cliente.activo) {
+                  <button type="button" class="btn-accion desactivar" (click)="confirmarDesactivar(cliente)" title="Desactivar">🗑️</button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (totalPaginas() > 1) {
+      <nav class="paginacion" aria-label="Paginación">
+        @for (p of paginas(); track p) {
+          <button
+            type="button"
+            class="pag-btn"
+            [class.active]="pagina() === p"
+            (click)="irAPagina(p)"
+          >{{ p }}</button>
+        }
+      </nav>
+    }
+  }
+</section>
+
+<!-- Modal: Crear / Editar Cliente -->
+@if (mostrarModal()) {
+  <div class="modal-overlay" (click)="cerrarModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ modoModal() === 'crear' ? 'Nuevo Cliente' : 'Editar Cliente' }}</h2>
+        <button type="button" class="btn-cerrar" (click)="cerrarModal()" aria-label="Cerrar">&#x2715;</button>
+      </div>
+
+      <form class="form-cliente" (ngSubmit)="guardar()">
+        <label>
+          Razón Social *
+          <input type="text" [ngModel]="form().razonSocial" (ngModelChange)="actualizarCampo('razonSocial', $event)" name="razonSocial" required />
+        </label>
+
+        <label>
+          RFC *
+          <input type="text" [ngModel]="form().rfc" (ngModelChange)="actualizarCampo('rfc', $event)" name="rfc" maxlength="13" required [disabled]="modoModal() === 'editar'" />
+        </label>
+
+        <label>
+          Email *
+          <input type="email" [ngModel]="form().email" (ngModelChange)="actualizarCampo('email', $event)" name="email" required />
+        </label>
+
+        <div class="form-row">
+          <label>
+            Teléfono
+            <input type="tel" [ngModel]="form().telefono" (ngModelChange)="actualizarCampo('telefono', $event)" name="telefono" />
+          </label>
+          <label>
+            Sector
+            <input type="text" [ngModel]="form().sector" (ngModelChange)="actualizarCampo('sector', $event)" name="sector" placeholder="Ej: Petróleo, Agua..." />
+          </label>
+        </div>
+
+        @if (errorModal()) {
+          <p class="form-error">{{ errorModal() }}</p>
+        }
+
+        <div class="form-actions">
+          <button type="button" class="btn-secundario" (click)="cerrarModal()">Cancelar</button>
+          <button type="submit" class="btn-primario" [disabled]="guardando()">
+            {{ guardando() ? 'Guardando...' : (modoModal() === 'crear' ? 'Crear' : 'Guardar') }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- Confirm desactivar -->
+@if (mostrarConfirmDesactivar()) {
+  <div class="modal-overlay" (click)="cancelarDesactivar()">
+    <div class="modal-card confirm-card" (click)="$event.stopPropagation()">
+      <h2>¿Desactivar cliente?</h2>
+      <p>Se desactivará a <strong>{{ clienteADesactivar()?.razonSocial }}</strong>. Podrá reactivarse después.</p>
+      <div class="form-actions">
+        <button type="button" class="btn-secundario" (click)="cancelarDesactivar()">Cancelar</button>
+        <button type="button" class="btn-danger" (click)="ejecutarDesactivar()">Desactivar</button>
+      </div>
+    </div>
+  </div>
+}

@@ -7,8 +7,10 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ProyectoServicio } from '../../services/proyecto.servicio';
+import { AuthServicio } from '../../../auth/services/auth.servicio';
 import { Proyecto } from '../../models/proyecto.modelo';
 
 type EstadoFiltro = 'todos' | 'en_progreso' | 'finalizado' | 'planificacion';
@@ -30,29 +32,55 @@ interface TarjetaProyecto {
   totalHitos: number;
 }
 
+interface FormNuevoProyecto {
+  nombre: string;
+  descripcion: string;
+  cliente: string;
+  gerente: string;
+  fechaInicio: string;
+  fechaFinEstimada: string;
+  presupuesto: number;
+}
+
 @Component({
   selector: 'app-lista-proyectos',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './lista-proyectos.componente.html',
   styleUrl: './lista-proyectos.componente.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ListaProyectosComponente implements OnInit {
   private readonly proyectoServicio = inject(ProyectoServicio);
+  private readonly authServicio = inject(AuthServicio);
 
   readonly proyectos = signal<TarjetaProyecto[]>([]);
   readonly cargando = signal(true);
+  readonly errorCarga = signal('');
   readonly textoBusqueda = signal('');
   readonly estadoFiltro = signal<EstadoFiltro>('todos');
+  readonly mostrarFormulario = signal(false);
+  readonly guardando = signal(false);
+  readonly errorFormulario = signal('');
+
+  readonly form = signal<FormNuevoProyecto>({
+    nombre: '',
+    descripcion: '',
+    cliente: '',
+    gerente: '',
+    fechaInicio: new Date().toISOString().slice(0, 10),
+    fechaFinEstimada: '',
+    presupuesto: 0,
+  });
+
+  readonly esAdmin = computed(() => this.authServicio.tieneRol('admin'));
 
   readonly proyectosFiltrados = computed(() => {
     const texto = this.textoBusqueda().trim().toLowerCase();
     const filtro = this.estadoFiltro();
 
     return this.proyectos().filter((proyecto) => {
-      const coincideFiltro =
-        filtro === 'todos' ? true : proyecto.estado === filtro;
+      const coincideFiltro = filtro === 'todos' ? true : proyecto.estado === filtro;
       const coincideTexto =
         texto.length === 0
           ? true
@@ -83,42 +111,95 @@ export class ListaProyectosComponente implements OnInit {
   ];
 
   ngOnInit(): void {
+    this.cargarProyectos();
+  }
+
+  cargarProyectos(): void {
+    this.cargando.set(true);
+    this.errorCarga.set('');
     this.proyectoServicio.obtenerTodos().subscribe({
       next: (datos) => {
-        const proyectosMapeados = (datos ?? []).map((proyecto, index) =>
-          this.mapearProyecto(proyecto, index),
-        );
-
-        this.proyectos.set(
-          proyectosMapeados.length > 0 ? proyectosMapeados : this.crearDatosDemo(),
-        );
+        this.proyectos.set((datos ?? []).map((p, i) => this.mapearProyecto(p, i)));
         this.cargando.set(false);
       },
       error: () => {
-        this.proyectos.set(this.crearDatosDemo());
+        this.errorCarga.set('No se pudo conectar con el servidor. Verifica tu sesión.');
+        this.proyectos.set([]);
         this.cargando.set(false);
       },
     });
   }
 
   actualizarBusqueda(evento: Event): void {
-    const objetivo = evento.target as HTMLInputElement | null;
-    this.textoBusqueda.set(objetivo?.value ?? '');
+    this.textoBusqueda.set((evento.target as HTMLInputElement).value ?? '');
   }
 
   cambiarFiltro(estado: EstadoFiltro): void {
     this.estadoFiltro.set(estado);
   }
 
-  trackPorCodigo(_: number, proyecto: TarjetaProyecto): string {
-    return proyecto.codigo;
+  trackPorId(_: number, proyecto: TarjetaProyecto): number {
+    return proyecto.id;
+  }
+
+  abrirFormulario(): void {
+    this.form.set({
+      nombre: '',
+      descripcion: '',
+      cliente: '',
+      gerente: '',
+      fechaInicio: new Date().toISOString().slice(0, 10),
+      fechaFinEstimada: '',
+      presupuesto: 0,
+    });
+    this.errorFormulario.set('');
+    this.mostrarFormulario.set(true);
+  }
+
+  cerrarFormulario(): void {
+    this.mostrarFormulario.set(false);
+  }
+
+  actualizarCampo(campo: keyof FormNuevoProyecto, valor: string | number): void {
+    this.form.update((f) => ({ ...f, [campo]: valor }));
+  }
+
+  guardarProyecto(): void {
+    const f = this.form();
+    if (!f.nombre.trim() || !f.cliente.trim() || !f.fechaInicio || !f.fechaFinEstimada) {
+      this.errorFormulario.set('Nombre, cliente y fechas son requeridos.');
+      return;
+    }
+
+    this.guardando.set(true);
+    this.errorFormulario.set('');
+
+    const payload = {
+      nombre: f.nombre.trim(),
+      descripcion: f.descripcion.trim(),
+      cliente: f.cliente.trim(),
+      gerente: f.gerente.trim() || undefined,
+      fechaInicio: f.fechaInicio,
+      fechaFinEstimada: f.fechaFinEstimada,
+      presupuesto: Number(f.presupuesto) || 0,
+    } as unknown as Proyecto;
+
+    this.proyectoServicio.crear(payload).subscribe({
+      next: () => {
+        this.guardando.set(false);
+        this.mostrarFormulario.set(false);
+        this.cargarProyectos();
+      },
+      error: () => {
+        this.guardando.set(false);
+        this.errorFormulario.set('Error al crear el proyecto. Intenta de nuevo.');
+      },
+    });
   }
 
   private mapearProyecto(proyecto: Proyecto, index: number): TarjetaProyecto {
-    const totalHitos = proyecto.hitos?.length ?? 0;
-    const hitosCompletados = proyecto.hitos?.filter(
-      (hito) => (hito.porcentajeAvance ?? 0) >= 100,
-    ).length;
+    const tareas = proyecto.tareas ?? proyecto.hitos ?? [];
+    const hitosCompletados = tareas.filter((t) => t.estado === 'completada').length;
 
     return {
       id: proyecto.id,
@@ -134,95 +215,17 @@ export class ListaProyectosComponente implements OnInit {
       presupuesto: proyecto.presupuesto ?? 0,
       porcentajeAvance: proyecto.porcentajeAvance,
       hitosCompletados,
-      totalHitos: totalHitos > 0 ? totalHitos : 1,
+      totalHitos: tareas.length || 1,
     };
   }
 
   private obtenerEtiquetaEstado(estado: Proyecto['estado']): string {
-    switch (estado) {
-      case 'en_progreso':
-        return 'En Proceso';
-      case 'finalizado':
-        return 'Completado';
-      case 'planificacion':
-        return 'Pendiente';
-      case 'pausado':
-        return 'Pausado';
-      default:
-        return 'N/D';
-    }
-  }
-
-  private crearDatosDemo(): TarjetaProyecto[] {
-    return [
-      {
-        id: 1,
-        codigo: 'PROJ-001',
-        nombre: 'Modernizacion Sistema SCADA - Refineria Cadereyta',
-        descripcion:
-          'Modernizacion completa del sistema de control y supervision de la refineria, sustituyendo equipos obsoletos por instrumentacion Endress+Hauser de ultima generacion.',
-        cliente: 'PEMEX Refinacion',
-        estado: 'en_progreso',
-        estadoLabel: 'En Proceso',
-        gerente: 'Ing. Carlos Vega',
-        fechaInicio: new Date('2024-09-01'),
-        fechaFinEstimada: new Date('2025-03-31'),
-        presupuesto: 2500000,
-        porcentajeAvance: 65,
-        hitosCompletados: 2,
-        totalHitos: 6,
-      },
-      {
-        id: 2,
-        codigo: 'PROJ-002',
-        nombre: 'Sistema de Medicion Fiscal Gas Natural',
-        descripcion:
-          'Instalacion de sistema de medicion fiscal para gas natural conforme a norma AGA-9, con cromatografo en linea y sistema de computo de flujo.',
-        cliente: 'CFE Generacion II',
-        estado: 'en_progreso',
-        estadoLabel: 'En Proceso',
-        gerente: 'Ing. Laura Reyes',
-        fechaInicio: new Date('2024-10-15'),
-        fechaFinEstimada: new Date('2025-02-28'),
-        presupuesto: 1800000,
-        porcentajeAvance: 80,
-        hitosCompletados: 3,
-        totalHitos: 5,
-      },
-      {
-        id: 3,
-        codigo: 'PROJ-003',
-        nombre: 'Automatizacion Planta de Tratamiento de Agua',
-        descripcion:
-          'Automatizacion integral de planta de tratamiento de agua potable con capacidad de 500 L/s, incluyendo instrumentacion de calidad, medicion de flujo y control remoto.',
-        cliente: 'SIMAS Monterrey',
-        estado: 'finalizado',
-        estadoLabel: 'Completado',
-        gerente: 'Ing. Diego Ramirez',
-        fechaInicio: new Date('2024-08-01'),
-        fechaFinEstimada: new Date('2025-01-31'),
-        presupuesto: 950000,
-        porcentajeAvance: 95,
-        hitosCompletados: 5,
-        totalHitos: 5,
-      },
-      {
-        id: 4,
-        codigo: 'PROJ-004',
-        nombre: 'Migracion DCS Honeywell TDC 3000 a Experion',
-        descripcion:
-          'Migracion del sistema de control distribuido Honeywell TDC 3000 al nuevo sistema Experion PKS, manteniendo continuidad operativa de la planta quimica.',
-        cliente: 'BASF Mexico',
-        estado: 'planificacion',
-        estadoLabel: 'Pendiente',
-        gerente: 'Ing. Fernando Castro',
-        fechaInicio: new Date('2025-01-01'),
-        fechaFinEstimada: new Date('2025-06-30'),
-        presupuesto: 3200000,
-        porcentajeAvance: 20,
-        hitosCompletados: 1,
-        totalHitos: 5,
-      },
-    ];
+    const mapa: Record<Proyecto['estado'], string> = {
+      en_progreso: 'En Proceso',
+      finalizado: 'Completado',
+      planificacion: 'Planificación',
+      pausado: 'Pausado',
+    };
+    return mapa[estado] ?? 'N/D';
   }
 }

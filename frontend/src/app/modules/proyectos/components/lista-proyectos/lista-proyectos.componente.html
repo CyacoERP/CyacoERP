@@ -7,8 +7,12 @@
         <span class="actual">Proyectos de Implementacion</span>
       </nav>
 
-      <h1>Proyectos de Implementacion</h1>
-      <p>4 proyectos activos y completados</p>
+      <div class="hero-titulo-row">
+        <h1>Proyectos de Implementacion</h1>
+        @if (esAdmin()) {
+          <button type="button" class="btn-nuevo" (click)="abrirFormulario()">+ Nuevo Proyecto</button>
+        }
+      </div>
 
       <div class="stats-grid">
         <article class="stat-card">
@@ -63,11 +67,18 @@
 
     @if (cargando()) {
       <p class="estado">Cargando proyectos...</p>
+    } @else if (errorCarga()) {
+      <p class="estado error">{{ errorCarga() }}</p>
     } @else if (proyectosFiltrados().length === 0) {
-      <p class="estado">No se encontraron proyectos para los filtros seleccionados.</p>
+      <div class="estado-vacio">
+        <p>No hay proyectos para mostrar.</p>
+        @if (esAdmin()) {
+          <button type="button" class="btn-nuevo" (click)="abrirFormulario()">Crear primer proyecto</button>
+        }
+      </div>
     } @else {
       <section class="lista-proyectos" aria-label="Listado de proyectos">
-        @for (proyecto of proyectosFiltrados(); track trackPorCodigo($index, proyecto)) {
+        @for (proyecto of proyectosFiltrados(); track trackPorId($index, proyecto)) {
           <article class="proyecto-card">
             <div class="info-principal">
               <div class="linea-titulo">
@@ -105,7 +116,7 @@
                   [style.width.%]="proyecto.porcentajeAvance"
                 ></span>
               </div>
-              <p class="hitos">{{ proyecto.hitosCompletados }}/{{ proyecto.totalHitos }} hitos</p>
+              <p class="hitos">{{ proyecto.hitosCompletados }}/{{ proyecto.totalHitos }} tareas</p>
             </div>
           </article>
         }
@@ -113,3 +124,64 @@
     }
   </div>
 </section>
+
+<!-- Modal: Nuevo Proyecto (solo admin) -->
+@if (mostrarFormulario()) {
+  <div class="modal-overlay" (click)="cerrarFormulario()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Nuevo Proyecto</h2>
+        <button type="button" class="btn-cerrar" (click)="cerrarFormulario()" aria-label="Cerrar">&#x2715;</button>
+      </div>
+
+      <form class="form-nuevo" (ngSubmit)="guardarProyecto()">
+        <label>
+          Nombre del proyecto *
+          <input type="text" [ngModel]="form().nombre" (ngModelChange)="actualizarCampo('nombre', $event)" name="nombre" required />
+        </label>
+
+        <label>
+          Descripción
+          <textarea [ngModel]="form().descripcion" (ngModelChange)="actualizarCampo('descripcion', $event)" name="descripcion" rows="2"></textarea>
+        </label>
+
+        <label>
+          Cliente *
+          <input type="text" [ngModel]="form().cliente" (ngModelChange)="actualizarCampo('cliente', $event)" name="cliente" required />
+        </label>
+
+        <label>
+          Gerente de proyecto
+          <input type="text" [ngModel]="form().gerente" (ngModelChange)="actualizarCampo('gerente', $event)" name="gerente" />
+        </label>
+
+        <div class="form-row">
+          <label>
+            Fecha de inicio *
+            <input type="date" [ngModel]="form().fechaInicio" (ngModelChange)="actualizarCampo('fechaInicio', $event)" name="fechaInicio" required />
+          </label>
+          <label>
+            Fecha fin estimada *
+            <input type="date" [ngModel]="form().fechaFinEstimada" (ngModelChange)="actualizarCampo('fechaFinEstimada', $event)" name="fechaFinEstimada" required />
+          </label>
+        </div>
+
+        <label>
+          Presupuesto (USD)
+          <input type="number" min="0" [ngModel]="form().presupuesto" (ngModelChange)="actualizarCampo('presupuesto', $event)" name="presupuesto" />
+        </label>
+
+        @if (errorFormulario()) {
+          <p class="form-error">{{ errorFormulario() }}</p>
+        }
+
+        <div class="form-actions">
+          <button type="button" class="btn-secundario" (click)="cerrarFormulario()">Cancelar</button>
+          <button type="submit" class="btn-primario" [disabled]="guardando()">
+            {{ guardando() ? 'Guardando...' : 'Crear Proyecto' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
