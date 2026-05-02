@@ -80,17 +80,23 @@ export class SolicitarCotizacionComponente {
       items,
     };
 
-    const cotizacionCreada = this.cotizacionServicio.crearDesdeSolicitud(payload);
-    this.descargarXmlCotizacion(cotizacionCreada.numero, payload);
-    this.enviado.set(true);
+    this.cotizacionServicio.crearDesdeSolicitud(payload).subscribe({
+      next: (cotizacionCreada) => {
+        this.descargarXmlCotizacion(cotizacionCreada.numero, payload);
+        this.enviado.set(true);
 
-    // Espera breve para que el navegador inicie la descarga antes de redirigir.
-    setTimeout(() => {
-      this.carritoServicio.vaciarCarrito();
-      this.router.navigate(['/cotizaciones/enviada'], {
-        queryParams: { numero: cotizacionCreada.numero },
-      });
-    }, 500);
+        // Espera breve para que el navegador inicie la descarga antes de redirigir.
+        setTimeout(() => {
+          this.carritoServicio.vaciarCarrito();
+          this.router.navigate(['/cotizaciones/enviada'], {
+            queryParams: { numero: cotizacionCreada.numero },
+          });
+        }, 500);
+      },
+      error: () => {
+        this.mensajeEnvio.set('No fue posible enviar la cotización. Intenta nuevamente.');
+      },
+    });
   }
 
   private descargarXmlCotizacion(numeroCotizacion: string, payload: SolicitudCotizacion): void {

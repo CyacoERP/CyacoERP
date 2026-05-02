@@ -1,144 +1,156 @@
-import { Injectable, computed, signal } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { map, Observable } from 'rxjs';
 import { Cotizacion, SolicitudCotizacion } from '../models/cotizacion.modelo';
+import { Producto } from '../../../shared/models/producto.modelo';
 
 @Injectable({ providedIn: 'root' })
 export class CotizacionServicio {
-  private readonly storageKey = 'cyacoerp-cotizaciones';
-  private readonly cotizacionesInternas = signal<Cotizacion[]>(this.cargarDesdeStorage());
-  readonly cotizaciones = this.cotizacionesInternas.asReadonly();
-  readonly totalCotizaciones = computed(() => this.cotizacionesInternas().length);
+  private readonly apiUrl = '/api/cotizaciones';
+
+  constructor(private readonly http: HttpClient) {}
 
   obtenerTodas(): Observable<Cotizacion[]> {
-    return of(this.ordenarPorFechaDesc(this.cotizacionesInternas()));
+    return this.http
+      .get<CotizacionApi[]>(`${this.apiUrl}/mis`)
+      .pipe(map((cotizaciones) => cotizaciones.map((c) => this.mapearDesdeApi(c))));
   }
 
   obtenerPorId(id: number): Observable<Cotizacion> {
-    const cotizacion = this.cotizacionesInternas().find(c => c.id === id);
-    if (!cotizacion) {
-      throw new Error(`Cotización ${id} no encontrada`);
-    }
-    return of(cotizacion);
+    return this.http
+      .get<CotizacionApi>(`${this.apiUrl}/${id}`)
+      .pipe(map((cotizacion) => this.mapearDesdeApi(cotizacion)));
   }
 
   crear(cotizacion: Cotizacion): Observable<Cotizacion> {
-    const nuevaCotizacion: Cotizacion = {
-      ...cotizacion,
-      id: this.generarId(),
-      numero: this.generarNumero(),
-      fechaCreacion: new Date(),
-    };
-
-    this.guardarCotizaciones([...this.cotizacionesInternas(), nuevaCotizacion]);
-    return of(nuevaCotizacion);
+    return this.http
+      .post<CotizacionApi>(this.apiUrl, {
+        items: cotizacion.items.map((item) => ({
+          productoId: item.producto.id,
+          cantidad: item.cantidad,
+          precioUnitario: item.precioUnitario,
+        })),
+        observaciones: cotizacion.observaciones,
+        contactoNombre: cotizacion.contacto?.nombreCompleto,
+        contactoCorreo: cotizacion.contacto?.correo,
+        contactoTelefono: cotizacion.contacto?.telefono,
+        contactoCargo: cotizacion.contacto?.cargo,
+        contactoEmpresa: cotizacion.contacto?.empresa,
+        proyectoNombre: cotizacion.proyecto?.nombre,
+        fechaRequerida: cotizacion.proyecto?.fechaRequerida,
+      })
+      .pipe(map((respuesta) => this.mapearDesdeApi(respuesta)));
   }
 
-  crearDesdeSolicitud(solicitud: SolicitudCotizacion): Cotizacion {
-    const cotizacion: Cotizacion = {
-      id: this.generarId(),
-      numero: this.generarNumero(),
-      usuarioId: 1,
-      items: solicitud.items,
-      total: solicitud.items.reduce((acc, item) => acc + item.subtotal, 0),
-      estado: 'enviada',
-      fechaCreacion: new Date(),
-      observaciones: solicitud.notas,
-      contacto: {
-        nombreCompleto: solicitud.nombreCompleto,
-        correo: solicitud.correo,
-        telefono: solicitud.telefono,
-        cargo: solicitud.cargo,
-        empresa: solicitud.empresa,
-      },
-      proyecto: {
-        nombre: solicitud.proyecto,
+  crearDesdeSolicitud(solicitud: SolicitudCotizacion): Observable<Cotizacion> {
+    return this.http
+      .post<CotizacionApi>(this.apiUrl, {
+        items: solicitud.items.map((item) => ({
+          productoId: item.producto.id,
+          cantidad: item.cantidad,
+          precioUnitario: item.precioUnitario,
+        })),
+        observaciones: solicitud.notas,
+        contactoNombre: solicitud.nombreCompleto,
+        contactoCorreo: solicitud.correo,
+        contactoTelefono: solicitud.telefono,
+        contactoCargo: solicitud.cargo,
+        contactoEmpresa: solicitud.empresa,
+        proyectoNombre: solicitud.proyecto,
         fechaRequerida: solicitud.fechaRequerida,
-      },
-    };
-
-    this.guardarCotizaciones([...this.cotizacionesInternas(), cotizacion]);
-    return cotizacion;
+      })
+      .pipe(map((respuesta) => this.mapearDesdeApi(respuesta)));
   }
 
   actualizar(id: number, cotizacion: Cotizacion): Observable<Cotizacion> {
-    const actualizadas = this.cotizacionesInternas().map((item) =>
-      item.id === id ? { ...cotizacion, id } : item
-    );
-    this.guardarCotizaciones(actualizadas);
-    const encontrada = actualizadas.find(c => c.id === id);
-    if (!encontrada) {
-      throw new Error(`Cotización ${id} no encontrada`);
-    }
-    return of(encontrada);
+    return this.http
+      .patch<CotizacionApi>(`${this.apiUrl}/${id}/estado`, { estado: cotizacion.estado })
+      .pipe(map((respuesta) => this.mapearDesdeApi(respuesta)));
   }
 
   eliminar(id: number): Observable<void> {
-    this.guardarCotizaciones(this.cotizacionesInternas().filter(c => c.id !== id));
-    return of(void 0);
+    return this.http.patch<void>(`${this.apiUrl}/${id}/estado`, { estado: 'cancelada' });
   }
 
   solicitarCotizacion(id: number): Observable<Cotizacion> {
-    const cotizacion = this.cotizacionesInternas().find(c => c.id === id);
-    if (!cotizacion) {
-      throw new Error(`Cotización ${id} no encontrada`);
-    }
-
-    const actualizada: Cotizacion = { ...cotizacion, estado: 'enviada' };
-    this.guardarCotizaciones(
-      this.cotizacionesInternas().map((item) => (item.id === id ? actualizada : item))
-    );
-    return of(actualizada);
+    return this.http
+      .patch<CotizacionApi>(`${this.apiUrl}/${id}/estado`, { estado: 'enviada' })
+      .pipe(map((respuesta) => this.mapearDesdeApi(respuesta)));
   }
 
   exportarPDF(): Observable<Blob> {
-    const contenido = JSON.stringify(this.cotizacionesInternas(), null, 2);
-    return of(new Blob([contenido], { type: 'application/json' }));
-  }
-
-  tieneCotizaciones(): boolean {
-    return this.cotizacionesInternas().length > 0;
-  }
-
-  limpiarCotizacion(): void {
-    this.guardarCotizaciones([]);
-  }
-
-  private guardarCotizaciones(cotizaciones: Cotizacion[]): void {
-    this.cotizacionesInternas.set(cotizaciones);
-    localStorage.setItem(this.storageKey, JSON.stringify(cotizaciones));
-  }
-
-  private cargarDesdeStorage(): Cotizacion[] {
-    const datos = localStorage.getItem(this.storageKey);
-    if (!datos) {
-      return [];
-    }
-
-    try {
-      const parsed = JSON.parse(datos) as Cotizacion[];
-      return parsed.map((item) => ({
-        ...item,
-        fechaCreacion: new Date(item.fechaCreacion),
-        fechaPedido: item.fechaPedido ? new Date(item.fechaPedido) : undefined,
-      }));
-    } catch {
-      return [];
-    }
-  }
-
-  private ordenarPorFechaDesc(cotizaciones: Cotizacion[]): Cotizacion[] {
-    return [...cotizaciones].sort(
-      (a, b) => new Date(b.fechaCreacion).getTime() - new Date(a.fechaCreacion).getTime()
+    return this.obtenerTodas().pipe(
+      map((cotizaciones) => new Blob([JSON.stringify(cotizaciones, null, 2)], { type: 'application/json' }))
     );
   }
 
-  private generarId(): number {
-    const ids = this.cotizacionesInternas().map(c => c.id);
-    return ids.length > 0 ? Math.max(...ids) + 1 : 1;
+  tieneCotizaciones(): boolean {
+    return false;
   }
 
-  private generarNumero(): string {
-    const total = this.cotizacionesInternas().length + 1;
-    return `COT-${new Date().getFullYear()}-${String(total).padStart(4, '0')}`;
+  limpiarCotizacion(): void {
+    // Intencionalmente vacío: ahora la fuente de verdad vive en backend.
   }
+
+  private mapearDesdeApi(cotizacion: CotizacionApi): Cotizacion {
+    return {
+      id: cotizacion.id,
+      numero: cotizacion.numero,
+      usuarioId: cotizacion.usuarioId,
+      items: cotizacion.items.map((item) => ({
+        producto: item.producto,
+        cantidad: item.cantidad,
+        precioUnitario: item.precioUnitario,
+        subtotal: item.subtotal,
+      })),
+      total: cotizacion.total,
+      estado: cotizacion.estado,
+      fechaCreacion: new Date(cotizacion.creadoEn),
+      fechaPedido: cotizacion.enviadoEn ? new Date(cotizacion.enviadoEn) : undefined,
+      observaciones: cotizacion.observaciones ?? undefined,
+      contacto:
+        cotizacion.contactoNombre || cotizacion.contactoCorreo || cotizacion.contactoTelefono
+          ? {
+              nombreCompleto: cotizacion.contactoNombre ?? '',
+              correo: cotizacion.contactoCorreo ?? '',
+              telefono: cotizacion.contactoTelefono ?? '',
+              cargo: cotizacion.contactoCargo ?? '',
+              empresa: cotizacion.contactoEmpresa ?? '',
+            }
+          : undefined,
+      proyecto: cotizacion.proyectoNombre
+        ? {
+            nombre: cotizacion.proyectoNombre,
+            fechaRequerida: cotizacion.fechaRequerida ?? '',
+          }
+        : undefined,
+    };
+  }
+}
+
+interface CotizacionApi {
+  id: number;
+  numero: string;
+  usuarioId: number;
+  estado: 'borrador' | 'enviada' | 'aceptada' | 'rechazada' | 'cancelada';
+  subtotal: number;
+  descuentoPct: number;
+  margenPct: number;
+  total: number;
+  observaciones?: string | null;
+  contactoNombre?: string | null;
+  contactoCorreo?: string | null;
+  contactoTelefono?: string | null;
+  contactoCargo?: string | null;
+  contactoEmpresa?: string | null;
+  proyectoNombre?: string | null;
+  fechaRequerida?: string | null;
+  enviadoEn?: string | null;
+  creadoEn: string;
+  items: Array<{
+    cantidad: number;
+    precioUnitario: number;
+    subtotal: number;
+    producto: Producto;
+  }>;
 }

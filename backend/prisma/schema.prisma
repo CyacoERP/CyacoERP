@@ -17,6 +17,14 @@ enum RolUsuario {
   admin
 }
 
+enum EstadoCotizacion {
+  borrador
+  enviada
+  aceptada
+  rechazada
+  cancelada
+}
+
 model Usuario {
   id            Int        @id @default(autoincrement())
   nombre        String     @db.VarChar(160)
@@ -29,6 +37,7 @@ model Usuario {
   activo        Boolean    @default(true)
   creadoEn      DateTime   @default(now())
   actualizadoEn DateTime   @updatedAt
+  cotizaciones  Cotizacion[]
 
   @@map("usuarios")
 }
@@ -70,6 +79,49 @@ model Producto {
   activo        Boolean    @default(true)
   creadoEn      DateTime   @default(now())
   actualizadoEn DateTime   @updatedAt
+  cotizacionItems ItemCotizacion[]
 
   @@map("productos")
+}
+
+model Cotizacion {
+  id              Int              @id @default(autoincrement())
+  numero          String           @unique @db.VarChar(40)
+  version         Int              @default(1)
+  usuarioId       Int
+  usuario         Usuario          @relation(fields: [usuarioId], references: [id])
+  estado          EstadoCotizacion @default(borrador)
+  subtotal        Float
+  descuentoPct    Float            @default(0)
+  margenPct       Float            @default(0)
+  total           Float
+  observaciones   String?          @db.VarChar(500)
+  contactoNombre  String?          @db.VarChar(160)
+  contactoCorreo  String?          @db.VarChar(160)
+  contactoTelefono String?         @db.VarChar(30)
+  contactoCargo   String?          @db.VarChar(120)
+  contactoEmpresa String?          @db.VarChar(180)
+  proyectoNombre  String?          @db.VarChar(180)
+  fechaRequerida  DateTime?
+  enviadoEn       DateTime?
+  creadoEn        DateTime         @default(now())
+  actualizadoEn   DateTime         @updatedAt
+  items           ItemCotizacion[]
+
+  @@map("cotizaciones")
+}
+
+model ItemCotizacion {
+  id            Int       @id @default(autoincrement())
+  cotizacionId  Int
+  cotizacion    Cotizacion @relation(fields: [cotizacionId], references: [id], onDelete: Cascade)
+  productoId    Int
+  producto      Producto  @relation(fields: [productoId], references: [id])
+  cantidad      Int
+  precioUnitario Float
+  subtotal      Float
+  creadoEn      DateTime  @default(now())
+  actualizadoEn DateTime  @updatedAt
+
+  @@map("cotizacion_items")
 }
