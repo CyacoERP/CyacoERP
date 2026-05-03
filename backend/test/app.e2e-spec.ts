@@ -8,6 +8,8 @@ describe('CyacoERP E2E', () => {
   let app: INestApplication<App>;
   let tokenAdmin: string;
   let clienteId: number;
+  const adminEmail = process.env.ADMIN_EMAIL ?? 'admin@cyaco.local';
+  const adminPassword = process.env.ADMIN_PASSWORD ?? 'Admin12345';
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -28,7 +30,7 @@ describe('CyacoERP E2E', () => {
     it('POST /api/auth/login con credenciales de admin retorna 201 y token', async () => {
       const res = await request(app.getHttpServer())
         .post('/api/auth/login')
-        .send({ email: 'admin@cyacoerp.com', password: 'Admin1234!' })
+        .send({ email: adminEmail, password: adminPassword })
         .expect((r) => {
           // Accept 200 or 201 depending on NestJS version
           expect([200, 201]).toContain(r.status);

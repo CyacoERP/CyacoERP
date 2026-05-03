@@ -141,21 +141,90 @@ export class DetalleCotizacionComponente implements OnInit {
       return;
     }
 
-    const contenido = [
-      `Cotizacion: ${cotizacion.numero}`,
-      `Cliente: ${cotizacion.contacto?.empresa ?? 'N/A'}`,
-      `Contacto: ${cotizacion.contacto?.nombreCompleto ?? 'N/A'}`,
-      `Total: ${this.formatPrice(cotizacion.total)}`,
-    ].join('\n');
+    const ventana = window.open('', '_blank', 'noopener,noreferrer,width=900,height=700');
+    if (!ventana) {
+      window.print();
+      return;
+    }
 
-    const blob = new Blob([contenido], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${cotizacion.numero}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    const filas = cotizacion.items
+      .map(
+        (item, index) => `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${item.producto.nombre}</td>
+            <td>${item.cantidad}</td>
+            <td>${this.formatPrice(item.precioUnitario)}</td>
+            <td>${this.formatPrice(item.subtotal)}</td>
+          </tr>`,
+      )
+      .join('');
+
+    const contenido = `<!doctype html>
+      <html lang="es">
+        <head>
+          <meta charset="utf-8" />
+          <title>${cotizacion.numero}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 32px; color: #1f2937; }
+            header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+            h1 { margin: 0 0 8px; font-size: 28px; }
+            .meta { margin: 0; color: #4b5563; }
+            .summary { margin: 24px 0; padding: 16px; background: #f3f4f6; border-radius: 12px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+            th, td { border-bottom: 1px solid #e5e7eb; text-align: left; padding: 10px 8px; }
+            th { color: #374151; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+            .total { margin-top: 20px; text-align: right; font-size: 20px; font-weight: 700; }
+            .notes { margin-top: 24px; }
+            @media print { body { padding: 0; } }
+          </style>
+        </head>
+        <body>
+          <header>
+            <div>
+              <h1>Cotizacion ${cotizacion.numero}</h1>
+              <p class="meta">Empresa: ${cotizacion.contacto?.empresa ?? 'N/A'}</p>
+              <p class="meta">Contacto: ${cotizacion.contacto?.nombreCompleto ?? 'N/A'}</p>
+              <p class="meta">Fecha: ${this.formatDate(cotizacion.fechaCreacion)}</p>
+            </div>
+            <div>
+              <p class="meta">Estado: ${this.estadoBadge()}</p>
+              <p class="meta">Proyecto: ${cotizacion.proyecto?.nombre ?? 'Sin proyecto'}</p>
+            </div>
+          </header>
+
+          <section class="summary">
+            <strong>Resumen</strong>
+            <p class="meta">Total de partidas: ${cotizacion.items.length}</p>
+            <p class="meta">Fecha requerida: ${cotizacion.proyecto?.fechaRequerida ?? 'N/A'}</p>
+          </section>
+
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio Unitario</th>
+                <th>Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>${filas}</tbody>
+          </table>
+
+          <div class="total">Total: ${this.formatPrice(cotizacion.total)}</div>
+
+          <section class="notes">
+            <strong>Observaciones</strong>
+            <p>${cotizacion.observaciones ?? 'Sin observaciones.'}</p>
+          </section>
+        </body>
+      </html>`;
+
+    ventana.document.open();
+    ventana.document.write(contenido);
+    ventana.document.close();
+    ventana.focus();
+    ventana.print();
   }
 }

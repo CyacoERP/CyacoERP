@@ -1,0 +1,167 @@
+<section class="productos-shell">
+  <div class="page-header">
+    <h1>Gestion de Productos</h1>
+    <button type="button" class="btn-nuevo" (click)="abrirCrear()">+ Nuevo Producto</button>
+  </div>
+
+  <div class="toolbar">
+    <label class="buscador" for="buscarProducto">
+      <input
+        id="buscarProducto"
+        type="search"
+        placeholder="Buscar por nombre, descripcion o categoria..."
+        (input)="buscar($event)"
+      />
+    </label>
+    <span class="total-badge">{{ productosFiltrados().length }} productos</span>
+  </div>
+
+  @if (cargando()) {
+    <p class="estado">Cargando productos...</p>
+  } @else if (errorCarga()) {
+    <p class="estado error">{{ errorCarga() }}</p>
+  } @else if (productosFiltrados().length === 0) {
+    <p class="estado">No se encontraron productos.</p>
+  } @else {
+    <div class="tabla-wrap">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nombre</th>
+            <th>Categoria</th>
+            <th>Precio</th>
+            <th>Stock</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (producto of productosFiltrados(); track trackPorId($index, producto)) {
+            <tr>
+              <td>{{ producto.id }}</td>
+              <td>
+                <strong>{{ producto.nombre }}</strong>
+                <div class="cell-muted">{{ producto.descripcion || 'Sin descripcion' }}</div>
+              </td>
+              <td>{{ producto.categoria?.nombre || 'Sin categoria' }}</td>
+              <td>{{ producto.precio | currency: 'MXN':'symbol':'1.2-2' }}</td>
+              <td>{{ producto.stock }}</td>
+              <td>
+                <span [class]="producto.activo ? 'badge-activo' : 'badge-inactivo'">
+                  {{ producto.activo ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td class="acciones">
+                <button type="button" class="btn-secundario" (click)="abrirEditar(producto)">
+                  Editar
+                </button>
+                <button type="button" class="btn-peligro" (click)="confirmarEliminar(producto)">
+                  Eliminar
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  @if (mostrarModal()) {
+    <div class="modal-overlay" (click)="cerrarModal()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <h2>{{ modoModal() === 'crear' ? 'Nuevo Producto' : 'Editar Producto' }}</h2>
+
+        @if (errorModal()) {
+          <p class="modal-error">{{ errorModal() }}</p>
+        }
+
+        <form class="form-grid" (submit)="guardar(); $event.preventDefault()">
+          <label>
+            Nombre *
+            <input
+              type="text"
+              [value]="form().nombre"
+              (input)="actualizarCampo('nombre', $any($event.target).value)"
+            />
+          </label>
+
+          <label class="full">
+            Descripcion
+            <textarea
+              rows="4"
+              [value]="form().descripcion"
+              (input)="actualizarCampo('descripcion', $any($event.target).value)"
+            ></textarea>
+          </label>
+
+          <label>
+            Precio *
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              [value]="form().precio"
+              (input)="actualizarCampo('precio', +$any($event.target).value)"
+            />
+          </label>
+
+          <label>
+            Stock
+            <input
+              type="number"
+              min="0"
+              [value]="form().stock"
+              (input)="actualizarCampo('stock', +$any($event.target).value)"
+            />
+          </label>
+
+          <label class="full">
+            URL Imagen
+            <input
+              type="text"
+              [value]="form().imagenUrl"
+              (input)="actualizarCampo('imagenUrl', $any($event.target).value)"
+            />
+          </label>
+
+          <label class="full">
+            Categoria *
+            <select
+              [value]="form().categoriaId"
+              (change)="actualizarCampo('categoriaId', +$any($event.target).value)"
+            >
+              <option value="0">Selecciona una categoria</option>
+              @for (categoria of categorias(); track categoria.id) {
+                <option [value]="categoria.id">{{ categoria.nombre }}</option>
+              }
+            </select>
+          </label>
+
+          <div class="modal-actions full">
+            <button type="button" class="btn-secundario" (click)="cerrarModal()">Cancelar</button>
+            <button type="submit" class="btn-nuevo" [disabled]="guardando()">
+              {{ guardando() ? 'Guardando...' : 'Guardar' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  @if (mostrarConfirmEliminar()) {
+    <div class="modal-overlay" (click)="cancelarEliminar()">
+      <div class="modal modal-confirm" (click)="$event.stopPropagation()">
+        <h2>Confirmar eliminacion</h2>
+        <p>
+          Se eliminara el producto
+          <strong>{{ productoAEliminar()?.nombre }}</strong>.
+        </p>
+        <div class="modal-actions">
+          <button type="button" class="btn-secundario" (click)="cancelarEliminar()">Cancelar</button>
+          <button type="button" class="btn-peligro" (click)="ejecutarEliminar()">Eliminar</button>
+        </div>
+      </div>
+    </div>
+  }
+</section>

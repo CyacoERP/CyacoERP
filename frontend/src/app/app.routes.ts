@@ -17,6 +17,7 @@ import { DashboardClientesComponente } from './modules/dashboards/components/das
 import { DashboardProyectosComponente } from './modules/dashboards/components/dashboard-proyectos/dashboard-proyectos.componente';
 import { GestionarUsuariosComponente } from './modules/admin/components/gestionar-usuarios/gestionar-usuarios.componente';
 import { GestionarClientesComponente } from './modules/admin/components/gestionar-clientes/gestionar-clientes.componente';
+import { GestionarProductosComponente } from './modules/admin/components/gestionar-productos/gestionar-productos.componente';
 import { authGuard, roleGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
@@ -65,6 +66,11 @@ export const routes: Routes = [
   {
     path: 'admin/clientes',
     component: GestionarClientesComponente,
+    canActivate: [authGuard, roleGuard(['admin'])],
+  },
+  {
+    path: 'admin/productos',
+    component: GestionarProductosComponente,
     canActivate: [authGuard, roleGuard(['admin'])],
   },
   
