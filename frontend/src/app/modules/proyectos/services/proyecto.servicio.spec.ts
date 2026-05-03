@@ -107,7 +107,7 @@ describe('ProyectoServicio', () => {
   describe('obtenerBitacora', () => {
     it('GET /api/proyectos/:id/bitacora retorna array', () => {
       servicio.obtenerBitacora(1).subscribe((b) => {
-        expect(Array.isArray(b)).toBeTrue();
+        expect(Array.isArray(b)).toBe(true);
       });
 
       const req = httpMock.expectOne('/api/proyectos/1/bitacora');

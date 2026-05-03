@@ -1,15 +1,18 @@
 import { TestBed } from '@angular/core/testing';
 import { CarritoServicio } from './carrito.servicio';
-import { Producto } from '../modelos/producto.modelo';
+import { Producto } from '../../../shared/models/producto.modelo';
 
 const productoMock: Producto = {
   id: 1,
-  name: 'Test',
-  price: 100,
-  imageUrl: '',
-  category: 'cat',
-  description: 'desc',
-  inStock: true,
+  nombre: 'Test',
+  precio: 100,
+  imagenUrl: '',
+  descripcion: 'desc',
+  activo: true,
+  stock: 10,
+  categoriaId: 1,
+  creadoEn: new Date(),
+  actualizadoEn: new Date(),
 };
 
 describe('CarritoServicio', () => {

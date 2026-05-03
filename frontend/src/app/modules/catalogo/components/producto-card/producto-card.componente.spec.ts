@@ -1,15 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ProductoCardComponente } from './producto-card.componente';
-import { Producto } from '../../modelos/producto.modelo';
+import { Producto } from '../../../../shared/models/producto.modelo';
 
 const productoMock: Producto = {
   id: 1,
-  name: 'Laptop',
-  price: 1000,
-  imageUrl: 'img.jpg',
-  category: 'Electrónica',
-  description: 'Descripción de prueba',
-  inStock: true,
+  nombre: 'Laptop',
+  precio: 1000,
+  imagenUrl: 'img.jpg',
+  descripcion: 'Descripcion de prueba',
+  activo: true,
+  stock: 5,
+  categoriaId: 1,
+  creadoEn: new Date(),
+  actualizadoEn: new Date(),
 };
 
 describe('ProductoCardComponente', () => {

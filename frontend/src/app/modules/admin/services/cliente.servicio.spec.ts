@@ -41,12 +41,14 @@ describe('ClienteServicio', () => {
     it('GET /api/clientes con parámetros de paginación', () => {
       const respuestaMock = {
         datos: [clienteMock],
-        meta: { pagina: 1, limite: 10, total: 1, totalPaginas: 1 },
+        total: 1,
+        pagina: 1,
+        totalPaginas: 1,
       };
 
       servicio.listar(1, 10).subscribe((res) => {
         expect(res.datos.length).toBe(1);
-        expect(res.meta.total).toBe(1);
+        expect(res.total).toBe(1);
       });
 
       const req = httpMock.expectOne((r) => r.url === '/api/clientes');
@@ -61,7 +63,7 @@ describe('ClienteServicio', () => {
 
       const req = httpMock.expectOne((r) => r.url === '/api/clientes');
       expect(req.request.params.get('termino')).toBe('ACME');
-      req.flush({ datos: [], meta: { pagina: 1, limite: 10, total: 0, totalPaginas: 1 } });
+      req.flush({ datos: [], total: 0, pagina: 1, totalPaginas: 1 });
     });
   });
 
