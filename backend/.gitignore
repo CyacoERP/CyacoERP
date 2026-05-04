@@ -1,5 +1,9 @@
 node_modules
 # Keep environment variables out of version control
-.env.test
+.env
 .env.prod
+.env.test
+# Keep .example files for documentation
+!.env.example
+!.env.prod.example
 /generated/prisma
