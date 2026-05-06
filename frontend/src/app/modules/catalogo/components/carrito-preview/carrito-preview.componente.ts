@@ -69,6 +69,9 @@ import { ModalStateServicio } from '../../services/modal-state.servicio';
               Continuar explorando
             </a>
           </div>
+          <a routerLink="/checkout" (click)="cerrar()" class="btn-solicitar">
+             Ir al checkout
+          </a>
         }
       </div>
     </div>
@@ -401,7 +404,7 @@ export class CarritoPreviewComponent {
   constructor(
     private carritoServicio: CarritoServicio,
     private modalState: ModalStateServicio
-  ) {}
+  ) { }
 
   get items() {
     return this.carritoServicio.itemsCarrito;

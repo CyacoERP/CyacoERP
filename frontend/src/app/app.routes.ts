@@ -19,11 +19,13 @@ import { GestionarUsuariosComponente } from './modules/admin/components/gestiona
 import { GestionarClientesComponente } from './modules/admin/components/gestionar-clientes/gestionar-clientes.componente';
 import { GestionarProductosComponente } from './modules/admin/components/gestionar-productos/gestionar-productos.componente';
 import { authGuard, roleGuard } from './core/guards/auth.guard';
+import { Checkout } from './modules/catalogo/components/checkout/checkout';
 
 export const routes: Routes = [
   { path: '', component: LandingComponente },
   { path: 'catalogo', component: CatalogoComponente },
   { path: 'carrito', component: CarritoComponente },
+  { path: 'checkout', component: Checkout },
   
   // Auth
   { path: 'auth/login', component: LoginComponente },
