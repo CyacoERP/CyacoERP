@@ -20,3 +20,62 @@ body {
     padding: 0;
   }
 }
+
+.op-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid #cfdaf0;
+  background: #f8fbff;
+  color: #3461b8;
+  font-size: 0.76rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  line-height: 1;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.op-btn svg {
+  width: 12px;
+  height: 12px;
+}
+
+.op-btn:hover {
+  background: #edf4ff;
+}
+
+.op-btn--view,
+.op-btn--edit {
+  border-color: #c8d6f4;
+  background: #f4f8ff;
+  color: #2f5cb8;
+}
+
+.op-btn--approve {
+  border-color: #b7e4ca;
+  background: #edf9f2;
+  color: #198754;
+}
+
+.op-btn--reject,
+.op-btn--delete {
+  border-color: #f3b8b8;
+  background: #fff1f1;
+  color: #d64545;
+}
+
+.op-btn--pdf {
+  border-color: #d7deeb;
+  background: #f7f9fc;
+  color: #6a7c98;
+}
+
+.op-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

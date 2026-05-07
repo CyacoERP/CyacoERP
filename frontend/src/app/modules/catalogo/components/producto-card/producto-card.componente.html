@@ -1,7 +1,11 @@
 <article class="card">
-  <img [src]="imagenUrl" [alt]="producto.nombre" class="img" />
+  <a [routerLink]="['/catalogo', producto.id]" class="card-link-imagen">
+    <img [src]="imagenUrl" [alt]="producto.nombre" class="img" />
+  </a>
   <div class="body">
-    <h3 class="title">{{ producto.nombre }}</h3>
+    <h3 class="title">
+      <a [routerLink]="['/catalogo', producto.id]">{{ producto.nombre }}</a>
+    </h3>
     <p class="meta">{{ producto.categoria?.nombre || 'Sin categoría' }}</p>
     <p class="desc">{{ producto.descripcion }}</p>
     <span class="price">{{ precioFormateado }}</span>

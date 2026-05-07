@@ -1,0 +1,28 @@
+hrow new PrismaClientKnownRequestError(message, {
+            ^
+
+PrismaClientKnownRequestError: 
+Invalid `this.prisma.usuario.findUnique()` invocation in
+C:\Users\leosa\Desktop\LEO CETI TRABAJOS\PrograWeb2\FinalCYACO\CyacoERP\backend\src\auth\auth.service.ts:132:49
+
+  129 const adminEmail = (process.env.ADMIN_EMAIL ?? 'admin@cyaco.local').trim().toLowerCase();
+  130 const adminPassword = process.env.ADMIN_PASSWORD ?? 'Admin12345';
+  131 
+→ 132 const existente = await this.prisma.usuario.findUnique(
+The table `public.usuarios` does not exist in the current database.
+    at ei.handleRequestError (C:\Users\leosa\Desktop\LEO CETI TRABAJOS\PrograWeb2\FinalCYACO\CyacoERP\backend\node_modules\@prisma\client\src\runtime\RequestHandler.ts:228:13)
+    at ei.handleAndLogRequestError (C:\Users\leosa\Desktop\LEO CETI TRABAJOS\PrograWeb2\FinalCYACO\CyacoERP\backend\node_modules\@prisma\client\src\runtime\RequestHandler.ts:174:12)
+    at ei.request (C:\Users\leosa\Desktop\LEO CETI TRABAJOS\PrograWeb2\FinalCYACO\CyacoERP\backend\node_modules\@prisma\client\src\runtime\RequestHandler.ts:143:12)
+    at async a (C:\Users\leosa\Desktop\LEO CETI TRABAJOS\PrograWeb2\FinalCYACO\CyacoERP\backend\node_modules\@prisma\client\src\runtime\getPrismaClient.ts:833:24)
+    at async AuthService.ensureAdminSeed (C:\Users\leosa\Desktop\LEO CETI TRABAJOS\PrograWeb2\FinalCYACO\CyacoERP\backend\src\auth\auth.service.ts:132:23)
+    at async AuthService.onModuleInit (C:\Users\leosa\Desktop\LEO CETI TRABAJOS\PrograWeb2\FinalCYACO\CyacoERP\backend\src\auth\auth.service.ts:22:5)
+    at async Promise.all (index 0)
+    at async callModuleInitHook (C:\Users\leosa\Desktop\LEO CETI TRABAJOS\PrograWeb2\FinalCYACO\CyacoERP\backend\node_modules\@nestjs\core\hooks\on-module-init.hook.js:43:5)
+    at async NestApplication.callInitHook (C:\Users\leosa\Desktop\LEO CETI TRABAJOS\PrograWeb2\FinalCYACO\CyacoERP\backend\node_modules\@nestjs\core\nest-application-context.js:252:13)
+    at async NestApplication.init (C:\Users\leosa\Desktop\LEO CETI TRABAJOS\PrograWeb2\FinalCYACO\CyacoERP\backend\node_modules\@nestjs\core\nest-application.js:103:9)
+    at async NestApplication.listen (C:\Users\leosa\Desktop\LEO CETI TRABAJOS\PrograWeb2\FinalCYACO\CyacoERP\backend\node_modules\@nestjs\core\nest-application.js:175:13)
+    at async bootstrap (C:\Users\leosa\Desktop\LEO CETI TRABAJOS\PrograWeb2\FinalCYACO\CyacoERP\backend\src\main.ts:25:3) {
+  code: 'P2021',
+  meta: { modelName: 'Usuario', table: 'public.usuarios' },
+  clientVersion: '6.16.2'
+}

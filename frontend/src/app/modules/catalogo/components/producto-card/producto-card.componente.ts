@@ -1,12 +1,13 @@
 import { Component, Input, Output, EventEmitter, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Producto } from '../../../../shared/models/producto.modelo';
 import { AuthServicio } from '../../../auth/services/auth.servicio';
 
 @Component({
   selector: 'app-producto-card',
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   standalone: true,
   templateUrl: './producto-card.componente.html',
   styleUrl: './producto-card.componente.css',

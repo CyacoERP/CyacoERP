@@ -24,6 +24,7 @@ interface VideoTutorial {
   id: number;
   titulo: string;
   duracion: string;
+  url: string;
 }
 
 @Component({
@@ -98,21 +99,25 @@ export class FormularioContactoComponente {
       id: 1,
       titulo: 'Instalación de transmisores de presión',
       duracion: '12 min',
+      url: 'https://www.youtube.com/results?search_query=instalacion+transmisor+de+presion+industrial',
     },
     {
       id: 2,
       titulo: 'Configuración de medidores de flujo',
       duracion: '18 min',
+      url: 'https://www.youtube.com/results?search_query=configuracion+medidor+de+flujo+industrial',
     },
     {
       id: 3,
       titulo: 'Calibración en campo: paso a paso',
       duracion: '22 min',
+      url: 'https://www.youtube.com/results?search_query=calibracion+de+instrumentacion+en+campo+paso+a+paso',
     },
     {
       id: 4,
       titulo: 'Integración HART con sistemas SCADA',
       duracion: '15 min',
+      url: 'https://www.youtube.com/results?search_query=integracion+hart+con+scada',
     },
   ]);
 
@@ -178,4 +183,9 @@ export class FormularioContactoComponente {
   trackPorId(_: number, item: any): number {
     return item.id;
   }
+
+  readonly mapaGoogleUrl =
+    'https://www.google.com/maps?q=Av.+Insurgentes+Sur+1602,+Benito+Juarez,+CDMX&z=16';
+
+  readonly sesionRemotaUrl = 'https://teams.microsoft.com';
 }

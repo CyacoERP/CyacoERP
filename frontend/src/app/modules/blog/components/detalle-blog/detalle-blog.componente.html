@@ -1,0 +1,31 @@
+<section class="blog-detail-page">
+  @if (cargando()) {
+    <div class="status-card">Cargando artículo...</div>
+  } @else if (conError() || !articulo()) {
+    <div class="status-card">No se pudo cargar este artículo.</div>
+  } @else {
+    <header class="blog-detail-hero">
+      <div class="hero-content">
+        <a routerLink="/blog" class="back-link">Volver al blog</a>
+        <p class="meta-top">{{ articulo()!.categoriaLabel }} · {{ articulo()!.tiempoLectura }} min</p>
+        <h1>{{ articulo()!.titulo }}</h1>
+        <p class="meta-bottom">{{ articulo()!.autor }} · {{ articulo()!.fecha }}</p>
+      </div>
+    </header>
+
+    <article class="blog-content">
+      <div class="cover">
+        <img [src]="articulo()!.imagenPrincipal" [alt]="articulo()!.titulo" />
+      </div>
+
+      <p class="intro">{{ articulo()!.descripcion }}</p>
+      <p>{{ articulo()!.contenido }}</p>
+
+      <div class="tags">
+        @for (tag of articulo()!.tags; track tag) {
+          <span>{{ tag }}</span>
+        }
+      </div>
+    </article>
+  }
+</section>

@@ -435,6 +435,14 @@ h1 {
   font-size: 4rem;
 }
 
+.mapa-frame {
+  width: 100%;
+  min-height: 340px;
+  border: 0;
+  border-radius: 8px;
+  background: #e5ecf4;
+}
+
 .mapa-info {
   display: flex;
   flex-direction: column;

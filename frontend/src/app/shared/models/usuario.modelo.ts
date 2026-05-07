@@ -4,6 +4,7 @@ export interface Usuario {
   email: string;
   telefono?: string;
   empresa?: string;
+  cargo?: string;
   rol: 'cliente' | 'gerencia' | 'admin' | 'vendedor';
   activo: boolean;
   fechaRegistro?: Date;

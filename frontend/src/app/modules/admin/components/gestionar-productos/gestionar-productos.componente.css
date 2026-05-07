@@ -199,6 +199,218 @@
   flex-wrap: wrap;
 }
 
+/* ── Modal grande con scroll ── */
+.modal-grande {
+  width: min(860px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 1;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: #102a53;
+}
+
+.btn-cerrar {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #64748b;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+.btn-cerrar:hover { background: #f1f5f9; }
+
+/* ── Form modal ── */
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-section {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.form-section legend {
+  font-weight: 700;
+  color: #1e3a5f;
+  padding: 0 8px;
+  font-size: 0.95rem;
+}
+
+.form-section .form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.form-section .form-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #334155;
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.form-section .form-grid input,
+.form-section .form-grid textarea,
+.form-section .form-grid select {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font: inherit;
+}
+
+.hint {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  margin: 8px 0;
+}
+
+.modal-error.small {
+  font-size: 0.88rem;
+  margin: 4px 0;
+}
+
+/* ── Especificaciones ── */
+.espec-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.espec-fila {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.espec-fila input {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font: inherit;
+}
+
+.btn-quitar {
+  background: #fee2e2;
+  border: none;
+  border-radius: 6px;
+  color: #dc2626;
+  cursor: pointer;
+  padding: 6px 10px;
+  font-weight: 700;
+  line-height: 1;
+}
+.btn-quitar:hover { background: #fca5a5; }
+
+.btn-agregar-espec {
+  background: #f0f9ff;
+  border: 1px dashed #38bdf8;
+  border-radius: 8px;
+  color: #0369a1;
+  cursor: pointer;
+  padding: 8px 14px;
+  font: inherit;
+  font-size: 0.9rem;
+  margin-top: 8px;
+}
+.btn-agregar-espec:hover { background: #e0f2fe; }
+.btn-agregar-espec:disabled { opacity: 0.5; cursor: default; }
+
+/* ── Compatibilidades ── */
+.compat-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.compat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.compat-compatible { background: #f0fdf4; border: 1px solid #86efac; }
+.compat-incompatible { background: #fff1f2; border: 1px solid #fca5a5; }
+
+.compat-tipo {
+  font-weight: 700;
+  font-size: 1rem;
+}
+.compat-compatible .compat-tipo { color: #16a34a; }
+.compat-incompatible .compat-tipo { color: #dc2626; }
+
+.compat-nombre { font-weight: 600; flex: 1; }
+.compat-nota { color: #64748b; }
+
+.compat-form {
+  display: grid;
+  grid-template-columns: 2fr 1fr 2fr auto;
+  gap: 8px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.compat-form select,
+.compat-form input {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font: inherit;
+}
+
+/* ── SKU monospace ── */
+.sku {
+  background: #f1f5f9;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.85rem;
+  color: #334155;
+}
+
+/* ── Badges activo/inactivo ── */
+.badge-activo,
+.badge-inactivo {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.badge-activo { background: #dcfce7; color: #166534; }
+.badge-inactivo { background: #fee2e2; color: #991b1b; }
+
+
 .badge-activo,
 .badge-inactivo {
   display: inline-block;

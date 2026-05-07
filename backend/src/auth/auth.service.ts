@@ -10,6 +10,7 @@ import * as bcrypt from 'bcryptjs';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { RegistroDto } from './dto/registro.dto';
+import { ActualizarPerfilDto } from './dto/actualizar-perfil.dto';
 
 @Injectable()
 export class AuthService implements OnModuleInit {
@@ -76,6 +77,25 @@ export class AuthService implements OnModuleInit {
     }
 
     return this.toUsuarioPublico(usuario);
+  }
+
+  async actualizarPerfil(usuarioId: number, dto: ActualizarPerfilDto) {
+    const usuario = await this.prisma.usuario.findUnique({ where: { id: usuarioId } });
+    if (!usuario || !usuario.activo) {
+      throw new UnauthorizedException({ mensaje: 'Usuario no autorizado.' });
+    }
+
+    const actualizado = await this.prisma.usuario.update({
+      where: { id: usuarioId },
+      data: {
+        ...(dto.nombre !== undefined && { nombre: dto.nombre.trim() }),
+        ...(dto.telefono !== undefined && { telefono: dto.telefono.trim() || null }),
+        ...(dto.empresa !== undefined && { empresa: dto.empresa.trim() || null }),
+        ...(dto.cargo !== undefined && { cargo: dto.cargo.trim() || null }),
+      },
+    });
+
+    return this.toUsuarioPublico(actualizado);
   }
 
   async hashPassword(password: string): Promise<string> {

@@ -4,7 +4,7 @@ import { CarritoServicio, ItemCarrito } from '../../services/carrito.servicio';
 import { Checkout } from '../checkout/checkout';
 @Component({
   selector: 'app-carrito',
-  imports: [RouterLink, Checkout],
+  imports: [RouterLink],
   standalone: true,
   templateUrl: './carrito.componente.html',
   styleUrl: './carrito.componente.css',

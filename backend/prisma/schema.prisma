@@ -39,6 +39,16 @@ enum EstadoTareaProyecto {
   completada
 }
 
+enum MonedaProducto {
+  MXN
+  USD
+}
+
+enum TipoCompatibilidad {
+  compatible
+  incompatible
+}
+
 model Usuario {
   id            Int        @id @default(autoincrement())
   nombre        String     @db.VarChar(160)
@@ -83,21 +93,44 @@ model Categoria {
 }
 
 model Producto {
-  id            Int        @id @default(autoincrement())
-  nombre        String     @db.VarChar(180)
-  descripcion   String?    @db.VarChar(255)
-  precio        Float
-  stock         Int        @default(0)
-  imagenUrl     String?    @db.VarChar(255)
-  urlDocumento  String?    @db.VarChar(255)
-  categoriaId   Int
-  categoria     Categoria  @relation(fields: [categoriaId], references: [id])
-  activo        Boolean    @default(true)
-  creadoEn      DateTime   @default(now())
-  actualizadoEn DateTime   @updatedAt
-  cotizacionItems ItemCotizacion[]
+  id                       Int                     @id @default(autoincrement())
+  nombre                   String                  @db.VarChar(180)
+  descripcion              String?                 @db.VarChar(500)
+  fabricante               String?                 @db.VarChar(120)
+  numeroParte              String?                 @map("numero_parte") @db.VarChar(100)
+  skuInterno               String?                 @map("sku_interno") @unique @db.VarChar(100)
+  familia                  String?                 @db.VarChar(120)
+  moneda                   MonedaProducto          @default(MXN)
+  especificacionesTecnicas Json?                   @map("especificaciones_tecnicas")
+  precio                   Float
+  stock                    Int                     @default(0)
+  imagenUrl                String?                 @db.VarChar(255)
+  urlDocumento             String?                 @db.VarChar(255)
+  categoriaId              Int
+  categoria                Categoria               @relation(fields: [categoriaId], references: [id])
+  activo                   Boolean                 @default(true)
+  creadoEn                 DateTime                @default(now())
+  actualizadoEn            DateTime                @updatedAt
+  cotizacionItems          ItemCotizacion[]
+  compatibilidadesOrigen   CompatibilidadProducto[] @relation("compatibilidad_origen")
+  compatibilidadesDestino  CompatibilidadProducto[] @relation("compatibilidad_destino")
 
   @@map("productos")
+}
+
+model CompatibilidadProducto {
+  id               Int                @id @default(autoincrement())
+  productoOrigenId Int                @map("producto_origen_id")
+  productoDestinoId Int               @map("producto_destino_id")
+  tipo             TipoCompatibilidad
+  nota             String?            @db.VarChar(255)
+  creadoEn         DateTime           @default(now())
+  actualizadoEn    DateTime           @updatedAt
+  productoOrigen   Producto           @relation("compatibilidad_origen", fields: [productoOrigenId], references: [id], onDelete: Cascade)
+  productoDestino  Producto           @relation("compatibilidad_destino", fields: [productoDestinoId], references: [id], onDelete: Cascade)
+
+  @@unique([productoOrigenId, productoDestinoId, tipo])
+  @@map("producto_compatibilidades")
 }
 
 model Cotizacion {

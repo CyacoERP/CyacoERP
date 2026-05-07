@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { Cotizacion, SolicitudCotizacion } from '../models/cotizacion.modelo';
 import { Producto } from '../../../shared/models/producto.modelo';
@@ -13,6 +13,31 @@ export class CotizacionServicio {
   obtenerTodas(): Observable<Cotizacion[]> {
     return this.http
       .get<CotizacionApi[]>(`${this.apiUrl}/mis`)
+      .pipe(map((cotizaciones) => cotizaciones.map((c) => this.mapearDesdeApi(c))));
+  }
+
+  obtenerParaAdmin(filtros?: {
+    estado?: string;
+    cliente?: string;
+    desde?: string;
+    hasta?: string;
+  }): Observable<Cotizacion[]> {
+    let params = new HttpParams();
+    if (filtros?.estado) {
+      params = params.set('estado', filtros.estado);
+    }
+    if (filtros?.cliente) {
+      params = params.set('cliente', filtros.cliente);
+    }
+    if (filtros?.desde) {
+      params = params.set('desde', filtros.desde);
+    }
+    if (filtros?.hasta) {
+      params = params.set('hasta', filtros.hasta);
+    }
+
+    return this.http
+      .get<CotizacionApi[]>(this.apiUrl, { params })
       .pipe(map((cotizaciones) => cotizaciones.map((c) => this.mapearDesdeApi(c))));
   }
 
@@ -65,6 +90,12 @@ export class CotizacionServicio {
   actualizar(id: number, cotizacion: Cotizacion): Observable<Cotizacion> {
     return this.http
       .patch<CotizacionApi>(`${this.apiUrl}/${id}/estado`, { estado: cotizacion.estado })
+      .pipe(map((respuesta) => this.mapearDesdeApi(respuesta)));
+  }
+
+  actualizarEstado(id: number, estado: Cotizacion['estado']): Observable<Cotizacion> {
+    return this.http
+      .patch<CotizacionApi>(`${this.apiUrl}/${id}/estado`, { estado })
       .pipe(map((respuesta) => this.mapearDesdeApi(respuesta)));
   }
 

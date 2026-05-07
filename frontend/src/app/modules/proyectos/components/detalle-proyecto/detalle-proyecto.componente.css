@@ -172,6 +172,24 @@ h1 {
 .hito-item {
   display: flex;
   gap: 12px;
+  cursor: pointer;
+}
+
+.hito-item:focus-visible {
+  outline: 2px solid #3f82f1;
+  outline-offset: 4px;
+  border-radius: 12px;
+}
+
+.hito-item:hover .hito-contenido {
+  background: #edf3fb;
+}
+
+.hito-item:hover .hito-titulo-link,
+.hito-item:focus-visible .hito-titulo-link {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
 }
 
 .icono-col {
@@ -225,10 +243,22 @@ h1 {
   font-size: 1rem;
 }
 
+.hito-titulo-link {
+  display: inline-block;
+}
+
 .hito-head p {
   margin: 2px 0 0;
   color: #90a2bc;
   font-size: 0.8rem;
+}
+
+.hito-descripcion {
+  margin-top: 4px;
+  color: #6f84a2;
+  font-size: 0.79rem;
+  display: block;
+  line-height: 1.35;
 }
 
 .progreso-wrap {
@@ -490,6 +520,18 @@ h1 {
   line-height: 1.45;
 }
 
+.bitacora-actions {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+}
+
+.dos-columnas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
 /* Modals shared */
 .modal-overlay {
   position: fixed;
@@ -623,5 +665,9 @@ h1 {
   .avance-box {
     min-width: 0;
     width: 100%;
+  }
+
+  .dos-columnas {
+    grid-template-columns: 1fr;
   }
 }

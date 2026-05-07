@@ -16,7 +16,6 @@
   min-height: 100vh;
 }
 
-
 .hero-section {
   background: var(--dark-blue);
   border-bottom: 1px solid var(--border-color);
@@ -406,10 +405,11 @@
 
 .product-image {
   position: relative;
+  display: block;
   width: 100%;
   height: 200px;
   overflow: hidden;
-  background: linear-gradient(135deg, #1A2940 0%, #0F1729 100%);
+  background: linear-gradient(135deg,#1A2940,#0F1729);
 }
 
 .product-image img {
@@ -465,15 +465,6 @@
   flex-direction: column;
 }
 
-.product-brand {
-  font-size: 0.75rem;
-  color: var(--primary-red);
-  text-transform: uppercase;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  margin-bottom: 4px;
-}
-
 .product-name {
   font-size: 0.95rem;
   font-weight: 600;
@@ -481,6 +472,15 @@
   margin: 0 0 8px 0;
   line-height: 1.3;
   min-height: 40px;
+}
+
+.product-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.product-item:hover .product-link {
+  text-decoration: underline;
 }
 
 .product-rating {

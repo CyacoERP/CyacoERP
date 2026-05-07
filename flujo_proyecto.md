@@ -424,6 +424,10 @@ docker compose down -v        # baja contenedores Y borra volúmenes
 docker compose up -d          # levanta de nuevo con BD vacía
 cd backend
 npm run setup                 # generate + migrate + seed
+npx prisma migrate reset --force  #
+npx prisma migrate deploy   # 
+npm run db:seed
+npm start
 ```
 
 **Opción B — Si no quieres perder los datos, baseline manual:**
@@ -431,7 +435,27 @@ npm run setup                 # generate + migrate + seed
 cd backend
 npx prisma migrate resolve --applied 20260321055351_init_clientes
 npx prisma migrate resolve --applied 20260415000100_init_usuarios_auth
+npx prisma migrate resolve --applied 20260429135619_init_catalogo
+npx prisma migrate resolve --applied 20260502201450_add_proyectos_core
+npx prisma migrate resolve --applied 20260502203520_add_producto_url_documento
 npx prisma migrate deploy     # aplica cualquier migración pendiente
+```
+
+### Solución al error EPERM de Prisma en Windows
+
+Si aparece este error al correr `prisma generate` o `npm run db:seed`:
+
+`EPERM: operation not permitted, rename ... query_engine-windows.dll.node`
+
+es porque hay procesos `node.exe` bloqueando el engine de Prisma.
+
+```bash
+cd backend
+taskkill /IM node.exe /F
+Remove-Item -Recurse -Force node_modules\.prisma -ErrorAction SilentlyContinue
+npx prisma generate
+npx prisma migrate deploy
+npm run db:seed
 ```
 
 Accesos:

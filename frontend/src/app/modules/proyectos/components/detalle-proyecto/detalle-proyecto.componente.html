@@ -64,7 +64,7 @@
           } @else {
             <div class="lista-hitos">
               @for (hito of detalle.hitos; track hito.id) {
-                <article class="hito-item">
+                <article class="hito-item" (click)="verTarea(hito)" role="button" tabindex="0" (keydown.enter)="verTarea(hito)" (keydown.space)="verTarea(hito)">
                   <div class="icono-col">
                     <span class="icono"
                       [class.ok]="hito.estado === 'completado'"
@@ -80,8 +80,11 @@
                   <div class="hito-contenido">
                     <div class="hito-head">
                       <div>
-                        <h3>{{ hito.nombre }}</h3>
+                        <h3 class="hito-titulo-link">{{ hito.nombre }}</h3>
                         <p>{{ hito.fechaTexto }}</p>
+                        @if (hito.descripcion) {
+                          <small class="hito-descripcion">{{ hito.descripcion }}</small>
+                        }
                       </div>
                       <span class="estado-pill"
                         [class.en-progreso]="hito.estado === 'en_proceso'"
@@ -133,6 +136,12 @@
                     }
                   </div>
                   <p>{{ entrada.nota }}</p>
+                  @if (esAdmin()) {
+                    <div class="bitacora-actions">
+                      <button type="button" class="op-btn op-btn--edit" (click)="abrirEditarBitacora(entrada)">Editar</button>
+                      <button type="button" class="op-btn op-btn--delete" (click)="abrirEditarBitacora(entrada)">Eliminar</button>
+                    </div>
+                  }
                 </li>
               }
             </ul>
@@ -223,6 +232,10 @@
           Descripción
           <textarea [ngModel]="formTarea().descripcion" (ngModelChange)="actualizarCampoTarea('descripcion', $event)" name="descTarea" rows="2"></textarea>
         </label>
+        <label>
+          Fecha estimada
+          <input type="date" [ngModel]="formTarea().fechaEstimada" (ngModelChange)="actualizarCampoTarea('fechaEstimada', $event)" name="fechaEstimadaTarea" />
+        </label>
         @if (errorTarea()) {
           <p class="form-error">{{ errorTarea() }}</p>
         }
@@ -230,6 +243,112 @@
           <button type="button" class="btn-secundario" (click)="cerrarFormTarea()">Cancelar</button>
           <button type="submit" class="btn-primario" [disabled]="guardandoTarea()">
             {{ guardandoTarea() ? 'Guardando...' : 'Crear Tarea' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+@if (mostrarDetalleTarea() && tareaSeleccionada(); as tarea) {
+  <div class="modal-overlay" (click)="cerrarDetalleTarea()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Detalle de Tarea</h2>
+        <button type="button" class="btn-cerrar" (click)="cerrarDetalleTarea()" aria-label="Cerrar">&#x2715;</button>
+      </div>
+
+      <form (ngSubmit)="guardarDetalleTarea()" class="form-nuevo">
+        <label>
+          Título *
+          <input type="text" [ngModel]="formDetalleTarea().titulo" (ngModelChange)="actualizarCampoDetalleTarea('titulo', $event)" name="editTituloTarea" required />
+        </label>
+
+        <label>
+          Descripción
+          <textarea [ngModel]="formDetalleTarea().descripcion" (ngModelChange)="actualizarCampoDetalleTarea('descripcion', $event)" name="editDescTarea" rows="3"></textarea>
+        </label>
+
+        <div class="dos-columnas">
+          <label>
+            Estado
+            <select [ngModel]="formDetalleTarea().estado" (ngModelChange)="actualizarCampoDetalleTarea('estado', $event)" name="editEstadoTarea">
+              <option value="pendiente">Pendiente</option>
+              <option value="en_progreso">En Proceso</option>
+              <option value="bloqueada">Bloqueada</option>
+              <option value="completada">Completada</option>
+            </select>
+          </label>
+
+          <label>
+            Progreso (%)
+            <input type="number" min="0" max="100" [ngModel]="formDetalleTarea().progreso" (ngModelChange)="actualizarCampoDetalleTarea('progreso', $event)" name="editProgresoTarea" />
+          </label>
+        </div>
+
+        <div class="dos-columnas">
+          <label>
+            Fecha estimada
+            <input type="date" [ngModel]="formDetalleTarea().fechaEstimada" (ngModelChange)="actualizarCampoDetalleTarea('fechaEstimada', $event)" name="editFechaEstimadaTarea" />
+          </label>
+          <label>
+            Fecha real
+            <input type="date" [ngModel]="formDetalleTarea().fechaReal" (ngModelChange)="actualizarCampoDetalleTarea('fechaReal', $event)" name="editFechaRealTarea" />
+          </label>
+        </div>
+
+        <label>
+          Adjuntos (URLs, una por línea en la descripción)
+          <textarea [ngModel]="formDetalleTarea().descripcion" (ngModelChange)="actualizarCampoDetalleTarea('descripcion', $event)" name="editAdjuntosTarea" rows="2" placeholder="https://archivo-1.pdf"></textarea>
+        </label>
+
+        @if (errorDetalleTarea()) {
+          <p class="form-error">{{ errorDetalleTarea() }}</p>
+        }
+
+        <div class="form-actions">
+          <button type="button" class="op-btn op-btn--delete" (click)="eliminarTareaSeleccionada()" [disabled]="eliminandoTarea()">
+            {{ eliminandoTarea() ? 'Eliminando...' : 'Eliminar' }}
+          </button>
+          <button type="button" class="btn-secundario" (click)="cerrarDetalleTarea()">Cancelar</button>
+          <button type="submit" class="btn-primario" [disabled]="guardandoDetalleTarea()">
+            {{ guardandoDetalleTarea() ? 'Guardando...' : 'Guardar cambios' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+@if (mostrandoEditarBitacora() && bitacoraSeleccionada()) {
+  <div class="modal-overlay" (click)="cerrarEditarBitacora()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Editar Nota de Bitácora</h2>
+        <button type="button" class="btn-cerrar" (click)="cerrarEditarBitacora()" aria-label="Cerrar">&#x2715;</button>
+      </div>
+
+      <form (ngSubmit)="guardarEditarBitacora()" class="form-nuevo">
+        <label>
+          Nota *
+          <textarea [ngModel]="formEditarBitacora().nota" (ngModelChange)="actualizarCampoEditarBitacora('nota', $event)" name="editNotaBitacora" rows="3" required></textarea>
+        </label>
+        <label>
+          % de avance
+          <input type="number" min="0" max="100" [ngModel]="formEditarBitacora().avance" (ngModelChange)="actualizarCampoEditarBitacora('avance', $event)" name="editAvanceBitacora" />
+        </label>
+
+        @if (errorEditarBitacora()) {
+          <p class="form-error">{{ errorEditarBitacora() }}</p>
+        }
+
+        <div class="form-actions">
+          <button type="button" class="op-btn op-btn--delete" (click)="eliminarBitacoraSeleccionada()" [disabled]="eliminandoBitacora()">
+            {{ eliminandoBitacora() ? 'Eliminando...' : 'Eliminar' }}
+          </button>
+          <button type="button" class="btn-secundario" (click)="cerrarEditarBitacora()">Cancelar</button>
+          <button type="submit" class="btn-primario" [disabled]="guardandoEditarBitacora()">
+            {{ guardandoEditarBitacora() ? 'Guardando...' : 'Guardar cambios' }}
           </button>
         </div>
       </form>

@@ -10,26 +10,31 @@ import { CotizacionEnviadaComponente } from './modules/cotizaciones/components/c
 import { DetalleCotizacionComponente } from './modules/cotizaciones/components/detalle-cotizacion/detalle-cotizacion.componente';
 import { ListaProyectosComponente } from './modules/proyectos/components/lista-proyectos/lista-proyectos.componente';
 import { DetalleProyectoComponente } from './modules/proyectos/components/detalle-proyecto/detalle-proyecto.componente';
+import { DetalleTareaProyectoComponente } from './modules/proyectos/components/detalle-tarea-proyecto/detalle-tarea-proyecto.componente';
 import { ListaBlogComponente } from './modules/blog/components/lista-blog/lista-blog.componente';
 import { FormularioContactoComponente } from './modules/contacto/components/formulario-contacto/formulario-contacto.componente';
 import { DashboardVentasComponente } from './modules/dashboards/components/dashboard-ventas/dashboard-ventas.componente';
 import { DashboardClientesComponente } from './modules/dashboards/components/dashboard-clientes/dashboard-clientes.componente';
 import { DashboardProyectosComponente } from './modules/dashboards/components/dashboard-proyectos/dashboard-proyectos.componente';
-import { GestionarUsuariosComponente } from './modules/admin/components/gestionar-usuarios/gestionar-usuarios.componente';
 import { GestionarClientesComponente } from './modules/admin/components/gestionar-clientes/gestionar-clientes.componente';
 import { GestionarProductosComponente } from './modules/admin/components/gestionar-productos/gestionar-productos.componente';
 import { authGuard, roleGuard } from './core/guards/auth.guard';
 import { Checkout } from './modules/catalogo/components/checkout/checkout';
+import { DetalleProductoComponente } from './modules/catalogo/components/detalle-producto/detalle-producto.componente';
+import { PerfilComponente } from './modules/auth/components/perfil/perfil.componente';
+import { DetalleBlogComponente } from './modules/blog/components/detalle-blog/detalle-blog.componente';
 
 export const routes: Routes = [
   { path: '', component: LandingComponente },
   { path: 'catalogo', component: CatalogoComponente },
+  { path: 'catalogo/:id', component: DetalleProductoComponente },
   { path: 'carrito', component: CarritoComponente },
   { path: 'checkout', component: Checkout },
   
   // Auth
   { path: 'auth/login', component: LoginComponente },
   { path: 'auth/registro', component: RegistroComponente },
+  { path: 'perfil', component: PerfilComponente, canActivate: [authGuard] },
   
   // Cotizaciones
   { path: 'cotizaciones', redirectTo: 'cotizaciones/mis', pathMatch: 'full' },
@@ -40,6 +45,7 @@ export const routes: Routes = [
   
   // Proyectos
   { path: 'proyectos', component: ListaProyectosComponente, canActivate: [authGuard] },
+  { path: 'proyectos/:id/tareas/:tareaId', component: DetalleTareaProyectoComponente, canActivate: [authGuard] },
   { path: 'proyectos/:id', component: DetalleProyectoComponente, canActivate: [authGuard] },
   
   // Dashboards
@@ -61,13 +67,23 @@ export const routes: Routes = [
 
   // Admin
   {
-    path: 'admin/usuarios',
-    component: GestionarUsuariosComponente,
+    path: 'admin/clientes',
+    component: GestionarClientesComponente,
     canActivate: [authGuard, roleGuard(['admin'])],
   },
   {
-    path: 'admin/clientes',
-    component: GestionarClientesComponente,
+    path: 'admin/usuarios',
+    redirectTo: 'admin/clientes',
+    pathMatch: 'full',
+  },
+  {
+    path: 'admin/contactos',
+    redirectTo: 'admin/clientes',
+    pathMatch: 'full',
+  },
+  {
+    path: 'admin/cotizaciones',
+    component: ListaCotizacionesComponente,
     canActivate: [authGuard, roleGuard(['admin'])],
   },
   {
@@ -78,7 +94,7 @@ export const routes: Routes = [
   
   // Blog
   { path: 'blog', component: ListaBlogComponente },
-  { path: 'blog/:id', component: ListaBlogComponente },
+  { path: 'blog/:id', component: DetalleBlogComponente },
   
   // Contacto
   { path: 'contacto', component: FormularioContactoComponente },

@@ -97,6 +97,12 @@
                   class="imagen-placeholder"
                   [style.background-color]="getImagenPlaceholder(destacado.categoria)"
                 >
+                  <img
+                    [src]="destacado.imagen"
+                    [alt]="destacado.titulo"
+                    class="blog-img"
+                    (error)="onImagenError($event, destacado.categoria)"
+                  />
                   @if (destacado.tieneVideo) {
                     <div class="play-button">▶</div>
                   }
@@ -110,7 +116,7 @@
                 <p class="descripcion">{{ destacado.descripcion }}</p>
 
                 <div class="meta-info">
-                  <span class="autor">Ing. {{ destacado.autor }}</span>
+                  <span class="autor">{{ destacado.autor }}</span>
                   <span class="separador">•</span>
                   <span class="tiempo">{{ destacado.tiempoLectura }} min de lectura</span>
                   <span class="separador">•</span>
@@ -119,11 +125,11 @@
 
                 <div class="etiquetas">
                   @for (tag of destacado.etiquetas; track tag) {
-                    <a href="#" class="etiqueta">{{ tag }}</a>
+                    <button type="button" class="etiqueta" (click)="actualizarBusqueda(tag)">{{ tag }}</button>
                   }
                 </div>
 
-                <a href="#" class="btn-leer-articulo">Leer artículo completo →</a>
+                <a [routerLink]="['/blog', destacado.id]" class="btn-leer-articulo">Leer artículo completo</a>
               </div>
             </article>
           }
@@ -136,6 +142,12 @@
                     class="imagen-placeholder"
                     [style.background-color]="getImagenPlaceholder(articulo.categoria)"
                   >
+                    <img
+                      [src]="articulo.imagen"
+                      [alt]="articulo.titulo"
+                      class="blog-img"
+                      (error)="onImagenError($event, articulo.categoria)"
+                    />
                     @if (articulo.tieneVideo) {
                       <div class="play-button">▶</div>
                     }
@@ -153,7 +165,7 @@
                     <span class="fecha-articulo">{{ articulo.fecha }}</span>
                   </div>
 
-                  <a href="#" class="leer-link">Leer →</a>
+                  <a [routerLink]="['/blog', articulo.id]" class="leer-link">Leer más</a>
                 </div>
               </article>
             }
@@ -165,7 +177,7 @@
             <h3>Temas</h3>
             <div class="temas-cloud">
               @for (tema of temas(); track tema) {
-                <a href="#" class="tema-link">{{ tema }}</a>
+                <button type="button" class="tema-link" (click)="actualizarBusqueda(tema)">{{ tema }}</button>
               }
             </div>
           </div>
@@ -177,7 +189,7 @@
               Nuestros ingenieros están listos para resolver tus dudas sobre
               instrumentación de procesos y control.
             </p>
-            <a href="#" class="btn-cta">Contactar Especialista</a>
+            <a routerLink="/contacto" class="btn-cta">Contactar Especialista</a>
           </div>
         </aside>
       </div>

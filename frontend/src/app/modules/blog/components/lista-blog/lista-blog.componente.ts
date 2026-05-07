@@ -7,7 +7,8 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { BlogServicio } from '../../services/blog.servicio';
+import { RouterLink } from '@angular/router';
+import { BlogPost, BlogServicio } from '../../services/blog.servicio';
 
 type Categoria =
   | 'todos'
@@ -37,7 +38,7 @@ interface Articulo {
 @Component({
   selector: 'app-lista-blog',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './lista-blog.componente.html',
   styleUrl: './lista-blog.componente.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -228,7 +229,10 @@ export class ListaBlogComponente implements OnInit {
 
   ngOnInit(): void {
     this.blogServicio.obtenerTodos().subscribe({
-      next: () => {
+      next: (datos) => {
+        const articulos = (datos ?? []).map((post) => this.mapearPost(post));
+        this.articulos.set(articulos);
+        this.temas.set([...new Set(articulos.flatMap((articulo) => articulo.etiquetas))]);
         this.cargando.set(false);
       },
       error: () => {
@@ -259,5 +263,32 @@ export class ListaBlogComponente implements OnInit {
       comunicacion: '#06b6d4',
     };
     return colores[categoria] || '#6b7280';
+  }
+
+  onImagenError(event: Event, categoria: string): void {
+    const img = event.target as HTMLImageElement;
+    img.style.display = 'none';
+    const parent = img.parentElement;
+    if (parent) {
+      parent.style.backgroundColor = this.getImagenPlaceholder(categoria);
+    }
+  }
+
+  private mapearPost(post: BlogPost): Articulo {
+    return {
+      id: post.id,
+      titulo: post.titulo,
+      descripcion: post.descripcion,
+      contenido: post.contenido,
+      imagen: post.imagenPrincipal,
+      categoria: post.categoria,
+      categoriaLabel: post.categoriaLabel,
+      autor: post.autor,
+      fecha: post.fecha,
+      tiempoLectura: post.tiempoLectura,
+      etiquetas: post.tags,
+      destacado: post.destacado,
+      tieneVideo: post.tieneVideo,
+    };
   }
 }

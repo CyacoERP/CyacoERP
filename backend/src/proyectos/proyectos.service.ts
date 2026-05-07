@@ -17,6 +17,7 @@ import { ActualizarTareaProyectoDto } from './dto/actualizar-tarea-proyecto.dto'
 import { CrearBitacoraProyectoDto } from './dto/crear-bitacora-proyecto.dto';
 import { CrearProyectoDto } from './dto/crear-proyecto.dto';
 import { CrearTareaProyectoDto } from './dto/crear-tarea-proyecto.dto';
+import { ActualizarBitacoraProyectoDto } from './dto/actualizar-bitacora-proyecto.dto';
 
 @Injectable()
 export class ProyectosService {
@@ -155,6 +156,7 @@ export class ProyectosService {
     }
 
     this.assertPermisoProyecto(proyecto, usuario);
+    this.assertAdminMutacion(usuario);
 
     const tarea = await this.prisma.tareaProyecto.create({
       data: {
@@ -170,6 +172,22 @@ export class ProyectosService {
     return tarea;
   }
 
+  async obtenerTarea(id: number, tareaId: number, usuario: UsuarioAutenticado) {
+    const proyecto = await this.prisma.proyecto.findUnique({ where: { id } });
+    if (!proyecto || !proyecto.activo) {
+      throw new NotFoundException(`Proyecto ${id} no encontrado.`);
+    }
+
+    this.assertPermisoProyecto(proyecto, usuario);
+
+    const tarea = await this.prisma.tareaProyecto.findFirst({ where: { id: tareaId, proyectoId: id } });
+    if (!tarea) {
+      throw new NotFoundException(`Tarea ${tareaId} no encontrada para el proyecto ${id}.`);
+    }
+
+    return tarea;
+  }
+
   async actualizarTarea(
     id: number,
     tareaId: number,
@@ -182,6 +200,7 @@ export class ProyectosService {
     }
 
     this.assertPermisoProyecto(proyecto, usuario);
+    this.assertAdminMutacion(usuario);
 
     const tarea = await this.prisma.tareaProyecto.findFirst({ where: { id: tareaId, proyectoId: id } });
     if (!tarea) {
@@ -220,6 +239,25 @@ export class ProyectosService {
       },
       usuario,
     );
+  }
+
+  async eliminarTarea(id: number, tareaId: number, usuario: UsuarioAutenticado) {
+    const proyecto = await this.prisma.proyecto.findUnique({ where: { id } });
+    if (!proyecto || !proyecto.activo) {
+      throw new NotFoundException(`Proyecto ${id} no encontrado.`);
+    }
+
+    this.assertPermisoProyecto(proyecto, usuario);
+    this.assertAdminMutacion(usuario);
+
+    const tarea = await this.prisma.tareaProyecto.findFirst({ where: { id: tareaId, proyectoId: id } });
+    if (!tarea) {
+      throw new NotFoundException(`Tarea ${tareaId} no encontrada para el proyecto ${id}.`);
+    }
+
+    await this.prisma.tareaProyecto.delete({ where: { id: tareaId } });
+    await this.recalcularAvanceProyecto(id);
+    return { mensaje: 'Tarea eliminada correctamente.' };
   }
 
   async listarBitacora(id: number, usuario: UsuarioAutenticado) {
@@ -262,6 +300,56 @@ export class ProyectosService {
     return bitacora;
   }
 
+  async actualizarBitacora(
+    id: number,
+    bitacoraId: number,
+    dto: ActualizarBitacoraProyectoDto,
+    usuario: UsuarioAutenticado,
+  ) {
+    const proyecto = await this.prisma.proyecto.findUnique({ where: { id } });
+    if (!proyecto || !proyecto.activo) {
+      throw new NotFoundException(`Proyecto ${id} no encontrado.`);
+    }
+
+    this.assertPermisoProyecto(proyecto, usuario);
+
+    const entrada = await this.prisma.bitacoraProyecto.findFirst({ where: { id: bitacoraId, proyectoId: id } });
+    if (!entrada) {
+      throw new NotFoundException(`Entrada de bitácora ${bitacoraId} no encontrada para el proyecto ${id}.`);
+    }
+
+    const actualizada = await this.prisma.bitacoraProyecto.update({
+      where: { id: bitacoraId },
+      data: {
+        ...(dto.nota !== undefined ? { nota: dto.nota.trim() } : {}),
+        ...(dto.avance !== undefined ? { avance: dto.avance } : {}),
+      },
+    });
+
+    if (dto.avance !== undefined) {
+      await this.prisma.proyecto.update({ where: { id }, data: { porcentajeAvance: dto.avance } });
+    }
+
+    return actualizada;
+  }
+
+  async eliminarBitacora(id: number, bitacoraId: number, usuario: UsuarioAutenticado) {
+    const proyecto = await this.prisma.proyecto.findUnique({ where: { id } });
+    if (!proyecto || !proyecto.activo) {
+      throw new NotFoundException(`Proyecto ${id} no encontrado.`);
+    }
+
+    this.assertPermisoProyecto(proyecto, usuario);
+
+    const entrada = await this.prisma.bitacoraProyecto.findFirst({ where: { id: bitacoraId, proyectoId: id } });
+    if (!entrada) {
+      throw new NotFoundException(`Entrada de bitácora ${bitacoraId} no encontrada para el proyecto ${id}.`);
+    }
+
+    await this.prisma.bitacoraProyecto.delete({ where: { id: bitacoraId } });
+    return { mensaje: 'Entrada de bitácora eliminada correctamente.' };
+  }
+
   private assertPermisoProyecto(proyecto: Proyecto, usuario: UsuarioAutenticado) {
     if (usuario.rol === RolUsuario.admin) {
       return;
@@ -269,6 +357,12 @@ export class ProyectosService {
 
     if (proyecto.usuarioId !== usuario.id) {
       throw new ForbiddenException('No tienes permiso para este proyecto.');
+    }
+  }
+
+  private assertAdminMutacion(usuario: UsuarioAutenticado) {
+    if (usuario.rol !== RolUsuario.admin) {
+      throw new ForbiddenException('Solo un administrador puede modificar tareas del proyecto.');
     }
   }
 

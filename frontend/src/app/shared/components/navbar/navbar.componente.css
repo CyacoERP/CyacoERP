@@ -41,7 +41,8 @@
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 1.1rem;
+  font-size: 1rem;
+  font-weight: 800;
   line-height: 1;
 }
 
@@ -153,6 +154,12 @@
   color: #152947;
 }
 
+.dropdown-separator {
+  border: none;
+  border-top: 1px solid #d9e1ee;
+  margin: 6px 4px;
+}
+
 .nav-dropdown:hover .dropdown-menu,
 .nav-dropdown:focus-within .dropdown-menu {
   display: block;
@@ -204,6 +211,16 @@
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+.nav-dropdown-user .btn-login {
+  border: 1px solid rgba(187, 203, 227, 0.62);
+  background: transparent;
+}
+
+.dropdown-menu-user {
+  left: auto;
+  right: 0;
 }
 
 .btn-login:hover {

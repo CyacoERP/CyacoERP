@@ -11,11 +11,19 @@ import {
   UseInterceptors,
   BadRequestException,
   ParseIntPipe,
+  Query,
+  Header,
+  Res,
 } from '@nestjs/common';
+import type { Response } from 'express';
+import {
+  MonedaProducto,
+  TipoCompatibilidad,
+} from '@prisma/client';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { extname, join } from 'path';
-import { existsSync, mkdirSync } from 'fs';
+import { basename, extname, join } from 'path';
+import { createReadStream, existsSync, mkdirSync } from 'fs';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -28,28 +36,128 @@ export class ProductosController {
   constructor(private readonly productosService: ProductosService) {}
 
   @Get()
-  findAll() {
-    return this.productosService.findAll();
+  findAll(
+    @Query('categoriaId') categoriaId?: string,
+    @Query('familia') familia?: string,
+    @Query('fabricante') fabricante?: string,
+    @Query('precioMin') precioMin?: string,
+    @Query('precioMax') precioMax?: string,
+    @Query('busqueda') busqueda?: string,
+    @Query('incluirInactivos') incluirInactivos?: string,
+  ) {
+    return this.productosService.findAll({
+      categoriaId: categoriaId ? Number(categoriaId) : undefined,
+      familia,
+      fabricante,
+      precioMin: precioMin != null ? Number(precioMin) : undefined,
+      precioMax: precioMax != null ? Number(precioMax) : undefined,
+      busqueda,
+      incluirInactivos: incluirInactivos === 'true',
+    });
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productosService.findOne(Number(id));
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.productosService.findOne(id);
+  }
+
+  @Get(':id/documento')
+  @Header('Cache-Control', 'no-store')
+  async descargarDocumento(@Param('id', ParseIntPipe) id: number, @Res() res: Response) {
+    const relativePath = await this.productosService.obtenerRutaDocumento(id);
+    const fullPath = join(process.cwd(), relativePath.replace(/^\//, '').replaceAll('/', '\\'));
+
+    if (!existsSync(fullPath)) {
+      throw new BadRequestException('No se encontró el archivo del documento.');
+    }
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${basename(fullPath)}"`);
+    return createReadStream(fullPath).pipe(res);
   }
 
   @Post()
-  create(@Body() data: any) {
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  create(
+    @Body()
+    data: {
+      nombre: string;
+      descripcion?: string;
+      fabricante?: string;
+      numeroParte?: string;
+      skuInterno?: string;
+      familia?: string;
+      moneda?: MonedaProducto;
+      especificacionesTecnicas?: unknown;
+      precio: number;
+      stock?: number;
+      imagenUrl?: string;
+      categoriaId: number;
+    },
+  ) {
     return this.productosService.create(data);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() data: any) {
-    return this.productosService.update(Number(id), data);
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body()
+    data: Partial<{
+      nombre: string;
+      descripcion: string;
+      fabricante: string;
+      numeroParte: string;
+      skuInterno: string;
+      familia: string;
+      moneda: MonedaProducto;
+      especificacionesTecnicas: unknown;
+      precio: number;
+      stock: number;
+      imagenUrl: string;
+      categoriaId: number;
+      activo: boolean;
+    }>,
+  ) {
+    return this.productosService.update(id, data);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.productosService.remove(Number(id));
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.productosService.remove(id);
+  }
+
+  @Get(':id/compatibilidades')
+  listarCompatibilidades(@Param('id', ParseIntPipe) id: number) {
+    return this.productosService.listarCompatibilidades(id);
+  }
+
+  @Post(':id/compatibilidades')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  crearCompatibilidad(
+    @Param('id', ParseIntPipe) productoOrigenId: number,
+    @Body()
+    data: {
+      productoDestinoId: number;
+      tipo: TipoCompatibilidad;
+      nota?: string;
+    },
+  ) {
+    return this.productosService.crearCompatibilidad({ ...data, productoOrigenId });
+  }
+
+  @Delete(':id/compatibilidades/:compatibilidadId')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  eliminarCompatibilidad(
+    @Param('compatibilidadId', ParseIntPipe) compatibilidadId: number,
+  ) {
+    return this.productosService.eliminarCompatibilidad(compatibilidadId);
   }
 
   @Post(':id/documento')

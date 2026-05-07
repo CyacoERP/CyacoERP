@@ -6,6 +6,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { RolUsuario } from '@prisma/client';
@@ -39,8 +40,13 @@ export class CotizacionesController {
   @UseGuards(RolesGuard)
   @Roles('admin')
   @Get()
-  listarTodas() {
-    return this.cotizacionesService.listarTodas();
+  listarTodas(
+    @Query('estado') estado?: string,
+    @Query('desde') desde?: string,
+    @Query('hasta') hasta?: string,
+    @Query('cliente') cliente?: string,
+  ) {
+    return this.cotizacionesService.listarTodas({ estado, desde, hasta, cliente });
   }
 
   @Get(':id')

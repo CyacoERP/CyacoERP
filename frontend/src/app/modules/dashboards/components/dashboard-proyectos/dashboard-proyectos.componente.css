@@ -68,6 +68,8 @@ h1 {
 }
 
 .btn-filtro {
+  display: inline-flex;
+  align-items: center;
   min-height: 36px;
   padding: 0 14px;
   border-radius: 6px;
@@ -78,6 +80,7 @@ h1 {
   background: rgba(255, 255, 255, 0.12);
   color: #d2deea;
   border: 1px solid rgba(255, 255, 255, 0.14);
+  text-decoration: none;
 }
 
 .btn-filtro:hover {
@@ -339,13 +342,17 @@ h1 {
 
 .exportar-excel {
   color: #3f82f1;
-  text-decoration: none;
+  border: 1px solid #bfd1ef;
+  background: #f6f9ff;
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
   font-size: 0.88rem;
   font-weight: 600;
 }
 
 .exportar-excel:hover {
-  text-decoration: underline;
+  background: #edf4ff;
 }
 
 .tabla-proyectos {

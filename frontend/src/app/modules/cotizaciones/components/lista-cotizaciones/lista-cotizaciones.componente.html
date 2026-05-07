@@ -2,18 +2,23 @@
   <header class="quotes-hero">
     <div class="hero-inner">
       <div>
-        <p class="breadcrumb">Inicio <span>›</span> <strong>Historial de Cotizaciones</strong></p>
-        <h1>Mis Cotizaciones</h1>
+        <p class="breadcrumb">
+          Inicio <span>›</span>
+          <strong>{{ esVistaAdmin() ? 'Administración de Cotizaciones' : 'Historial de Cotizaciones' }}</strong>
+        </p>
+        <h1>{{ esVistaAdmin() ? 'Gestionar Cotizaciones' : 'Mis Cotizaciones' }}</h1>
         <p class="subtitle">{{ cotizaciones().length }} cotizaciones en total</p>
       </div>
 
-      <a routerLink="/cotizaciones/solicitar" class="btn-new-quote">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M7 3h7l5 5v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm7 1.5V9h4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M9 13h6M9 17h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-        </svg>
-        Nueva Cotización
-      </a>
+      @if (!esVistaAdmin()) {
+        <a routerLink="/cotizaciones/solicitar" class="btn-new-quote">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M7 3h7l5 5v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm7 1.5V9h4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M9 13h6M9 17h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          Nueva Cotización
+        </a>
+      }
     </div>
   </header>
 
@@ -57,6 +62,17 @@
             </button>
           }
         </div>
+
+        <div class="date-filters" aria-label="Filtrar por fecha de cotización">
+          <label>
+            Desde
+            <input #fechaDesdeInput type="date" [value]="fechaDesde()" (change)="actualizarFechaDesde(fechaDesdeInput.value)" />
+          </label>
+          <label>
+            Hasta
+            <input #fechaHastaInput type="date" [value]="fechaHasta()" (change)="actualizarFechaHasta(fechaHastaInput.value)" />
+          </label>
+        </div>
       </section>
 
       @if (cotizacionesFiltradas().length === 0) {
@@ -93,14 +109,32 @@
                   </td>
                   <td>
                     <div class="acciones">
-                      <a [routerLink]="['/cotizaciones', cotizacion.id]" class="btn-action">
+                      <a [routerLink]="['/cotizaciones', cotizacion.id]" class="op-btn op-btn--view">
                         <svg viewBox="0 0 24 24" aria-hidden="true">
                           <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z" fill="none" stroke="currentColor" stroke-width="1.8"/>
                           <circle cx="12" cy="12" r="2.8" fill="none" stroke="currentColor" stroke-width="1.8"/>
                         </svg>
                         Ver
                       </a>
-                      <button type="button" class="btn-action btn-pdf">
+                      @if (esVistaAdmin()) {
+                        <button
+                          type="button"
+                          class="op-btn op-btn--approve"
+                          [disabled]="!puedeAprobar(cotizacion) || actualizandoEstadoId() === cotizacion.id"
+                          (click)="actualizarEstado(cotizacion, 'aceptada')"
+                        >
+                          Aprobar
+                        </button>
+                        <button
+                          type="button"
+                          class="op-btn op-btn--reject"
+                          [disabled]="!puedeRechazar(cotizacion) || actualizandoEstadoId() === cotizacion.id"
+                          (click)="actualizarEstado(cotizacion, 'rechazada')"
+                        >
+                          Rechazar
+                        </button>
+                      }
+                      <button type="button" class="op-btn op-btn--pdf" (click)="descargarResumenPdf(cotizacion)">
                         <svg viewBox="0 0 24 24" aria-hidden="true">
                           <path d="M12 4v10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
                           <path d="M8.5 11.5L12 15l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>

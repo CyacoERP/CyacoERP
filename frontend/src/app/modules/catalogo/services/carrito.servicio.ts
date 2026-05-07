@@ -54,6 +54,10 @@ export class CarritoServicio {
     this.items.set([]);
   }
 
+  obtenerIdsProductos(): number[] {
+    return this.items().map((item) => item.producto.id);
+  }
+
   generarReciboXml(): string {
     const ahora = new Date();
     const fecha = ahora.toISOString().split('T')[0];
