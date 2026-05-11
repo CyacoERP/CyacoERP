@@ -17,7 +17,6 @@ export class Checkout implements AfterViewInit {
  @ViewChild('paypalButtonContainer')
   paypalButtonContainer!: ElementRef<HTMLDivElement>;
 
-
   private carritoService = inject(CarritoServicio);
   private paypalService = inject(PaypalService);
 
@@ -27,6 +26,64 @@ export class Checkout implements AfterViewInit {
   ngAfterViewInit(): void {    
     this.renderPayPalButton();
   }
+
+  private descargarXML(datos: any[]) {
+    const xmlContent = this.generarXML(datos);
+    const blob = new Blob([xmlContent], { type: 'application/xml' });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'pedido.xml';
+    link.click();
+
+    URL.revokeObjectURL(url);
+  }
+
+  private generarXML(datos: any[]): string {
+    let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+    xml += '<pedido>\n';
+
+    datos.forEach(item => {
+      xml += '  <articulo>\n';
+      xml += `    <nombre>${item.producto.nombre}</nombre>\n`;
+      xml += `    <precio>${item.producto.precio}</precio>\n`;
+      xml += `    <cantidad>${item.cantidad}</cantidad>\n`;
+      xml += '  </articulo>\n';
+    });
+
+    xml += '</pedido>';
+    return xml;
+  }
+
+  private mostrarModalPagoExitoso(datos: any[]) {
+    const modal = document.createElement('div');
+    modal.classList.add('modal-overlay');
+
+    modal.innerHTML = `
+      <div class="modal">
+        <h3>Pago realizado con éxito</h3>
+        <p>Gracias por tu compra. Tu pedido ha sido procesado correctamente.</p>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // Descargar XML automáticamente
+    this.descargarXML(datos);
+
+    setTimeout(() => {
+      this.cerrarModal();
+    }, 3000); // Cerrar el modal automáticamente después de 3 segundos
+  }
+
+  private cerrarModal() {
+    const modal = document.querySelector('.modal-overlay');
+    if (modal) {
+      modal.remove();
+    }
+  }
+
   private renderPayPalButton() {
     if(this.carrito().length == 0){
       return;
@@ -62,6 +119,7 @@ export class Checkout implements AfterViewInit {
 
           console.log('Pago capturado:', capture);
           this.mensaje = 'Pago realizado correctamente.';
+          this.mostrarModalPagoExitoso(this.carrito());
           this.carritoService.vaciarCarrito();
           this.paypalButtonContainer.nativeElement.innerHTML = '';
         } catch (error) {

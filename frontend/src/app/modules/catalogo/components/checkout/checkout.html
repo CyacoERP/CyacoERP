@@ -1,25 +1,261 @@
-<p style="font-weight:bold;">CHECKOUT CARGADO</p>
-<h2>Checkout</h2>
+<div class="checkout-container">
+  <h2 class="checkout-title">Checkout</h2>
 
-@if (carrito().length === 0) {
-  <p>Tu carrito está vacío.</p>
-  <a routerLink="/">Ir al catálogo</a>
-} @else {
-  <div style="border:1px solid #ccc; border-radius:12px; padding:16px;">
-    <h3>Resumen del pedido</h3>
+  @if (carrito().length === 0) {
+    <p class="empty-cart-message">Tu carrito está vacío.</p>
+    <a routerLink="/" class="back-to-catalog">Ir al catálogo</a>
+  } @else {
+    <div class="order-summary">
+      <h3 class="summary-title">Resumen del pedido</h3>
 
-    @for (item of carrito(); track item.producto.id) {
-      <p>
-        {{ item.producto.nombre }} -
-        {{ item.producto.precio | currency:'MXN' }} x {{ item.cantidad }}
-      </p>
+      @for (item of carrito(); track item.producto.id) {
+        <div class="order-item">
+          <span class="item-name">{{ item.producto.nombre }}</span>
+          <span class="item-price">{{ item.producto.precio | currency:'MXN' }}</span>
+          <span class="item-quantity">x {{ item.cantidad }}</span>
+        </div>
+      }
+
+      <hr class="divider">
+      <p class="total-amount"><strong>Total: {{ total() | currency:'MXN' }}</strong></p>
+
+      <div #paypalButtonContainer class="paypal-button-container"></div>
+
+      <p class="checkout-message">{{ mensaje }}</p>
+    </div>
+  }
+</div>
+
+<script>
+  function descargarXML(datos) {
+    const xmlContent = generarXML(datos);
+    const blob = new Blob([xmlContent], { type: 'application/xml' });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'pedido.xml';
+    link.click();
+
+    URL.revokeObjectURL(url);
+  }
+
+  function generarXML(datos) {
+    let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+    xml += '<pedido>\n';
+
+    datos.forEach(item => {
+      xml += '  <articulo>\n';
+      xml += `    <nombre>${item.producto.nombre}</nombre>\n`;
+      xml += `    <precio>${item.producto.precio}</precio>\n`;
+      xml += `    <cantidad>${item.cantidad}</cantidad>\n`;
+      xml += '  </articulo>\n';
+    });
+
+    xml += '</pedido>';
+    return xml;
+  }
+
+  async function mostrarModalPagoExitoso(datos) {
+    const modal = document.createElement('div');
+    modal.classList.add('modal-overlay');
+
+    modal.innerHTML = `
+      <div class="modal">
+        <h3>Pago realizado con éxito</h3>
+        <p>Gracias por tu compra. Tu pedido ha sido procesado correctamente.</p>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // Descargar XML automáticamente
+    descargarXML(datos);
+
+    setTimeout(() => {
+      cerrarModal();
+    }, 3000); // Cerrar el modal automáticamente después de 3 segundos
+  }
+
+  function cerrarModal() {
+    const modal = document.querySelector('.modal-overlay');
+    if (modal) {
+      modal.remove();
     }
+  }
 
-    <hr>
-    <p><strong>Total: {{ total() | currency:'MXN' }}</strong></p>
+  // Simulación de integración con PayPal
+  document.addEventListener('DOMContentLoaded', () => {
+    const paypalButtonContainer = document.querySelector('#paypalButtonContainer');
 
-    <div #paypalButtonContainer></div>
+    if (paypalButtonContainer) {
+      // Simular el botón de PayPal
+      const fakePaypalButton = document.createElement('button');
+      fakePaypalButton.textContent = 'Pagar con PayPal';
+      fakePaypalButton.classList.add('paypal-button');
 
-    <p>{{ mensaje }}</p>
-  </div>
-}
+      fakePaypalButton.addEventListener('click', async () => {
+        try {
+          // Simular el proceso de pago
+          const datosCompra = carrito(); // Obtener los datos del carrito
+
+          // Simular la captura del pago
+          const pagoCapturado = await new Promise(resolve => {
+            setTimeout(() => {
+              resolve({
+                id: '247285332X156914Y',
+                status: 'COMPLETED',
+                datosCompra
+              });
+            }, 1000); // Simular un retraso en el pago
+          });
+
+          if (pagoCapturado.status === 'COMPLETED') {
+            console.log('Pago capturado:', pagoCapturado);
+            await mostrarModalPagoExitoso(pagoCapturado.datosCompra);
+          } else {
+            console.error('El pago no se completó correctamente.');
+          }
+        } catch (error) {
+          console.error('Error durante el proceso de pago:', error);
+        }
+      });
+
+      paypalButtonContainer.appendChild(fakePaypalButton);
+    }
+  });
+</script>
+
+<style>
+  .checkout-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .checkout-title {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .empty-cart-message {
+    text-align: center;
+    font-size: 18px;
+    color: #666;
+  }
+
+  .back-to-catalog {
+    display: block;
+    text-align: center;
+    margin-top: 10px;
+    color: #007bff;
+    text-decoration: none;
+  }
+
+  .back-to-catalog:hover {
+    text-decoration: underline;
+  }
+
+  .order-summary {
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    padding: 16px;
+    background-color: #fff;
+  }
+
+  .summary-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  .order-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .item-name {
+    font-weight: bold;
+  }
+
+  .item-price, .item-quantity {
+    color: #555;
+  }
+
+  .divider {
+    margin: 20px 0;
+    border: none;
+    border-top: 1px solid #ddd;
+  }
+
+  .total-amount {
+    font-size: 18px;
+    font-weight: bold;
+    text-align: right;
+  }
+
+  .paypal-button-container {
+    margin-top: 20px;
+  }
+
+  .checkout-message {
+    margin-top: 10px;
+    text-align: center;
+    color: #28a745;
+  }
+
+  .modal-overlay {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    z-index: 1000;
+  }
+
+  .modal {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px 8px 0 0;
+    text-align: center;
+    box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 600px;
+  }
+
+  .modal h3 {
+    margin-bottom: 10px;
+    font-size: 20px;
+  }
+
+  .modal p {
+    margin-bottom: 20px;
+    font-size: 16px;
+  }
+
+  .paypal-button {
+    padding: 10px 20px;
+    background-color: #ffc439;
+    color: #000;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .paypal-button:hover {
+    background-color: #e0a800;
+  }
+
+  .navbar {
+    display: none;
+  }
+</style>
