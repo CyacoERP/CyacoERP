@@ -1,8 +1,9 @@
 import { Component, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AuthServicio } from '../../../modules/auth/services/auth.servicio';
 import { CarritoServicio } from '../../../modules/catalogo/services/carrito.servicio';
+import { ModalStateServicio } from '../../../modules/catalogo/services/modal-state.servicio';
 
 @Component({
   selector: 'app-navbar',
@@ -13,7 +14,9 @@ import { CarritoServicio } from '../../../modules/catalogo/services/carrito.serv
 })
 export class NavbarComponente {
   readonly carritoServicio = inject(CarritoServicio);
+  private readonly modalState = inject(ModalStateServicio);
   readonly authServicio = inject(AuthServicio);
+  private readonly router = inject(Router);
 
   readonly totalItemsCarrito = this.carritoServicio.totalItems;
   readonly usuarioActual = toSignal(this.authServicio.usuarioActual$, { initialValue: null });
@@ -24,6 +27,15 @@ export class NavbarComponente {
 
   cerrarSesion(): void {
     this.authServicio.logout();
+  }
+
+  abrirCarritoDrawer(): void {
+    this.modalState.abrirCarritoDrawer();
+  }
+
+  estaEnSeccion(prefijos: string[]): boolean {
+    const actual = this.router.url;
+    return prefijos.some((prefijo) => actual.startsWith(prefijo));
   }
 }
 

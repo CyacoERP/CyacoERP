@@ -117,7 +117,7 @@
             <span class="info-icono">☎</span>
             <div class="info-contenido">
               <span class="info-label">Teléfono principal</span>
-              <span class="info-valor">+52 (81) 8000-1234</span>
+              <a href="tel:+528180001234" class="info-valor">+52 (81) 8000-1234</a>
               <span class="info-detalle">Lun-Vie 8:00-5:00 CST</span>
             </div>
           </div>
@@ -126,7 +126,7 @@
             <span class="info-icono">📞</span>
             <div class="info-contenido">
               <span class="info-label">Emergencias</span>
-              <span class="info-valor emergencia">+52 (81) 8000-5678</span>
+              <a href="tel:+528180005678" class="info-valor emergencia">+52 (81) 8000-5678</a>
               <span class="info-detalle">Emergencias 24/7</span>
             </div>
           </div>
@@ -163,7 +163,7 @@
           <div class="remota-icono">💻</div>
           <h3>Soporte Remoto</h3>
           <p>Nuestros ingenieros pueden asistirte de forma remota de acuerdo a tu horario. Previa coordinación.</p>
-          <a href="#" class="btn-remota">Iniciar Sesión Remota</a>
+          <a [href]="sesionRemotaUrl" target="_blank" rel="noopener noreferrer" class="btn-remota">Iniciar Sesión Remota</a>
         </section>
       </aside>
     </div>
@@ -200,7 +200,7 @@
 
         <div class="videos-list">
           @for (video of videosTutoriales(); track trackPorId($index, video)) {
-            <a href="#" class="video-item">
+            <a [href]="video.url" target="_blank" rel="noopener noreferrer" class="video-item">
               <div class="video-thumbnail">
                 <div class="play-icon">▶</div>
               </div>
@@ -217,13 +217,16 @@
 
   <section class="seccion-mapa">
     <div class="mapa-contenedor">
-      <div class="mapa-placeholder">
-        <div class="mapa-icono">📍</div>
-      </div>
+      <iframe
+        class="mapa-frame"
+        title="Ubicación de oficinas Cyaco"
+        loading="lazy"
+        src="https://www.openstreetmap.org/export/embed.html?bbox=-99.1775%2C19.3655%2C-99.1650%2C19.3737&layer=mapnik&marker=19.3696%2C-99.1713"
+      ></iframe>
       <div class="mapa-info">
         <p>Av. Insurgentes Sur 1602, Crédito Constructor</p>
         <p>Benito Juárez, CDMX, C.P. 03940</p>
-        <a href="#" class="ver-maps">Ver en Google Maps →</a>
+        <a [href]="mapaGoogleUrl" target="_blank" rel="noopener noreferrer" class="ver-maps">Ver en Google Maps →</a>
       </div>
     </div>
   </section>

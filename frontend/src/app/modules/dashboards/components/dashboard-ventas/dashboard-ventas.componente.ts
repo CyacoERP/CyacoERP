@@ -188,4 +188,16 @@ export class DashboardVentasComponente implements OnInit {
   trackPorCodigo(_: number, cotizacion: CotizacionReciente): string {
     return cotizacion.codigo;
   }
+
+  exportarXlsx(): void {
+    const encabezado = ['Indicador', 'Valor', 'Tendencia'];
+    const filas = this.kpis().map((kpi) => [kpi.etiqueta, kpi.valor, `${kpi.tendencia}%`].join('\t'));
+    const contenido = [encabezado.join('\t'), ...filas].join('\n');
+    const blob = new Blob([contenido], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'dashboard-ventas.xlsx';
+    link.click();
+    URL.revokeObjectURL(link.href);
+  }
 }

@@ -7,6 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { ReporteServicio } from '../../services/reporte.servicio';
 
 interface KPI {
@@ -50,12 +51,9 @@ interface EstadoProyecto {
 })
 export class DashboardProyectosComponente implements OnInit {
   private readonly reporteServicio = inject(ReporteServicio);
+  private readonly router = inject(Router);
 
   readonly cargando = signal(true);
-  readonly filtroSeleccionado = signal<'ventas' | 'clientes' | 'proyectos'>(
-    'proyectos',
-  );
-
   readonly kpis = signal<KPI[]>([
     {
       icono: '📁',
@@ -172,12 +170,6 @@ export class DashboardProyectosComponente implements OnInit {
     });
   }
 
-  cambiarFiltro(
-    filtro: 'ventas' | 'clientes' | 'proyectos',
-  ): void {
-    this.filtroSeleccionado.set(filtro);
-  }
-
   calcularAnchoBarraAvance(avance: number): { width: string } {
     const width = `${avance}%`;
     return { width };
@@ -195,5 +187,41 @@ export class DashboardProyectosComponente implements OnInit {
 
   trackPorId(_: number, proyecto: EstadoProyecto): number {
     return proyecto.id;
+  }
+
+  irADashboard(ruta: 'ventas' | 'clientes' | 'proyectos'): void {
+    this.router.navigate([`/dashboards/${ruta}`]);
+  }
+
+  exportarExcel(): void {
+    const encabezado = [
+      'Codigo',
+      'Nombre',
+      'Cliente',
+      'Avance',
+      'HitosCompletados',
+      'HitosTotales',
+      'Presupuesto',
+      'Estado',
+    ];
+    const filas = this.estadosProyectos().map((p) =>
+      [
+        p.codigo,
+        p.nombre,
+        p.cliente,
+        p.avance,
+        p.hitosCompletados,
+        p.hitosTotal,
+        p.presupuesto,
+        p.estado,
+      ].join('\t'),
+    );
+    const contenido = [encabezado.join('\t'), ...filas].join('\n');
+    const blob = new Blob([contenido], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'dashboard-proyectos.xlsx';
+    link.click();
+    URL.revokeObjectURL(link.href);
   }
 }

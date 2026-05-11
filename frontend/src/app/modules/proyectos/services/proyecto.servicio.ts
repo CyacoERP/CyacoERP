@@ -74,6 +74,14 @@ export class ProyectoServicio {
     );
   }
 
+  obtenerTarea(idProyecto: number, idTarea: number): Observable<TareaProyectoApi> {
+    return this.http.get<TareaProyectoApi>(`/api/proyectos/${idProyecto}/tareas/${idTarea}`);
+  }
+
+  eliminarTarea(idProyecto: number, idTarea: number): Observable<void> {
+    return this.http.delete<void>(`/api/proyectos/${idProyecto}/tareas/${idTarea}`);
+  }
+
   obtenerBitacora(idProyecto: number): Observable<BitacoraProyectoApi[]> {
     return this.http.get<BitacoraProyectoApi[]>(`/api/proyectos/${idProyecto}/bitacora`);
   }
@@ -83,5 +91,20 @@ export class ProyectoServicio {
     payload: { nota: string; avance?: number },
   ): Observable<BitacoraProyectoApi> {
     return this.http.post<BitacoraProyectoApi>(`/api/proyectos/${idProyecto}/bitacora`, payload);
+  }
+
+  actualizarBitacora(
+    idProyecto: number,
+    idBitacora: number,
+    payload: { nota?: string; avance?: number },
+  ): Observable<BitacoraProyectoApi> {
+    return this.http.patch<BitacoraProyectoApi>(
+      `/api/proyectos/${idProyecto}/bitacora/${idBitacora}`,
+      payload,
+    );
+  }
+
+  eliminarBitacora(idProyecto: number, idBitacora: number): Observable<void> {
+    return this.http.delete<void>(`/api/proyectos/${idProyecto}/bitacora/${idBitacora}`);
   }
 }

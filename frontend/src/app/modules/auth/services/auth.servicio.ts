@@ -4,6 +4,13 @@ import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Usuario, LoginRequest, LoginResponse } from '../../../shared/models/usuario.modelo';
 
+export interface ActualizarPerfilDto {
+  nombre?: string;
+  telefono?: string;
+  empresa?: string;
+  cargo?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthServicio {
   private usuarioActual = new BehaviorSubject<Usuario | null>(null);
@@ -39,6 +46,14 @@ export class AuthServicio {
     );
   }
 
+  perfil(): Observable<Usuario> {
+    return this.http.get<Usuario>('/api/auth/perfil');
+  }
+
+  actualizarPerfil(dto: ActualizarPerfilDto): Observable<Usuario> {
+    return this.http.put<Usuario>('/api/auth/perfil', dto);
+  }
+
   obtenerToken(): string | null {
     return localStorage.getItem('token');
   }
@@ -66,3 +81,4 @@ export class AuthServicio {
     }
   }
 }
+

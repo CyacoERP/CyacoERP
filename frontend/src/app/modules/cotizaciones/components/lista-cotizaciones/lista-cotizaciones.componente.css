@@ -177,6 +177,32 @@
   font-weight: 700;
 }
 
+.date-filters {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.date-filters label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.76rem;
+  color: #6b7e99;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.date-filters input {
+  border: 1px solid #d9e0eb;
+  border-radius: 8px;
+  padding: 6px 8px;
+  font-size: 0.85rem;
+  color: #1e293b;
+  background: #fff;
+}
+
 .table-card {
   margin-top: 16px;
   border-radius: 16px;
@@ -304,6 +330,23 @@ td {
   cursor: pointer;
 }
 
+.btn-success {
+  color: #0f7a3f;
+  background: #e9f9ef;
+  border-color: #bae6cb;
+}
+
+.btn-danger {
+  color: #b42318;
+  background: #fdecec;
+  border-color: #f7c4c0;
+}
+
+.btn-action:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 @media (max-width: 1200px) {
   .breadcrumb {
     font-size: 0.86rem;
@@ -364,6 +407,19 @@ td {
   .toolbar-card {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .date-filters {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .date-filters label {
+    flex: 1;
+  }
+
+  .date-filters input {
+    width: 100%;
   }
 
   .table-card {

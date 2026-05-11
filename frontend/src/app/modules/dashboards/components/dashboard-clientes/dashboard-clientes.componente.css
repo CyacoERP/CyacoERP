@@ -67,6 +67,8 @@ h1 {
 }
 
 .btn-filtro {
+  display: inline-flex;
+  align-items: center;
   min-height: 36px;
   padding: 0 14px;
   border-radius: 6px;
@@ -77,6 +79,7 @@ h1 {
   background: rgba(255, 255, 255, 0.12);
   color: #d2deea;
   border: 1px solid rgba(255, 255, 255, 0.14);
+  text-decoration: none;
 }
 
 .btn-filtro:hover {
@@ -273,13 +276,14 @@ h1 {
 
 .hexagon-label {
   position: absolute;
+  transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
   align-items: center;
   font-size: 0.75rem;
   color: var(--text-main);
   text-align: center;
-  width: 40px;
+  min-width: 64px;
   pointer-events: auto;
 }
 
@@ -314,12 +318,17 @@ h1 {
 .exportar-excel {
   color: #3f82f1;
   text-decoration: none;
+  border: 1px solid #bfd1ef;
+  background: #f6f9ff;
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
   font-size: 0.88rem;
   font-weight: 600;
 }
 
 .exportar-excel:hover {
-  text-decoration: underline;
+  background: #edf4ff;
 }
 
 .tabla-clientes {

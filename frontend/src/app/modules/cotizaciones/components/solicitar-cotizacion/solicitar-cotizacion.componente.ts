@@ -5,6 +5,7 @@ import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CarritoServicio } from '../../../catalogo/services/carrito.servicio';
 import { CotizacionServicio } from '../../services/cotizacion.servicio';
 import { ItemCotizacion, SolicitudCotizacion } from '../../models/cotizacion.modelo';
+import { AuthServicio } from '../../../auth/services/auth.servicio';
 
 @Component({
   selector: 'app-solicitar-cotizacion',
@@ -16,6 +17,7 @@ export class SolicitarCotizacionComponente {
   private readonly fb = inject(FormBuilder);
   private readonly carritoServicio = inject(CarritoServicio);
   private readonly cotizacionServicio = inject(CotizacionServicio);
+  private readonly authServicio = inject(AuthServicio);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
@@ -43,6 +45,33 @@ export class SolicitarCotizacionComponente {
   constructor() {
     this.route.queryParamMap.subscribe((params) => {
       this.mensajeSinCotizaciones.set(params.get('empty') === '1');
+    });
+
+    this.prerellenarConUsuarioActivo();
+  }
+
+  private prerellenarConUsuarioActivo(): void {
+    const usuario = this.authServicio.obtenerUsuarioActual();
+    if (usuario) {
+      this.formulario.patchValue({
+        nombreCompleto: usuario.nombre ?? '',
+        correo: usuario.email ?? '',
+        telefono: usuario.telefono ?? '',
+        cargo: usuario.cargo ?? '',
+        empresa: usuario.empresa ?? '',
+      });
+    }
+
+    this.authServicio.perfil().subscribe({
+      next: (perfil) => {
+        this.formulario.patchValue({
+          nombreCompleto: perfil.nombre ?? this.formulario.value.nombreCompleto ?? '',
+          correo: perfil.email ?? this.formulario.value.correo ?? '',
+          telefono: perfil.telefono ?? this.formulario.value.telefono ?? '',
+          cargo: perfil.cargo ?? this.formulario.value.cargo ?? '',
+          empresa: perfil.empresa ?? this.formulario.value.empresa ?? '',
+        });
+      },
     });
   }
 

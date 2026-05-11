@@ -1,7 +1,7 @@
 <nav class="navbar">
   <div class="navbar-container">
     <a routerLink="/" class="logo">
-      <div class="logo-icon" aria-hidden="true">⚙</div>
+      <div class="logo-icon" aria-hidden="true">C</div>
       <div class="logo-text-group">
         <div class="logo-text">Cy<span class="logo-red">aco</span></div>
         <div class="logo-subtitle">Tecnología Industrial</div>
@@ -12,7 +12,7 @@
       <a routerLink="/catalogo" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Catálogo</a>
 
       <div class="nav-dropdown">
-        <button class="nav-link nav-dropdown-trigger" type="button" aria-label="Abrir menú de cotizaciones">
+        <button class="nav-link nav-dropdown-trigger" [class.active]="estaEnSeccion(['/cotizaciones'])" type="button" aria-label="Abrir menú de cotizaciones">
           Cotizaciones
           <span class="nav-caret" aria-hidden="true">▾</span>
         </button>
@@ -25,7 +25,7 @@
       <a routerLink="/proyectos" routerLinkActive="active" class="nav-link">Proyectos</a>
 
       <div class="nav-dropdown">
-        <button class="nav-link nav-dropdown-trigger" type="button" aria-label="Abrir menú de dashboards">
+        <button class="nav-link nav-dropdown-trigger" [class.active]="estaEnSeccion(['/dashboards'])" type="button" aria-label="Abrir menú de dashboards">
           Dashboards
           <span class="nav-caret" aria-hidden="true">▾</span>
         </button>
@@ -38,12 +38,14 @@
 
       @if (esAdmin()) {
         <div class="nav-dropdown">
-          <button class="nav-link nav-dropdown-trigger" type="button" aria-label="Abrir menú de administración">
+          <button class="nav-link nav-dropdown-trigger" [class.active]="estaEnSeccion(['/admin'])" type="button" aria-label="Abrir menú de administración">
             Administración
             <span class="nav-caret" aria-hidden="true">▾</span>
           </button>
           <div class="dropdown-menu">
-            <a routerLink="/admin/usuarios" class="dropdown-item">Gestionar Usuarios</a>
+            <a routerLink="/admin/clientes" class="dropdown-item">Gestionar Clientes</a>
+            <a routerLink="/admin/cotizaciones" class="dropdown-item">Gestionar Cotizaciones</a>
+            <a routerLink="/admin/productos" class="dropdown-item">Gestionar Inventario</a>
           </div>
         </div>
       }
@@ -53,22 +55,26 @@
     </div>
 
     <div class="nav-actions">
-      <a routerLink="/cotizaciones/mis" class="btn-cotizacion" aria-label="Ir a cotizaciones">
-        <span class="btn-icon" aria-hidden="true">🛒</span>
+      <button type="button" class="btn-cotizacion" (click)="abrirCarritoDrawer()" aria-label="Abrir cotización">
         Cotización
         @if (totalItemsCarrito() > 0) {
           <span class="quote-count" [attr.aria-label]="totalItemsCarrito() + ' productos en cotización'">{{ totalItemsCarrito() }}</span>
         }
-      </a>
+      </button>
 
       @if (usuarioActual(); as usuario) {
-        <button type="button" class="btn-login" (click)="cerrarSesion()" aria-label="Cerrar sesión">
-          <span class="btn-icon" aria-hidden="true">●</span>
-          {{ usuario.nombre }}
-        </button>
+        <div class="nav-dropdown nav-dropdown-user">
+          <button type="button" class="btn-login nav-dropdown-trigger" aria-label="Abrir menú de cuenta">
+            {{ usuario.nombre }}
+            <span class="nav-caret" aria-hidden="true">▾</span>
+          </button>
+          <div class="dropdown-menu dropdown-menu-user">
+            <a routerLink="/perfil" class="dropdown-item">Mi Perfil</a>
+            <button type="button" class="dropdown-item" (click)="cerrarSesion()">Cerrar sesión</button>
+          </div>
+        </div>
       } @else {
         <a routerLink="/auth/login" class="btn-login" aria-label="Ir a inicio de sesión">
-          <span class="btn-icon" aria-hidden="true">◌</span>
           Ingresar
         </a>
       }

@@ -1,0 +1,92 @@
+<section class="perfil-shell">
+  <div class="perfil-card">
+
+    <div class="perfil-header">
+      <div class="avatar">{{ nombre().charAt(0).toUpperCase() || '?' }}</div>
+      <div>
+        <h1 class="perfil-titulo">Mi Perfil</h1>
+        <p class="perfil-sub">Administra tu información personal</p>
+      </div>
+    </div>
+
+    @if (cargando()) {
+      <p class="estado">Cargando perfil...</p>
+    } @else {
+
+      <!-- Info de solo lectura -->
+      <div class="info-readonly">
+        <div class="info-item">
+          <span class="info-label">Correo electrónico</span>
+          <span class="info-valor">{{ correo() }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Rol</span>
+          <span class="badge-rol" [class.admin]="rol() === 'admin'">{{ rol() }}</span>
+        </div>
+      </div>
+
+      <hr class="separador" />
+
+      <!-- Alertas -->
+      @if (error()) {
+        <div class="alerta error">{{ error() }}</div>
+      }
+      @if (exito()) {
+        <div class="alerta exito">✓ Perfil actualizado correctamente.</div>
+      }
+
+      <!-- Formulario editable -->
+      <form class="form-perfil" (submit)="guardar(); $event.preventDefault()">
+        <div class="form-grid">
+          <label class="full">
+            Nombre completo *
+            <input
+              type="text"
+              [value]="nombre()"
+              (input)="nombre.set($any($event.target).value)"
+              required
+            />
+          </label>
+
+          <label>
+            Teléfono
+            <input
+              type="tel"
+              [value]="telefono()"
+              (input)="telefono.set($any($event.target).value)"
+              placeholder="ej: +52 33 1234 5678"
+            />
+          </label>
+
+          <label>
+            Cargo / Puesto
+            <input
+              type="text"
+              [value]="cargo()"
+              (input)="cargo.set($any($event.target).value)"
+              placeholder="ej: Gerente de compras"
+            />
+          </label>
+
+          <label class="full">
+            Empresa / Organización
+            <input
+              type="text"
+              [value]="empresa()"
+              (input)="empresa.set($any($event.target).value)"
+              placeholder="ej: CYACO S.A. de C.V."
+            />
+          </label>
+        </div>
+
+        <div class="form-acciones">
+          <a routerLink="/catalogo" class="btn-cancelar">Volver al catálogo</a>
+          <button type="submit" class="btn-guardar" [disabled]="guardando()">
+            {{ guardando() ? 'Guardando...' : 'Guardar cambios' }}
+          </button>
+        </div>
+      </form>
+
+    }
+  </div>
+</section>

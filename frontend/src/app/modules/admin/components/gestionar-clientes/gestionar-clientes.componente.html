@@ -1,7 +1,7 @@
 <section class="clientes-shell">
   <div class="page-header">
     <h1>Gestión de Clientes</h1>
-    <button type="button" class="btn-nuevo" (click)="abrirCrear()">+ Nuevo Cliente</button>
+    <button type="button" class="btn-nuevo" (click)="abrirCrear()">Nuevo Cliente</button>
   </div>
 
   <div class="toolbar">
@@ -52,9 +52,9 @@
                 </span>
               </td>
               <td class="acciones">
-                <button type="button" class="btn-accion editar" (click)="abrirEditar(cliente)" title="Editar">✏️</button>
+                <button type="button" class="op-btn op-btn--edit" (click)="abrirEditar(cliente)">Editar</button>
                 @if (cliente.activo) {
-                  <button type="button" class="btn-accion desactivar" (click)="confirmarDesactivar(cliente)" title="Desactivar">🗑️</button>
+                  <button type="button" class="op-btn op-btn--delete" (click)="confirmarDesactivar(cliente)">Eliminar</button>
                 }
               </td>
             </tr>

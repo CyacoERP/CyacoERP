@@ -161,16 +161,23 @@
 }
 
 .btn-accion {
-  background: none;
-  border: none;
+  border: 1px solid #d1d9e8;
+  background: #fff;
   cursor: pointer;
-  padding: 4px 6px;
+  padding: 5px 9px;
   border-radius: 6px;
-  font-size: 1rem;
+  font-size: 0.79rem;
+  font-weight: 700;
+  color: #30435f;
 }
 
 .btn-accion:hover {
   background: #f0f2f7;
+}
+
+.btn-accion.desactivar {
+  color: #b42318;
+  border-color: #f2cccc;
 }
 
 /* Paginación */

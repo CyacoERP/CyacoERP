@@ -1,0 +1,186 @@
+<section class="detalle-shell">
+
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb">
+    <a routerLink="/">Inicio</a>
+    <span>/</span>
+    <a routerLink="/catalogo">Catálogo</a>
+    @if (producto()) {
+      <span>/</span>
+      <span>{{ producto()!.nombre }}</span>
+    }
+  </nav>
+
+  <!-- Estados de carga / error -->
+  @if (cargando()) {
+    <div class="estado-wrap">
+      <p class="estado">Cargando producto...</p>
+    </div>
+  } @else if (error()) {
+    <div class="estado-wrap">
+      <p class="estado error">{{ error() }}</p>
+      <button class="btn-volver" (click)="volver()">← Volver al catálogo</button>
+    </div>
+  } @else if (producto()) {
+
+    <!-- Hero -->
+    <div class="hero">
+      <div class="hero-imagen">
+        <img
+          [src]="producto()!.imagenUrl || '/assets/default-product.png'"
+          [alt]="producto()!.nombre"
+          class="img-principal"
+        />
+      </div>
+
+      <div class="hero-info">
+        <p class="hero-categoria">{{ producto()!.categoria?.nombre || 'Sin categoría' }}</p>
+        <h1 class="hero-nombre">{{ producto()!.nombre }}</h1>
+
+        @if (producto()!.fabricante) {
+          <p class="hero-meta">Fabricante: <strong>{{ producto()!.fabricante }}</strong></p>
+        }
+        @if (producto()!.skuInterno) {
+          <p class="hero-meta">SKU: <code class="sku">{{ producto()!.skuInterno }}</code></p>
+        }
+        @if (producto()!.numeroParte) {
+          <p class="hero-meta">Núm. de Parte: <strong>{{ producto()!.numeroParte }}</strong></p>
+        }
+        @if (producto()!.familia) {
+          <p class="hero-meta">Familia: <strong>{{ producto()!.familia }}</strong></p>
+        }
+
+        <p class="hero-precio">
+          {{ producto()!.precio | currency: (producto()!.moneda ?? 'MXN'):'symbol':'1.2-2' }}
+          <span class="hero-moneda">{{ producto()!.moneda ?? 'MXN' }}</span>
+        </p>
+
+        @if (producto()!.stock > 0) {
+          <span class="badge-stock en-stock">En stock ({{ producto()!.stock }} uds.)</span>
+        } @else {
+          <span class="badge-stock sin-stock">Sin stock</span>
+        }
+
+        <div class="hero-acciones">
+          @if (producto()!.stock > 0) {
+            <button class="btn-carrito" (click)="agregarAlCarrito()" [class.agregado]="agregado()">
+              {{ agregado() ? '✓ Agregado al carrito' : 'Agregar al carrito' }}
+            </button>
+          } @else {
+            <button class="btn-carrito disabled" disabled>Sin stock</button>
+          }
+
+          @if (producto()!.urlDocumento) {
+            <button class="btn-pdf" (click)="descargarDocumento()">📄 Descargar ficha técnica</button>
+          }
+        </div>
+
+        @if (alertaIncompatibilidad()) {
+          <p class="alerta-incompatibilidad">{{ alertaIncompatibilidad() }}</p>
+        }
+      </div>
+    </div>
+
+    <!-- Contenido extendido -->
+    <div class="contenido">
+
+      <!-- Descripción -->
+      <div class="seccion">
+        <h2 class="seccion-titulo">Descripción</h2>
+        @if (producto()!.descripcion) {
+          <p class="descripcion-texto">{{ producto()!.descripcion }}</p>
+        } @else {
+          <p class="sin-datos">Sin descripción disponible.</p>
+        }
+      </div>
+
+      <!-- Especificaciones Técnicas -->
+      <div class="seccion">
+        <h2 class="seccion-titulo">Especificaciones Técnicas</h2>
+        @if (especEntradas.length > 0) {
+          <table class="tabla-specs">
+            <tbody>
+              @for (entry of especEntradas; track entry.clave) {
+                <tr>
+                  <th>{{ entry.clave }}</th>
+                  <td>{{ entry.valor }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        } @else {
+          <p class="sin-datos">Sin especificaciones técnicas registradas.</p>
+        }
+      </div>
+
+      <!-- Compatibilidades -->
+      <div class="seccion">
+        <h2 class="seccion-titulo">Compatibilidades</h2>
+
+        @if (compatibles().length === 0 && incompatibles().length === 0) {
+          <p class="sin-datos">Sin información de compatibilidades.</p>
+        } @else {
+          <div class="compat-grupos">
+            @if (compatibles().length > 0) {
+              <div class="compat-grupo">
+                <h3 class="compat-titulo compatible">✓ Compatible con</h3>
+                <ul class="compat-lista">
+                  @for (c of compatibles(); track c.id) {
+                    <li class="compat-item compatible">
+                      <a [routerLink]="['/catalogo', c.productoDestinoId]">
+                        {{ c.productoDestino?.nombre ?? ('Producto #' + c.productoDestinoId) }}
+                      </a>
+                      @if (c.nota) {
+                        <span class="compat-nota"> — {{ c.nota }}</span>
+                      }
+                    </li>
+                  }
+                </ul>
+              </div>
+            }
+
+            @if (incompatibles().length > 0) {
+              <div class="compat-grupo">
+                <h3 class="compat-titulo incompatible">✗ No compatible con</h3>
+                <ul class="compat-lista">
+                  @for (c of incompatibles(); track c.id) {
+                    <li class="compat-item incompatible">
+                      <a [routerLink]="['/catalogo', c.productoDestinoId]">
+                        {{ c.productoDestino?.nombre ?? ('Producto #' + c.productoDestinoId) }}
+                      </a>
+                      @if (c.nota) {
+                        <span class="compat-nota"> — {{ c.nota }}</span>
+                      }
+                    </li>
+                  }
+                </ul>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Documentos -->
+      @if (producto()!.urlDocumento) {
+        <div class="seccion">
+          <h2 class="seccion-titulo">Documentos</h2>
+          <div class="doc-tarjeta">
+            <span class="doc-icono">📄</span>
+            <div>
+              <p class="doc-nombre">Ficha Técnica</p>
+              <p class="doc-desc">Especificaciones completas en PDF</p>
+            </div>
+            <button class="btn-pdf" (click)="descargarDocumento()">Descargar PDF</button>
+          </div>
+        </div>
+      }
+
+    </div>
+
+    <!-- Footer de acciones -->
+    <div class="footer-acciones">
+      <button class="btn-volver" (click)="volver()">← Volver al catálogo</button>
+    </div>
+
+  }
+</section>

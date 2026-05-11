@@ -7,6 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { ReporteServicio } from '../../services/reporte.servicio';
 
 interface KPI {
@@ -39,7 +40,7 @@ interface ClienteDetalle {
 @Component({
   selector: 'app-dashboard-clientes',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './dashboard-clientes.componente.html',
   styleUrl: './dashboard-clientes.componente.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -48,9 +49,6 @@ export class DashboardClientesComponente implements OnInit {
   private readonly reporteServicio = inject(ReporteServicio);
 
   readonly cargando = signal(true);
-  readonly filtroSeleccionado = signal<'ventas' | 'clientes' | 'proyectos'>(
-    'clientes',
-  );
 
   readonly kpis = signal<KPI[]>([
     {
@@ -175,6 +173,22 @@ export class DashboardClientesComponente implements OnInit {
       .join(' ');
   });
 
+  readonly ejesHexagon = computed(() => {
+    const metrics = this.metricasSalud();
+    const centerX = 100;
+    const centerY = 100;
+    const radius = 60;
+    const angleSlice = (Math.PI * 2) / metrics.length;
+
+    return metrics.map((_, i) => {
+      const angle = angleSlice * i - Math.PI / 2;
+      return {
+        x: centerX + radius * Math.cos(angle),
+        y: centerY + radius * Math.sin(angle),
+      };
+    });
+  });
+
   readonly pointsDataHexagon = computed(() => {
     const metrics = this.metricasSalud();
     const centerX = 100;
@@ -193,6 +207,38 @@ export class DashboardClientesComponente implements OnInit {
       .join(' ');
   });
 
+  readonly puntosData = computed(() => {
+    const metrics = this.metricasSalud();
+    const centerX = 100;
+    const centerY = 100;
+    const maxValue = 100;
+    const angleSlice = (Math.PI * 2) / metrics.length;
+
+    return metrics.map((m, i) => {
+      const angle = angleSlice * i - Math.PI / 2;
+      const r = (m.valor / maxValue) * 60;
+      return {
+        x: centerX + r * Math.cos(angle),
+        y: centerY + r * Math.sin(angle),
+      };
+    });
+  });
+
+  readonly posicionesEtiquetas = computed(() => {
+    const metrics = this.metricasSalud();
+    const centerX = 100;
+    const centerY = 100;
+    const angleSlice = (Math.PI * 2) / metrics.length;
+    const radio = 78;
+
+    return metrics.map((metric, i) => {
+      const angle = angleSlice * i - Math.PI / 2;
+      const x = centerX + radio * Math.cos(angle);
+      const y = centerY + radio * Math.sin(angle);
+      return { ...metric, x: (x / 200) * 100, y: (y / 200) * 100 };
+    });
+  });
+
   ngOnInit(): void {
     this.reporteServicio.obtenerDashboardClientes().subscribe({
       next: () => {
@@ -204,28 +250,24 @@ export class DashboardClientesComponente implements OnInit {
     });
   }
 
-  cambiarFiltro(
-    filtro: 'ventas' | 'clientes' | 'proyectos',
-  ): void {
-    this.filtroSeleccionado.set(filtro);
-  }
-
   calcularAnchoBarraCliente(ventas: number): { width: string } {
     const max = this.maxVentasCliente();
     const width = `${(ventas / max) * 100}%`;
     return { width };
   }
 
-  calcularPosicionEtiquetaHexagon(
-    index: number,
-  ): { transform: string } {
-    const metrics = this.metricasSalud();
-    const angleSlice = (Math.PI * 2) / metrics.length;
-    const angle = angleSlice * index - Math.PI / 2;
-    const offsetRadius = 75;
-    const x = offsetRadius * Math.cos(angle);
-    const y = offsetRadius * Math.sin(angle);
-    return { transform: `translate(${x}px, ${y}px)` };
+  exportarExcel(): void {
+    const encabezado = ['Cliente', 'Proyectos', 'Cotizaciones', 'VentasAnuales', 'Participacion'];
+    const filas = this.clientesDetalle().map((c) =>
+      [c.nombre, c.proyectos, c.cotizaciones, c.ventasAnuales, c.participacion].join('\t'),
+    );
+    const contenido = [encabezado.join('\t'), ...filas].join('\n');
+    const blob = new Blob([contenido], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'dashboard-clientes.xlsx';
+    link.click();
+    URL.revokeObjectURL(link.href);
   }
 
   trackPorId(_: number, cliente: ClienteDetalle): number {

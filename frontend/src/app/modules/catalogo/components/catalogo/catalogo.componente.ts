@@ -1,11 +1,11 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { ProductoServicio } from '../../services/producto.servicio';
 import { CategoriaServicio } from '../../services/categoria.servicio';
 import { CarritoServicio } from '../../services/carrito.servicio';
 import { ModalStateServicio } from '../../services/modal-state.servicio';
-import { CarritoPreviewComponent } from '../carrito-preview/carrito-preview.componente';
 import { Producto } from '../../../../shared/models/producto.modelo';
 
 interface ProductFilter {
@@ -15,7 +15,7 @@ interface ProductFilter {
 
 @Component({
   selector: 'app-catalogo',
-  imports: [CommonModule, FormsModule, CarritoPreviewComponent],
+  imports: [CommonModule, FormsModule, RouterLink],
   standalone: true,
   templateUrl: './catalogo.componente.html',
   styleUrl: './catalogo.componente.css',
@@ -25,6 +25,7 @@ export class CatalogoComponente implements OnInit {
   readonly productos = signal<Producto[]>([]);
   readonly categorias = signal<any[]>([]);
   readonly cargando = signal(true);
+  readonly alertaIncompatibilidad = signal('');
   
   searchTerm = '';
   sortBy = 'relevancia';
@@ -154,7 +155,35 @@ export class CatalogoComponente implements OnInit {
   }
 
   onAgregarAlCarrito(producto: Producto): void {
-    this.carritoServicio.agregarProducto(producto);
+    const idsEnCarrito = this.carritoServicio.obtenerIdsProductos();
+
+    if (idsEnCarrito.length === 0) {
+      this.carritoServicio.agregarProducto(producto);
+      return;
+    }
+
+    this.productoServicio.obtenerCompatibilidades(producto.id).subscribe({
+      next: (compatibilidades) => {
+        const incompatibles = compatibilidades.filter((c) => c.tipo === 'incompatible');
+        const conflictos = incompatibles.filter((c) => idsEnCarrito.includes(c.productoDestinoId));
+
+        if (conflictos.length > 0) {
+          const nombres = conflictos
+            .map((c) => c.productoDestino?.nombre ?? `Producto #${c.productoDestinoId}`)
+            .join(', ');
+          this.alertaIncompatibilidad.set(
+            `Advertencia: ${producto.nombre} tiene incompatibilidad con ${nombres}.`,
+          );
+          setTimeout(() => this.alertaIncompatibilidad.set(''), 5000);
+        }
+
+        this.carritoServicio.agregarProducto(producto);
+      },
+      error: () => {
+        // Si no se puede validar, no bloqueamos la cotización.
+        this.carritoServicio.agregarProducto(producto);
+      },
+    });
   }
 
   abrirCarritoPreview(): void {

@@ -24,24 +24,21 @@
             <button
               type="button"
               class="btn-filtro"
-              [class.active]="filtroSeleccionado() === 'ventas'"
-              (click)="cambiarFiltro('ventas')"
+              (click)="irADashboard('ventas')"
             >
               Ventas
             </button>
             <button
               type="button"
               class="btn-filtro"
-              [class.active]="filtroSeleccionado() === 'clientes'"
-              (click)="cambiarFiltro('clientes')"
+              (click)="irADashboard('clientes')"
             >
               Clientes
             </button>
             <button
               type="button"
               class="btn-filtro"
-              [class.active]="filtroSeleccionado() === 'proyectos'"
-              (click)="cambiarFiltro('proyectos')"
+              [class.active]="true"
             >
               Proyectos
             </button>
@@ -152,7 +149,7 @@
       <section class="card tabla-card">
         <div class="tabla-header">
           <h2>Estado de Proyectos</h2>
-          <a href="#" class="exportar-excel">⬇ Exportar</a>
+          <button type="button" class="exportar-excel" (click)="exportarExcel()">Exportar XLSX</button>
         </div>
 
         <table class="tabla-proyectos">

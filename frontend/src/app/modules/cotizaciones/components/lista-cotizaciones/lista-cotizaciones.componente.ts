@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CotizacionServicio } from '../../services/cotizacion.servicio';
 import { Cotizacion } from '../../models/cotizacion.modelo';
 
@@ -26,6 +26,7 @@ interface CotizacionFila {
   contacto: string;
   items: number;
   total: number;
+  estadoOriginal: Cotizacion['estado'];
   estadoFiltro: Exclude<EstadoFiltro, 'todos'>;
   estadoLabel: 'Pendiente' | 'En Proceso' | 'Atendido' | 'Rechazado';
 }
@@ -43,6 +44,10 @@ export class ListaCotizacionesComponente implements OnInit {
   readonly conError = signal(false);
   readonly terminoBusqueda = signal('');
   readonly filtroActivo = signal<EstadoFiltro>('todos');
+  readonly fechaDesde = signal('');
+  readonly fechaHasta = signal('');
+  readonly esVistaAdmin = signal(false);
+  readonly actualizandoEstadoId = signal<number | null>(null);
 
   readonly filtros = signal<FiltroEstado[]>([
     { id: 'todos', label: 'Todos' },
@@ -55,6 +60,10 @@ export class ListaCotizacionesComponente implements OnInit {
   readonly cotizacionesFiltradas = computed(() => {
     const termino = this.terminoBusqueda().trim().toLowerCase();
     const filtro = this.filtroActivo();
+    const fechaDesde = this.fechaDesde();
+    const fechaHasta = this.fechaHasta();
+    const fechaDesdeDate = fechaDesde ? new Date(`${fechaDesde}T00:00:00`) : null;
+    const fechaHastaDate = fechaHasta ? new Date(`${fechaHasta}T23:59:59`) : null;
 
     return this.cotizaciones().filter((cotizacion) => {
       const coincideTexto =
@@ -65,18 +74,33 @@ export class ListaCotizacionesComponente implements OnInit {
 
       const coincideEstado = filtro === 'todos' || cotizacion.estadoFiltro === filtro;
 
-      return coincideTexto && coincideEstado;
+      const coincideFechaDesde = !fechaDesdeDate || cotizacion.fecha >= fechaDesdeDate;
+      const coincideFechaHasta = !fechaHastaDate || cotizacion.fecha <= fechaHastaDate;
+
+      return coincideTexto && coincideEstado && coincideFechaDesde && coincideFechaHasta;
     });
   });
 
   private readonly cotizacionServicio = inject(CotizacionServicio);
+  private readonly route = inject(ActivatedRoute);
 
   ngOnInit(): void {
+    this.esVistaAdmin.set(this.route.snapshot.routeConfig?.path === 'admin/cotizaciones');
     this.cargarCotizaciones();
   }
 
   cargarCotizaciones(): void {
-    this.cotizacionServicio.obtenerTodas().subscribe({
+    this.cargando.set(true);
+    this.conError.set(false);
+
+    const peticion = this.esVistaAdmin()
+      ? this.cotizacionServicio.obtenerParaAdmin({
+          desde: this.fechaDesde() || undefined,
+          hasta: this.fechaHasta() || undefined,
+        })
+      : this.cotizacionServicio.obtenerTodas();
+
+    peticion.subscribe({
       next: (datos: Cotizacion[]) => {
         this.cotizaciones.set((datos || []).map((cotizacion) => this.mapearCotizacion(cotizacion)));
         this.cargando.set(false);
@@ -90,6 +114,20 @@ export class ListaCotizacionesComponente implements OnInit {
 
   actualizarBusqueda(value: string): void {
     this.terminoBusqueda.set(value);
+  }
+
+  actualizarFechaDesde(value: string): void {
+    this.fechaDesde.set(value);
+    if (this.esVistaAdmin()) {
+      this.cargarCotizaciones();
+    }
+  }
+
+  actualizarFechaHasta(value: string): void {
+    this.fechaHasta.set(value);
+    if (this.esVistaAdmin()) {
+      this.cargarCotizaciones();
+    }
   }
 
   seleccionarFiltro(id: EstadoFiltro): void {
@@ -132,6 +170,67 @@ export class ListaCotizacionesComponente implements OnInit {
     return cotizacion.id;
   }
 
+  actualizarEstado(cotizacion: CotizacionFila, estado: Cotizacion['estado']): void {
+    this.actualizandoEstadoId.set(cotizacion.id);
+    this.cotizacionServicio.actualizarEstado(cotizacion.id, estado).subscribe({
+      next: () => {
+        this.actualizandoEstadoId.set(null);
+        this.cargarCotizaciones();
+      },
+      error: () => {
+        this.actualizandoEstadoId.set(null);
+      },
+    });
+  }
+
+  descargarResumenPdf(cotizacion: CotizacionFila): void {
+    const ventana = window.open('', '_blank', 'noopener,noreferrer,width=860,height=680');
+    if (!ventana) {
+      return;
+    }
+
+    const contenido = `<!doctype html>
+      <html lang="es">
+        <head>
+          <meta charset="utf-8" />
+          <title>${cotizacion.numero}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 28px; color: #1f2937; }
+            h1 { margin: 0 0 8px; }
+            .meta { margin: 6px 0; color: #475569; }
+            .card { margin-top: 18px; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; }
+            .total { font-size: 24px; font-weight: 700; margin-top: 10px; }
+          </style>
+        </head>
+        <body>
+          <h1>Cotizacion ${cotizacion.numero}</h1>
+          <p class="meta">Cliente: ${cotizacion.cliente}</p>
+          <p class="meta">Contacto: ${cotizacion.contacto}</p>
+          <p class="meta">Fecha: ${this.formatDate(cotizacion.fecha)}</p>
+          <p class="meta">Estado: ${cotizacion.estadoLabel}</p>
+
+          <section class="card">
+            <p>Items: ${cotizacion.items}</p>
+            <p class="total">Total estimado: ${this.formatPrice(cotizacion.total)}</p>
+          </section>
+        </body>
+      </html>`;
+
+    ventana.document.open();
+    ventana.document.write(contenido);
+    ventana.document.close();
+    ventana.focus();
+    ventana.print();
+  }
+
+  puedeAprobar(cotizacion: CotizacionFila): boolean {
+    return cotizacion.estadoOriginal !== 'aceptada';
+  }
+
+  puedeRechazar(cotizacion: CotizacionFila): boolean {
+    return cotizacion.estadoOriginal !== 'rechazada' && cotizacion.estadoOriginal !== 'cancelada';
+  }
+
   private mapearCotizacion(cotizacion: Cotizacion): CotizacionFila {
     const estadoFiltro = this.normalizarEstado(cotizacion.estado);
     const estadoLabel = this.labelEstado(estadoFiltro);
@@ -144,6 +243,7 @@ export class ListaCotizacionesComponente implements OnInit {
       contacto: cotizacion.contacto?.nombreCompleto || 'Sin contacto',
       items: cotizacion.items.length,
       total: cotizacion.total,
+      estadoOriginal: cotizacion.estado,
       estadoFiltro,
       estadoLabel,
     };

@@ -21,6 +21,7 @@ import { ActualizarTareaProyectoDto } from './dto/actualizar-tarea-proyecto.dto'
 import { CrearBitacoraProyectoDto } from './dto/crear-bitacora-proyecto.dto';
 import { CrearProyectoDto } from './dto/crear-proyecto.dto';
 import { CrearTareaProyectoDto } from './dto/crear-tarea-proyecto.dto';
+import { ActualizarBitacoraProyectoDto } from './dto/actualizar-bitacora-proyecto.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('proyectos')
@@ -87,6 +88,15 @@ export class ProyectosController {
     return this.proyectosService.listarTareas(id, usuario as UsuarioAutenticado);
   }
 
+  @Get(':id/tareas/:tareaId')
+  obtenerTarea(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('tareaId', ParseIntPipe) tareaId: number,
+    @UsuarioActual() usuario: UsuarioAutenticado | undefined,
+  ) {
+    return this.proyectosService.obtenerTarea(id, tareaId, usuario as UsuarioAutenticado);
+  }
+
   @Post(':id/tareas')
   crearTarea(
     @Param('id', ParseIntPipe) id: number,
@@ -121,6 +131,15 @@ export class ProyectosController {
     );
   }
 
+  @Delete(':id/tareas/:tareaId')
+  eliminarTarea(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('tareaId', ParseIntPipe) tareaId: number,
+    @UsuarioActual() usuario: UsuarioAutenticado | undefined,
+  ) {
+    return this.proyectosService.eliminarTarea(id, tareaId, usuario as UsuarioAutenticado);
+  }
+
   @Get(':id/bitacora')
   listarBitacora(
     @Param('id', ParseIntPipe) id: number,
@@ -136,5 +155,29 @@ export class ProyectosController {
     @UsuarioActual() usuario: UsuarioAutenticado | undefined,
   ) {
     return this.proyectosService.agregarBitacora(id, dto, usuario as UsuarioAutenticado);
+  }
+
+  @Patch(':id/bitacora/:bitacoraId')
+  actualizarBitacora(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('bitacoraId', ParseIntPipe) bitacoraId: number,
+    @Body() dto: ActualizarBitacoraProyectoDto,
+    @UsuarioActual() usuario: UsuarioAutenticado | undefined,
+  ) {
+    return this.proyectosService.actualizarBitacora(
+      id,
+      bitacoraId,
+      dto,
+      usuario as UsuarioAutenticado,
+    );
+  }
+
+  @Delete(':id/bitacora/:bitacoraId')
+  eliminarBitacora(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('bitacoraId', ParseIntPipe) bitacoraId: number,
+    @UsuarioActual() usuario: UsuarioAutenticado | undefined,
+  ) {
+    return this.proyectosService.eliminarBitacora(id, bitacoraId, usuario as UsuarioAutenticado);
   }
 }

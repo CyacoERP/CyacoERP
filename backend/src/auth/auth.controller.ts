@@ -1,7 +1,8 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegistroDto } from './dto/registro.dto';
+import { ActualizarPerfilDto } from './dto/actualizar-perfil.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { UsuarioActual } from './decorators/usuario-actual.decorator';
 import { UsuarioAutenticado } from './interfaces';
@@ -24,5 +25,14 @@ export class AuthController {
   @Get('perfil')
   perfil(@UsuarioActual() usuario: UsuarioAutenticado | undefined) {
     return this.authService.perfil(usuario?.id ?? 0);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put('perfil')
+  actualizarPerfil(
+    @UsuarioActual() usuario: UsuarioAutenticado | undefined,
+    @Body() dto: ActualizarPerfilDto,
+  ) {
+    return this.authService.actualizarPerfil(usuario?.id ?? 0, dto);
   }
 }

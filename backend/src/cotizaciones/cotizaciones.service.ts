@@ -12,6 +12,14 @@ import { CrearCotizacionDto } from './dto/crear-cotizacion.dto';
 export class CotizacionesService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private readonly estadosPermitidos: EstadoCotizacion[] = [
+    EstadoCotizacion.borrador,
+    EstadoCotizacion.enviada,
+    EstadoCotizacion.aceptada,
+    EstadoCotizacion.rechazada,
+    EstadoCotizacion.cancelada,
+  ];
+
   async crear(usuarioId: number, dto: CrearCotizacionDto) {
     const productoIds = [...new Set(dto.items.map((item) => item.productoId))];
     const productos = await this.prisma.producto.findMany({
@@ -88,8 +96,55 @@ export class CotizacionesService {
     });
   }
 
-  async listarTodas() {
+  async listarTodas(filtros?: {
+    estado?: string;
+    desde?: string;
+    hasta?: string;
+    cliente?: string;
+  }) {
+    const where: Prisma.CotizacionWhereInput = {};
+
+    const estado = filtros?.estado?.trim();
+    if (estado) {
+      if (!this.estadosPermitidos.includes(estado as EstadoCotizacion)) {
+        throw new BadRequestException('El estado de cotización enviado no es válido.');
+      }
+      where.estado = estado as EstadoCotizacion;
+    }
+
+    const cliente = filtros?.cliente?.trim();
+    if (cliente) {
+      where.OR = [
+        { contactoEmpresa: { contains: cliente } },
+        { contactoNombre: { contains: cliente } },
+        { usuario: { nombre: { contains: cliente } } },
+        { usuario: { email: { contains: cliente } } },
+      ];
+    }
+
+    const desde = filtros?.desde?.trim();
+    const hasta = filtros?.hasta?.trim();
+    if (desde || hasta) {
+      where.creadoEn = {};
+      if (desde) {
+        const fechaDesde = new Date(`${desde}T00:00:00.000Z`);
+        if (Number.isNaN(fechaDesde.getTime())) {
+          throw new BadRequestException('La fecha "desde" no es válida.');
+        }
+        where.creadoEn.gte = fechaDesde;
+      }
+
+      if (hasta) {
+        const fechaHasta = new Date(`${hasta}T23:59:59.999Z`);
+        if (Number.isNaN(fechaHasta.getTime())) {
+          throw new BadRequestException('La fecha "hasta" no es válida.');
+        }
+        where.creadoEn.lte = fechaHasta;
+      }
+    }
+
     return this.prisma.cotizacion.findMany({
+      where,
       orderBy: { creadoEn: 'desc' },
       include: {
         usuario: {
@@ -127,7 +182,10 @@ export class CotizacionesService {
   }
 
   async actualizarEstado(id: number, estado: EstadoCotizacion, usuarioId: number, rol: RolUsuario) {
-    const cotizacion = await this.prisma.cotizacion.findUnique({ where: { id } });
+    const cotizacion = await this.prisma.cotizacion.findUnique({
+      where: { id },
+      include: { items: true },
+    });
     if (!cotizacion) {
       throw new NotFoundException(`Cotización ${id} no encontrada.`);
     }
@@ -140,6 +198,43 @@ export class CotizacionesService {
 
     if (!esAdmin && estado !== EstadoCotizacion.enviada && estado !== EstadoCotizacion.cancelada) {
       throw new ForbiddenException('Solo un admin puede aceptar o rechazar cotizaciones.');
+    }
+
+    if (estado === EstadoCotizacion.aceptada && cotizacion.estado === EstadoCotizacion.aceptada) {
+      return cotizacion;
+    }
+
+    if (estado === EstadoCotizacion.aceptada) {
+      return this.prisma.$transaction(async (tx) => {
+        for (const item of cotizacion.items) {
+          const producto = await tx.producto.findUnique({ where: { id: item.productoId } });
+          if (!producto || !producto.activo) {
+            throw new BadRequestException(
+              `El producto ${item.productoId} no existe o está inactivo.`,
+            );
+          }
+          if (producto.stock < item.cantidad) {
+            throw new BadRequestException(
+              `Stock insuficiente para ${producto.nombre}: disponible ${producto.stock}, solicitado ${item.cantidad}.`,
+            );
+          }
+        }
+
+        for (const item of cotizacion.items) {
+          await tx.producto.update({
+            where: { id: item.productoId },
+            data: { stock: { decrement: item.cantidad } },
+          });
+        }
+
+        return tx.cotizacion.update({
+          where: { id },
+          data: { estado },
+          include: {
+            items: { include: { producto: true } },
+          },
+        });
+      });
     }
 
     return this.prisma.cotizacion.update({
