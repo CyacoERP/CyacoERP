@@ -134,7 +134,13 @@
 .acciones {
   display: flex;
   gap: 8px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.tabla td {
+  vertical-align: middle;
 }
 
 .modal-overlay {

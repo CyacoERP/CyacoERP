@@ -73,6 +73,24 @@ export class ProductoServicio {
     );
   }
 
+  desactivar(id: number): Observable<Producto> {
+    return this.http.post<Producto>(`${this.apiUrl}/${id}/desactivar`, {}).pipe(
+      catchError((error) => {
+        console.error('Error desactivando producto:', error);
+        throw error;
+      })
+    );
+  }
+
+  activar(id: number): Observable<Producto> {
+    return this.http.post<Producto>(`${this.apiUrl}/${id}/activar`, {}).pipe(
+      catchError((error) => {
+        console.error('Error activando producto:', error);
+        throw error;
+      })
+    );
+  }
+
   obtenerCompatibilidades(productoId: number): Observable<CompatibilidadProducto[]> {
     return this.http.get<CompatibilidadProducto[]>(`${this.apiUrl}/${productoId}/compatibilidades`).pipe(
       catchError((error) => {

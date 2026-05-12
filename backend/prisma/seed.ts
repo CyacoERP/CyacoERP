@@ -17,11 +17,15 @@ type ProductoSeed = {
   precio: number;
   stock: number;
   categoria: string;
+  fabricante: string;
+  numeroParte: string;
+  familia: string;
+  especificacionesTecnicas: Record<string, string>;
 };
 
 async function main() {
   const adminEmail = (process.env.ADMIN_EMAIL ?? 'admin@cyaco.local').toLowerCase();
-  const adminPassword = process.env.ADMIN_PASSWORD ?? 'Admin12345';
+  const adminPassword = process.env.ADMIN_PASSWORD ?? 'Admin1234!';
   const adminHash = await bcrypt.hash(adminPassword, 10);
 
   await prisma.usuario.upsert({
@@ -44,40 +48,40 @@ async function main() {
   });
 
   const usuariosCliente = [
-    ['maria.lopez@industrias-nova.com', 'Maria Lopez', 'Industrias Nova', 'Gerente de Planta'],
-    ['carlos.ramirez@petroval.mx', 'Carlos Ramirez', 'Petroval', 'Jefe de Instrumentacion'],
-    ['ana.soto@aquaflow.com', 'Ana Soto', 'AquaFlow', 'Compras Tecnicas'],
-    ['javier.ponce@cementa.com', 'Javier Ponce', 'Cementa', 'Mantenimiento'],
-    ['lucia.mendez@enertek.com', 'Lucia Mendez', 'Enertek', 'Ingenieria de Proyectos'],
+    ['maria.lopez@industrias-nova.com', 'Maria Lopez', '+52 81 0000 0000', 'Industrias Nova', 'Gerente de Planta'],
+    ['carlos.ramirez@petroval.mx', 'Carlos Ramirez', '+52 81 1000 0001', 'Petroval', 'Jefe de Instrumentacion'],
+    ['ana.soto@aquaflow.com', 'Ana Soto', '+52 81 1000 0002', 'AquaFlow', 'Compras Tecnicas'],
+    ['javier.ponce@cementa.com', 'Javier Ponce', '+52 81 1000 0003', 'Cementa', 'Mantenimiento'],
+    ['lucia.mendez@enertek.com', 'Lucia Mendez', '+52 81 1000 0004', 'Enertek', 'Ingenieria de Proyectos'],
   ] as const;
 
-  for (const [email, nombre, empresa, cargo] of usuariosCliente) {
+  for (const [email, nombre, telefono, empresa, cargo] of usuariosCliente) {
     const hash = await bcrypt.hash('Cliente123!', 10);
     await prisma.usuario.upsert({
       where: { email },
-      update: { nombre, empresa, cargo, passwordHash: hash, rol: RolUsuario.cliente, activo: true },
-      create: { nombre, email, empresa, cargo, passwordHash: hash, rol: RolUsuario.cliente, activo: true },
+      update: { nombre, telefono, empresa, cargo, passwordHash: hash, rol: RolUsuario.cliente, activo: true },
+      create: { nombre, email, telefono, empresa, cargo, passwordHash: hash, rol: RolUsuario.cliente, activo: true },
     });
   }
 
   const clientes = [
-    ['Industrias Nova SA de CV', 'INO010101A11', 'contacto@industrias-nova.com', '3310010001', 'Manufactura'],
-    ['Petroval Operaciones', 'PET020202B22', 'compras@petroval.mx', '3310010002', 'Oil & Gas'],
-    ['AquaFlow Soluciones', 'AQU030303C33', 'ventas@aquaflow.com', '3310010003', 'Tratamiento de agua'],
-    ['Cementa del Norte', 'CEM040404D44', 'ingenieria@cementa.com', '3310010004', 'Cemento'],
-    ['Enertek Proyectos', 'ENE050505E55', 'proyectos@enertek.com', '3310010005', 'Energia'],
-    ['Quimica Atlas', 'QUI060606F66', 'operaciones@quimicaatlas.com', '3310010006', 'Quimica'],
-    ['MetalMec Industrial', 'MET070707G77', 'contacto@metalmec.com', '3310010007', 'Metal mecánica'],
-    ['Logisur Terminales', 'LOG080808H88', 'supply@logisur.com', '3310010008', 'Logistica'],
-    ['BioFood Process', 'BIO090909I99', 'mantenimiento@biofood.com', '3310010009', 'Alimentos'],
-    ['Papeles Delta', 'PAP101010J10', 'planta@papelesdelta.com', '3310010010', 'Papel'],
+    ['Industrias Nova SA de CV', 'INO010101A11', '44100', 'Manufactura'],
+    ['Petroval Operaciones', 'PET020202B22', '45010', 'Oil & Gas'],
+    ['AquaFlow Soluciones', 'AQU030303C33', '45020', 'Tratamiento de agua'],
+    ['Cementa del Norte', 'CEM040404D44', '45030', 'Cemento'],
+    ['Enertek Proyectos', 'ENE050505E55', '45040', 'Energia'],
+    ['Quimica Atlas', 'QUI060606F66', '45050', 'Quimica'],
+    ['MetalMec Industrial', 'MET070707G77', '45060', 'Metal mecánica'],
+    ['Logisur Terminales', 'LOG080808H88', '45070', 'Logistica'],
+    ['BioFood Process', 'BIO090909I99', '45080', 'Alimentos'],
+    ['Papeles Delta', 'PAP101010J10', '45090', 'Papel'],
   ] as const;
 
-  for (const [razonSocial, rfc, email, telefono, sector] of clientes) {
+  for (const [razonSocial, rfc, codigoPostal, sector] of clientes) {
     await prisma.cliente.upsert({
       where: { rfc },
-      update: { razonSocial, email, telefono, sector, activo: true },
-      create: { razonSocial, rfc, email, telefono, sector, activo: true },
+      update: { razonSocial, codigoPostal, sector, activo: true },
+      create: { razonSocial, rfc, codigoPostal, sector, activo: true },
     });
   }
 
@@ -103,31 +107,54 @@ async function main() {
   const categoriasDb = await prisma.categoria.findMany();
   const categoriaPorNombre = new Map(categoriasDb.map((c) => [c.nombre, c.id]));
 
+  const fichasTecnicasPorCategoria: Record<string, string> = {
+    Presion: 'https://www.emerson.com/en/final-control/catalog/products-and-software/pressure-regulators/pressure-reducing-regulators#perPage=15&sortCriteria=relevance',
+    Flujo: 'https://www.endress.com/en/field-instruments-overview/flow-measurement-product-overview',
+    Temperatura: 'https://www.endress.com/en/field-instruments-overview/temperature-measurement-product-overview',
+    Nivel: 'https://www.emerson.com/en/final-control/catalog/products-and-software/valve-actuator-regulator-instrumentation/level-controllers#perPage=15&sortCriteria=relevance',
+    Valvulas: 'https://www.emerson.com/en/final-control/products/bettis-v4b',
+    Comunicacion: 'https://www.siemens.com/global/en/products/automation/industrial-communication.html',
+    Seguridad: 'https://www.msasafety.com/',
+    Analitica: 'https://www.endress.com/en/field-instruments-overview/analysis-product-overview',
+  };
+
+  const fichasTecnicasPorProducto: Record<string, string> = {
+    'Transmisor Presion X100': 'https://www.emerson.com/en/final-control/catalog/products-and-software/pressure-regulators/back-pressure-regulators#perPage=15&sortCriteria=relevance',
+    'Transmisor Presion X300': 'https://www.emerson.com/en/final-control/catalog/products-and-software/pressure-regulators/pressure-reducing-regulators#perPage=15&sortCriteria=relevance',
+    'Manometro Digital DPM-45': 'https://www.emerson.com/en/final-control/catalog/products-and-software/pressure-regulators/back-pressure-regulators#perPage=15&sortCriteria=relevance',
+    'Radar Nivel RN-40': 'https://www.emerson.com/is/content/emerson/en/final-control/flow-controls/documents/d103219x012.pdf',
+    'Ultrasonico Nivel UL-25': 'https://www.emerson.com/is/content/emerson/en/final-control/flow-controls/documents/d103219x012.pdf',
+    'Interruptor Nivel LN-2': 'https://www.emerson.com/is/content/emerson/en/final-control/flow-controls/documents/d103219x012.pdf',
+    'Valvula Control VC-4': 'https://www.emerson.com/is/content/emerson/en/final-control/actuation/documents/product-brochure-gvo-series-linear-valve-operators-imperial-data-bettis-en.pdf',
+    'Actuador Neumatico AN-90': 'https://www.emerson.com/is/content/emerson/en/final-control/actuation/documents/data-sheets-gvo-g-series-p-da-sr-thrust-chart-metric-bettis-en.pdf',
+    'Posicionador Inteligente PI-12': 'https://www.emerson.com/is/content/emerson/en/final-control/actuation/documents/brochure-bettis-product-selection-guide-us.pdf',
+  };
+
   const productosSeed: ProductoSeed[] = [
-    { nombre: 'Transmisor Presion X100', descripcion: 'Rango 0-100 bar, salida 4-20mA, acero inoxidable', precio: 12500, stock: 18, categoria: 'Presion' },
-    { nombre: 'Transmisor Presion X300', descripcion: 'Alta precision para procesos criticos, HART', precio: 18900, stock: 12, categoria: 'Presion' },
-    { nombre: 'Manometro Digital DPM-45', descripcion: 'Display retroiluminado, IP65', precio: 4200, stock: 25, categoria: 'Presion' },
-    { nombre: 'Caudalimetro Electromagnetico EM-200', descripcion: 'Medicion de flujo en agua y lodos', precio: 26500, stock: 9, categoria: 'Flujo' },
-    { nombre: 'Caudalimetro Ultrasónico UF-90', descripcion: 'Clamp-on, instalacion sin corte de linea', precio: 31800, stock: 7, categoria: 'Flujo' },
-    { nombre: 'Sensor Flujo Turbina TF-22', descripcion: 'Bajo costo para fluidos limpios', precio: 7300, stock: 20, categoria: 'Flujo' },
-    { nombre: 'RTD PT100 Pro', descripcion: 'Sonda industrial clase A', precio: 2500, stock: 32, categoria: 'Temperatura' },
-    { nombre: 'Termopar Tipo K TK-900', descripcion: 'Alta temperatura hasta 1200C', precio: 2900, stock: 28, categoria: 'Temperatura' },
-    { nombre: 'Transmisor Temperatura TT-8', descripcion: 'Entrada universal, salida HART', precio: 8600, stock: 15, categoria: 'Temperatura' },
-    { nombre: 'Radar Nivel RN-40', descripcion: 'Medicion continua para tanques', precio: 34500, stock: 6, categoria: 'Nivel' },
-    { nombre: 'Ultrasonico Nivel UL-25', descripcion: 'Control de nivel no contacto', precio: 14500, stock: 11, categoria: 'Nivel' },
-    { nombre: 'Interruptor Nivel LN-2', descripcion: 'Punto alto/bajo para tanques', precio: 3900, stock: 30, categoria: 'Nivel' },
-    { nombre: 'Valvula Control VC-4', descripcion: 'Valvula globo actuada 2 pulgadas', precio: 22500, stock: 8, categoria: 'Valvulas' },
-    { nombre: 'Actuador Neumatico AN-90', descripcion: 'Accionamiento para valvulas de proceso', precio: 11900, stock: 16, categoria: 'Valvulas' },
-    { nombre: 'Posicionador Inteligente PI-12', descripcion: 'Precision de posicion con diagnostico', precio: 9800, stock: 13, categoria: 'Valvulas' },
-    { nombre: 'Gateway Industrial GW-500', descripcion: 'Conversor Modbus TCP/RTU', precio: 8700, stock: 17, categoria: 'Comunicacion' },
-    { nombre: 'Switch Industrial SW-8', descripcion: '8 puertos ethernet, riel DIN', precio: 6100, stock: 21, categoria: 'Comunicacion' },
-    { nombre: 'Módem LTE Industrial LT-100', descripcion: 'Conectividad remota segura para SCADA', precio: 10500, stock: 10, categoria: 'Comunicacion' },
-    { nombre: 'Detector Gas DG-77', descripcion: 'Deteccion de gases combustibles', precio: 21300, stock: 9, categoria: 'Seguridad' },
-    { nombre: 'Barreras Intrinsecas BI-4', descripcion: 'Proteccion para lazo en zona peligrosa', precio: 7900, stock: 18, categoria: 'Seguridad' },
-    { nombre: 'Caja ATEX CA-2', descripcion: 'Encapsulado para instrumentacion en campo', precio: 5200, stock: 22, categoria: 'Seguridad' },
-    { nombre: 'Analizador pH APH-300', descripcion: 'Monitoreo continuo de pH en linea', precio: 19800, stock: 8, categoria: 'Analitica' },
-    { nombre: 'Analizador Conductividad AC-11', descripcion: 'Control de calidad de agua de proceso', precio: 16400, stock: 12, categoria: 'Analitica' },
-    { nombre: 'Oxigeno Disuelto OD-7', descripcion: 'Sensor optico para tratamiento de agua', precio: 23800, stock: 5, categoria: 'Analitica' },
+    { nombre: 'Transmisor Presion X100', descripcion: 'Rango 0-100 bar, salida 4-20mA, acero inoxidable', precio: 12500, stock: 18, categoria: 'Presion', fabricante: 'Endress+Hauser', numeroParte: 'PMP11-X100', familia: 'Cerabar', especificacionesTecnicas: { rango: '0-100 bar', senalSalida: '4-20 mA', alimentacion: '24 VDC', precision: '0.25 % FS' } },
+    { nombre: 'Transmisor Presion X300', descripcion: 'Alta precision para procesos criticos, HART', precio: 18900, stock: 12, categoria: 'Presion', fabricante: 'Endress+Hauser', numeroParte: 'PMP51-X300', familia: 'Cerabar', especificacionesTecnicas: { rango: '0-250 bar', protocolo: 'HART', material: 'AISI 316L', precision: '0.1 % FS' } },
+    { nombre: 'Manometro Digital DPM-45', descripcion: 'Display retroiluminado, IP65', precio: 4200, stock: 25, categoria: 'Presion', fabricante: 'WIKA', numeroParte: 'DPM-45', familia: 'Digital Pressure Gauge', especificacionesTecnicas: { rango: '0-16 bar', proteccion: 'IP65', display: 'LCD retroiluminado', conexion: '1/4 NPT' } },
+    { nombre: 'Caudalimetro Electromagnetico EM-200', descripcion: 'Medicion de flujo en agua y lodos', precio: 26500, stock: 9, categoria: 'Flujo', fabricante: 'Yokogawa', numeroParte: 'AXF-EM200', familia: 'AXF', especificacionesTecnicas: { diametro: '2 in', precision: '0.5 % lectura', fluido: 'Conductivo', protocolo: 'HART / Modbus' } },
+    { nombre: 'Caudalimetro Ultrasónico UF-90', descripcion: 'Clamp-on, instalacion sin corte de linea', precio: 31800, stock: 7, categoria: 'Flujo', fabricante: 'Yokogawa', numeroParte: 'UF-90', familia: 'Ultrasonic', especificacionesTecnicas: { tecnologia: 'Ultrasonido clamp-on', diametro: '1-24 in', precision: '1 % lectura', salida: '4-20 mA' } },
+    { nombre: 'Sensor Flujo Turbina TF-22', descripcion: 'Bajo costo para fluidos limpios', precio: 7300, stock: 20, categoria: 'Flujo', fabricante: 'Krohne', numeroParte: 'TF-22', familia: 'Turbine', especificacionesTecnicas: { rangoFlujo: '5-120 L/min', conexion: '1 in', cuerpo: 'Acero inoxidable', precision: '1.5 % FS' } },
+    { nombre: 'RTD PT100 Pro', descripcion: 'Sonda industrial clase A', precio: 2500, stock: 32, categoria: 'Temperatura', fabricante: 'Endress+Hauser', numeroParte: 'TM311-PT100', familia: 'iTHERM', especificacionesTecnicas: { sensor: 'PT100 Clase A', rango: '-50 a 250 C', conexion: '1/2 NPT', longitud: '150 mm' } },
+    { nombre: 'Termopar Tipo K TK-900', descripcion: 'Alta temperatura hasta 1200C', precio: 2900, stock: 28, categoria: 'Temperatura', fabricante: 'Omega', numeroParte: 'TK-900', familia: 'Thermocouple', especificacionesTecnicas: { tipo: 'Termopar K', rango: '0 a 1200 C', vaina: 'Inconel', diametro: '6 mm' } },
+    { nombre: 'Transmisor Temperatura TT-8', descripcion: 'Entrada universal, salida HART', precio: 8600, stock: 15, categoria: 'Temperatura', fabricante: 'Endress+Hauser', numeroParte: 'TMT82', familia: 'iTEMP', especificacionesTecnicas: { entrada: 'RTD/TC universal', salida: '4-20 mA HART', precision: '0.05 %', alimentacion: '24 VDC' } },
+    { nombre: 'Radar Nivel RN-40', descripcion: 'Medicion continua para tanques', precio: 34500, stock: 6, categoria: 'Nivel', fabricante: 'VEGA', numeroParte: 'VEGAPULS-RN40', familia: 'VEGAPULS', especificacionesTecnicas: { tecnologia: 'Radar 80 GHz', rango: 'Hasta 30 m', salida: '4-20 mA HART', proteccion: 'IP68' } },
+    { nombre: 'Ultrasonico Nivel UL-25', descripcion: 'Control de nivel no contacto', precio: 14500, stock: 11, categoria: 'Nivel', fabricante: 'VEGA', numeroParte: 'UL-25', familia: 'Ultrasonic', especificacionesTecnicas: { tecnologia: 'Ultrasonido', rango: '0.3-15 m', precision: '0.25 %', proteccion: 'IP66' } },
+    { nombre: 'Interruptor Nivel LN-2', descripcion: 'Punto alto/bajo para tanques', precio: 3900, stock: 30, categoria: 'Nivel', fabricante: 'Endress+Hauser', numeroParte: 'LN-2', familia: 'Liquiphant', especificacionesTecnicas: { tipo: 'Interruptor vibratorio', salida: 'PNP/relay', temperatura: '-40 a 100 C', presionMax: '40 bar' } },
+    { nombre: 'Valvula Control VC-4', descripcion: 'Valvula globo actuada 2 pulgadas', precio: 22500, stock: 8, categoria: 'Valvulas', fabricante: 'Fisher', numeroParte: 'VC-4', familia: 'Control Valve', especificacionesTecnicas: { diametro: '2 in', tipo: 'Globo', material: 'Acero al carbono', clase: 'ANSI 300' } },
+    { nombre: 'Actuador Neumatico AN-90', descripcion: 'Accionamiento para valvulas de proceso', precio: 11900, stock: 16, categoria: 'Valvulas', fabricante: 'Fisher', numeroParte: 'AN-90', familia: 'Pneumatic Actuator', especificacionesTecnicas: { accionamiento: 'Neumático', torque: '90 Nm', presionOperacion: '3-8 bar', material: 'Aluminio anodizado' } },
+    { nombre: 'Posicionador Inteligente PI-12', descripcion: 'Precision de posicion con diagnostico', precio: 9800, stock: 13, categoria: 'Valvulas', fabricante: 'Fisher', numeroParte: 'DVC6200-PI12', familia: 'FIELDVUE', especificacionesTecnicas: { protocolo: 'HART', precision: '0.5 %', diagnostico: 'Avanzado', alimentacion: 'Loop-powered' } },
+    { nombre: 'Gateway Industrial GW-500', descripcion: 'Conversor Modbus TCP/RTU', precio: 8700, stock: 17, categoria: 'Comunicacion', fabricante: 'Siemens', numeroParte: 'GW-500', familia: 'Industrial Gateway', especificacionesTecnicas: { puertos: '2x Ethernet + 1x RS-485', protocolo: 'Modbus TCP/RTU', montaje: 'Riel DIN', temperatura: '-20 a 70 C' } },
+    { nombre: 'Switch Industrial SW-8', descripcion: '8 puertos ethernet, riel DIN', precio: 6100, stock: 21, categoria: 'Comunicacion', fabricante: 'Siemens', numeroParte: 'SCALANCE-SW8', familia: 'SCALANCE', especificacionesTecnicas: { puertos: '8x 10/100Base-TX', gestion: 'No administrable', montaje: 'DIN rail', proteccion: 'IP30' } },
+    { nombre: 'Módem LTE Industrial LT-100', descripcion: 'Conectividad remota segura para SCADA', precio: 10500, stock: 10, categoria: 'Comunicacion', fabricante: 'Moxa', numeroParte: 'OnCell-LT100', familia: 'OnCell', especificacionesTecnicas: { red: 'LTE Cat 4', vpn: 'IPSec/OpenVPN', puertos: '2x Ethernet', alimentacion: '12-48 VDC' } },
+    { nombre: 'Detector Gas DG-77', descripcion: 'Deteccion de gases combustibles', precio: 21300, stock: 9, categoria: 'Seguridad', fabricante: 'MSA', numeroParte: 'DG-77', familia: 'Gas Detector', especificacionesTecnicas: { gas: 'Combustible (LEL)', salida: '4-20 mA', certificacion: 'ATEX/IECEx', proteccion: 'IP66' } },
+    { nombre: 'Barreras Intrinsecas BI-4', descripcion: 'Proteccion para lazo en zona peligrosa', precio: 7900, stock: 18, categoria: 'Seguridad', fabricante: 'MSA', numeroParte: 'BI-4', familia: 'Intrinsic Safety', especificacionesTecnicas: { canales: '4', aislamiento: 'Galvánico', certificacion: 'SIL2', montaje: 'Riel DIN' } },
+    { nombre: 'Caja ATEX CA-2', descripcion: 'Encapsulado para instrumentacion en campo', precio: 5200, stock: 22, categoria: 'Seguridad', fabricante: 'MSA', numeroParte: 'CA-2', familia: 'ATEX Enclosure', especificacionesTecnicas: { material: 'Aluminio', certificacion: 'ATEX Zona 1', entradas: '4x M20', proteccion: 'IP67' } },
+    { nombre: 'Analizador pH APH-300', descripcion: 'Monitoreo continuo de pH en linea', precio: 19800, stock: 8, categoria: 'Analitica', fabricante: 'Endress+Hauser', numeroParte: 'APH-300', familia: 'Liquiline', especificacionesTecnicas: { parametro: 'pH', rango: '0-14 pH', salida: '4-20 mA / Modbus', precision: '0.01 pH' } },
+    { nombre: 'Analizador Conductividad AC-11', descripcion: 'Control de calidad de agua de proceso', precio: 16400, stock: 12, categoria: 'Analitica', fabricante: 'Endress+Hauser', numeroParte: 'AC-11', familia: 'Liquiline', especificacionesTecnicas: { parametro: 'Conductividad', rango: '0-200 mS/cm', salida: '4-20 mA', precision: '1 % lectura' } },
+    { nombre: 'Oxigeno Disuelto OD-7', descripcion: 'Sensor optico para tratamiento de agua', precio: 23800, stock: 5, categoria: 'Analitica', fabricante: 'Endress+Hauser', numeroParte: 'OD-7', familia: 'COS61D', especificacionesTecnicas: { parametro: 'Oxígeno disuelto', rango: '0-20 mg/L', tecnologia: 'Óptico', mantenimiento: 'Bajo' } },
   ];
 
   for (let i = 0; i < productosSeed.length; i += 1) {
@@ -140,13 +167,21 @@ async function main() {
     });
 
     const imagenUrl = imagePool[i % imagePool.length];
-    const urlDocumento = `/uploads/documentos/ficha-${(i + 1).toString().padStart(2, '0')}.pdf`;
+    const urlDocumento =
+      fichasTecnicasPorProducto[p.nombre] ??
+      fichasTecnicasPorCategoria[p.categoria] ??
+      '/uploads/documentos/ficha-general.pdf';
 
     if (existente) {
       await prisma.producto.update({
         where: { id: existente.id },
         data: {
           descripcion: p.descripcion,
+          fabricante: p.fabricante,
+          numeroParte: p.numeroParte,
+          skuInterno: `SKU-${(i + 1).toString().padStart(4, '0')}`,
+          familia: p.familia,
+          especificacionesTecnicas: p.especificacionesTecnicas,
           precio: p.precio,
           stock: p.stock,
           imagenUrl,
@@ -159,6 +194,11 @@ async function main() {
         data: {
           nombre: p.nombre,
           descripcion: p.descripcion,
+          fabricante: p.fabricante,
+          numeroParte: p.numeroParte,
+          skuInterno: `SKU-${(i + 1).toString().padStart(4, '0')}`,
+          familia: p.familia,
+          especificacionesTecnicas: p.especificacionesTecnicas,
           precio: p.precio,
           stock: p.stock,
           categoriaId,
@@ -172,6 +212,43 @@ async function main() {
 
   const usuarios = await prisma.usuario.findMany({ where: { rol: RolUsuario.cliente } });
   const usuarioPorEmail = new Map(usuarios.map((u) => [u.email, u.id]));
+
+  const productosActivos = await prisma.producto.findMany({
+    where: { activo: true },
+    select: { id: true, nombre: true },
+    orderBy: { id: 'asc' },
+  });
+  const idPorNombre = new Map(productosActivos.map((p) => [p.nombre, p.id]));
+
+  await prisma.compatibilidadProducto.deleteMany({});
+
+  const compatibilidadesSeed = [
+    ['Actuador Neumatico AN-90', 'Valvula Control VC-4', 'compatible', 'Integración mecánica recomendada'],
+    ['Actuador Neumatico AN-90', 'Posicionador Inteligente PI-12', 'compatible', 'Control preciso de posicionamiento'],
+    ['Valvula Control VC-4', 'Posicionador Inteligente PI-12', 'compatible', 'Par recomendado para lazo de control'],
+    ['Transmisor Temperatura TT-8', 'RTD PT100 Pro', 'compatible', 'Sensor recomendado para este transmisor'],
+    ['Caudalimetro Electromagnetico EM-200', 'Gateway Industrial GW-500', 'compatible', 'Integración Modbus para SCADA'],
+    ['Módem LTE Industrial LT-100', 'Switch Industrial SW-8', 'compatible', 'Topología típica de red remota'],
+    ['Detector Gas DG-77', 'Caja ATEX CA-2', 'compatible', 'Montaje en zona clasificada'],
+    ['Barreras Intrinsecas BI-4', 'Detector Gas DG-77', 'compatible', 'Seguridad intrínseca en lazo de señal'],
+    ['Sensor Flujo Turbina TF-22', 'Caudalimetro Electromagnetico EM-200', 'incompatible', 'Tecnologías de medición para aplicaciones distintas'],
+    ['Termopar Tipo K TK-900', 'RTD PT100 Pro', 'incompatible', 'Tipos de sensor distintos para la misma entrada'],
+  ] as const;
+
+  for (const [origenNombre, destinoNombre, tipo, nota] of compatibilidadesSeed) {
+    const productoOrigenId = idPorNombre.get(origenNombre);
+    const productoDestinoId = idPorNombre.get(destinoNombre);
+    if (!productoOrigenId || !productoDestinoId) continue;
+
+    await prisma.compatibilidadProducto.create({
+      data: {
+        productoOrigenId,
+        productoDestinoId,
+        tipo,
+        nota,
+      },
+    });
+  }
 
   const proyectosSeed = [
     ['Migracion SCADA Planta Norte', 'Actualizacion de red de instrumentacion y tableros de control', 'Industrias Nova', 'maria.lopez@industrias-nova.com'],

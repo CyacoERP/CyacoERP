@@ -16,14 +16,14 @@
     }
     <div class="doc-actions">
       @if (urlDocumento) {
-        <button class="btn-doc" (click)="abrirDocumento()">📄 Ver ficha técnica</button>
+        <button class="btn-doc" (click)="abrirDocumento()">Ver ficha técnica</button>
       }
       @if (esAdmin) {
         <label class="btn-subir" [class.cargando]="subiendo()">
           @if (subiendo()) {
             Subiendo…
           } @else {
-            📤 {{ urlDocumento ? 'Actualizar PDF' : 'Subir ficha PDF' }}
+            {{ urlDocumento ? 'Actualizar PDF' : 'Subir ficha PDF' }}
           }
           <input type="file" accept="application/pdf" (change)="onSeleccionarArchivo($event)" hidden />
         </label>

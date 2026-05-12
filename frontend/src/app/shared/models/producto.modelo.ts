@@ -33,6 +33,7 @@ export interface CompatibilidadProducto {
   productoDestinoId: number;
   tipo: 'compatible' | 'incompatible';
   nota?: string | null;
+  productoOrigen?: Producto;
   productoDestino?: Producto;
 }
 

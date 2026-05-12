@@ -48,4 +48,9 @@ export class ClientesController {
 	desactivar(@Param('id', ParseIntPipe) id: number) {
 		return this.clientesService.desactivar(id);
 	}
+
+	@Patch(':id/activar')
+	activar(@Param('id', ParseIntPipe) id: number) {
+		return this.clientesService.activar(id);
+	}
 }

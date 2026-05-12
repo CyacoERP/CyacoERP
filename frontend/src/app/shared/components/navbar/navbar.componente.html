@@ -24,17 +24,19 @@
 
       <a routerLink="/proyectos" routerLinkActive="active" class="nav-link">Proyectos</a>
 
-      <div class="nav-dropdown">
-        <button class="nav-link nav-dropdown-trigger" [class.active]="estaEnSeccion(['/dashboards'])" type="button" aria-label="Abrir menú de dashboards">
-          Dashboards
-          <span class="nav-caret" aria-hidden="true">▾</span>
-        </button>
-        <div class="dropdown-menu">
-          <a routerLink="/dashboards/ventas" class="dropdown-item">Ventas</a>
-          <a routerLink="/dashboards/clientes" class="dropdown-item">Clientes</a>
-          <a routerLink="/dashboards/proyectos" class="dropdown-item">Proyectos</a>
+      @if (esAdmin()) {
+        <div class="nav-dropdown">
+          <button class="nav-link nav-dropdown-trigger" [class.active]="estaEnSeccion(['/dashboards'])" type="button" aria-label="Abrir menú de dashboards">
+            Dashboards
+            <span class="nav-caret" aria-hidden="true">▾</span>
+          </button>
+          <div class="dropdown-menu">
+            <a routerLink="/dashboards/ventas" class="dropdown-item">Ventas</a>
+            <a routerLink="/dashboards/clientes" class="dropdown-item">Clientes</a>
+            <a routerLink="/dashboards/proyectos" class="dropdown-item">Proyectos</a>
+          </div>
         </div>
-      </div>
+      }
 
       @if (esAdmin()) {
         <div class="nav-dropdown">
@@ -46,6 +48,7 @@
             <a routerLink="/admin/clientes" class="dropdown-item">Gestionar Clientes</a>
             <a routerLink="/admin/cotizaciones" class="dropdown-item">Gestionar Cotizaciones</a>
             <a routerLink="/admin/productos" class="dropdown-item">Gestionar Inventario</a>
+            <a routerLink="/admin/categorias" class="dropdown-item">Gestionar Categorías</a>
           </div>
         </div>
       }

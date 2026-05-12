@@ -28,6 +28,10 @@
     } @else if (conError()) {
       <div class="status-card">No se pudieron cargar las cotizaciones en este momento.</div>
     } @else {
+      @if (errorAccion()) {
+        <div class="status-card error-inline">{{ errorAccion() }}</div>
+      }
+
       <section class="toolbar-card">
         <div class="search-wrapper">
           <span class="search-icon" aria-hidden="true">
@@ -133,14 +137,27 @@
                         >
                           Rechazar
                         </button>
+                        <button
+                          type="button"
+                          class="op-btn op-btn--view"
+                          [disabled]="actualizandoEstadoId() === cotizacion.id || cargandoEditorId() === cotizacion.id || guardandoPreciosId() === cotizacion.id"
+                          (click)="abrirEditorPrecios(cotizacion)"
+                        >
+                          Editar precios
+                        </button>
                       }
-                      <button type="button" class="op-btn op-btn--pdf" (click)="descargarResumenPdf(cotizacion)">
+                      <button
+                        type="button"
+                        class="op-btn op-btn--pdf"
+                        [disabled]="cargandoEditorId() === cotizacion.id"
+                        (click)="descargarResumenPdf(cotizacion)"
+                      >
                         <svg viewBox="0 0 24 24" aria-hidden="true">
                           <path d="M12 4v10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
                           <path d="M8.5 11.5L12 15l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
                           <rect x="4" y="17" width="16" height="3" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
                         </svg>
-                        PDF
+                        {{ cargandoEditorId() === cotizacion.id ? '...' : 'PDF' }}
                       </button>
                     </div>
                   </td>
@@ -152,4 +169,73 @@
       }
     }
   </div>
+
+  @if (mostrandoEditorPrecios() && cotizacionEdicion()) {
+    <div class="editor-overlay" (click)="cerrarEditorPrecios()">
+      <section class="editor-modal" (click)="$event.stopPropagation()">
+        <header class="editor-header">
+          <h3>Editar Precios - {{ cotizacionEdicion()!.numero }}</h3>
+          <button type="button" class="op-btn op-btn--view" (click)="cerrarEditorPrecios()">Cerrar</button>
+        </header>
+
+        <div class="editor-grid">
+          <label>
+            Descuento (%)
+            <input
+              type="number"
+              min="0"
+              max="100"
+              [value]="descuentoEdicion()"
+              (input)="descuentoEdicion.set(+$any($event.target).value || 0)"
+            />
+          </label>
+          <label>
+            Margen (%)
+            <input
+              type="number"
+              min="0"
+              max="100"
+              [value]="margenEdicion()"
+              (input)="margenEdicion.set(+$any($event.target).value || 0)"
+            />
+          </label>
+        </div>
+
+        <table class="editor-table">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Cantidad</th>
+              <th>Precio unitario</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of cotizacionEdicion()!.items; track item.id || item.producto.id) {
+              <tr>
+                <td>{{ item.producto.nombre }}</td>
+                <td>{{ item.cantidad }}</td>
+                <td>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    [value]="item.id ? preciosEditados()[item.id] : item.precioUnitario"
+                    (input)="actualizarPrecioEditado(item.id, $any($event.target).value)"
+                    [disabled]="!item.id"
+                  />
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        <footer class="editor-actions">
+          <button type="button" class="op-btn op-btn--view" (click)="cerrarEditorPrecios()">Cancelar</button>
+          <button type="button" class="op-btn op-btn--approve" [disabled]="guardandoPreciosId() === cotizacionEdicion()!.id" (click)="guardarEdicionPrecios()">
+            {{ guardandoPreciosId() === cotizacionEdicion()!.id ? 'Guardando...' : 'Guardar precios' }}
+          </button>
+        </footer>
+      </section>
+    </div>
+  }
 </section>

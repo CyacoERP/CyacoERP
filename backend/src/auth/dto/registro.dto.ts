@@ -28,4 +28,9 @@ export class RegistroDto {
   @IsString()
   @MaxLength(120)
   cargo?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(10)
+  codigoPostal?: string;
 }

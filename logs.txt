@@ -1,28 +1,72 @@
-hrow new PrismaClientKnownRequestError(message, {
-            ^
+js:1  Failed to load resource: net::ERR_NAME_NOT_RESOLVED
+carrito.servicio.ts:45 The 'allowSignalWrites' flag is deprecated and no longer impacts effect() (writes are always allowed)
+effect @ _effect-chunk2.mjs:2847
+_CarritoServicio @ carrito.servicio.ts:45
+CarritoServicio_Factory @ carrito.servicio.ts:155
+(anonymous) @ _effect-chunk2.mjs:1316
+runInInjectorProfilerContext @ _effect-chunk2.mjs:444
+hydrate @ _effect-chunk2.mjs:1314
+get @ _effect-chunk2.mjs:1203
+get @ _effect-chunk2.mjs:1208
+get @ _debug_node-chunk.mjs:7770
+lookupTokenUsingModuleInjector @ _debug_node-chunk.mjs:890
+getOrCreateInjectable @ _debug_node-chunk.mjs:913
+ɵɵdirectiveInject @ _debug_node-chunk.mjs:7804
+ɵɵinject @ _effect-chunk2.mjs:684
+inject2 @ _effect-chunk2.mjs:693
+<instance_members_initializer> @ navbar.componente.ts:16
+_NavbarComponente @ navbar.componente.ts:15
+NavbarComponente_Factory @ navbar.componente.ts:39
+getNodeInjectable @ _debug_node-chunk.mjs:1044
+instantiateAllDirectives @ _debug_node-chunk.mjs:5260
+createDirectivesInstances @ _debug_node-chunk.mjs:5119
+initializeElement @ _debug_node-chunk.mjs:14169
+ɵɵelementStart @ _debug_node-chunk.mjs:14162
+ɵɵelement @ _debug_node-chunk.mjs:14201
+App_Template @ app.html:1
+executeTemplate @ _debug_node-chunk.mjs:5111
+renderView @ _debug_node-chunk.mjs:5510
+renderComponent @ _debug_node-chunk.mjs:5489
+renderChildComponents @ _debug_node-chunk.mjs:5539
+renderView @ _debug_node-chunk.mjs:5524
+createComponentRef @ _debug_node-chunk.mjs:8765
+create @ _debug_node-chunk.mjs:8737
+(anonymous) @ _debug_node-chunk.mjs:12352
+run @ _effect-chunk2.mjs:2570
+bootstrapImpl @ _debug_node-chunk.mjs:12329
+bootstrap @ _debug_node-chunk.mjs:12325
+(anonymous) @ core.mjs:672
+_debug_node-chunk.mjs:11020 Angular is running in development mode.
+:4200/api/cotizaciones/4/estado:1  Failed to load resource: the server responded with a status of 400 (Bad Request)
+:4200/api/cotizaciones/3/estado:1  Failed to load resource: the server responded with a status of 400 (Bad Request)
+:4200/api/cotizaciones/3/estado:1  Failed to load resource: the server responded with a status of 400 (Bad Request)
 
-PrismaClientKnownRequestError: 
-Invalid `this.prisma.usuario.findUnique()` invocation in
-C:\Users\leosa\Desktop\LEO CETI TRABAJOS\PrograWeb2\FinalCYACO\CyacoERP\backend\src\auth\auth.service.ts:132:49
 
-  129 const adminEmail = (process.env.ADMIN_EMAIL ?? 'admin@cyaco.local').trim().toLowerCase();
-  130 const adminPassword = process.env.ADMIN_PASSWORD ?? 'Admin12345';
-  131 
-→ 132 const existente = await this.prisma.usuario.findUnique(
-The table `public.usuarios` does not exist in the current database.
-    at ei.handleRequestError (C:\Users\leosa\Desktop\LEO CETI TRABAJOS\PrograWeb2\FinalCYACO\CyacoERP\backend\node_modules\@prisma\client\src\runtime\RequestHandler.ts:228:13)
-    at ei.handleAndLogRequestError (C:\Users\leosa\Desktop\LEO CETI TRABAJOS\PrograWeb2\FinalCYACO\CyacoERP\backend\node_modules\@prisma\client\src\runtime\RequestHandler.ts:174:12)
-    at ei.request (C:\Users\leosa\Desktop\LEO CETI TRABAJOS\PrograWeb2\FinalCYACO\CyacoERP\backend\node_modules\@prisma\client\src\runtime\RequestHandler.ts:143:12)
-    at async a (C:\Users\leosa\Desktop\LEO CETI TRABAJOS\PrograWeb2\FinalCYACO\CyacoERP\backend\node_modules\@prisma\client\src\runtime\getPrismaClient.ts:833:24)
-    at async AuthService.ensureAdminSeed (C:\Users\leosa\Desktop\LEO CETI TRABAJOS\PrograWeb2\FinalCYACO\CyacoERP\backend\src\auth\auth.service.ts:132:23)
-    at async AuthService.onModuleInit (C:\Users\leosa\Desktop\LEO CETI TRABAJOS\PrograWeb2\FinalCYACO\CyacoERP\backend\src\auth\auth.service.ts:22:5)
-    at async Promise.all (index 0)
-    at async callModuleInitHook (C:\Users\leosa\Desktop\LEO CETI TRABAJOS\PrograWeb2\FinalCYACO\CyacoERP\backend\node_modules\@nestjs\core\hooks\on-module-init.hook.js:43:5)
-    at async NestApplication.callInitHook (C:\Users\leosa\Desktop\LEO CETI TRABAJOS\PrograWeb2\FinalCYACO\CyacoERP\backend\node_modules\@nestjs\core\nest-application-context.js:252:13)
-    at async NestApplication.init (C:\Users\leosa\Desktop\LEO CETI TRABAJOS\PrograWeb2\FinalCYACO\CyacoERP\backend\node_modules\@nestjs\core\nest-application.js:103:9)
-    at async NestApplication.listen (C:\Users\leosa\Desktop\LEO CETI TRABAJOS\PrograWeb2\FinalCYACO\CyacoERP\backend\node_modules\@nestjs\core\nest-application.js:175:13)
-    at async bootstrap (C:\Users\leosa\Desktop\LEO CETI TRABAJOS\PrograWeb2\FinalCYACO\CyacoERP\backend\src\main.ts:25:3) {
-  code: 'P2021',
-  meta: { modelName: 'Usuario', table: 'public.usuarios' },
-  clientVersion: '6.16.2'
+
+
+queUE MUESTRA EN PDF DE COTIZACOIN?
+{
+    Cyaco ERP
+Cotización COT-SEED-004
+Estado: Rechazado
+
+Cliente: Cementa
+
+Contacto: Javier Ponce
+
+Fecha: 12 may 2026
+
+Hora: 06:49:32
+
+Moneda: MXN
+
+#	ID	Producto / Categoría	Cant.	Precio U.	Subtotal
+1	10	RTD PT100 Pro
+Sin categoría	1	$2,500	$2,500
+2	11	Termopar Tipo K TK-900
+Sin categoría	2	$2,900	$5,800
+3	12	Transmisor Temperatura TT-8
+Sin categoría	3	$8,600	$25,800
+Total: $38,192
+Cyaco ERP — COT-SEED-004 — Impreso: 12/5/2026
 }

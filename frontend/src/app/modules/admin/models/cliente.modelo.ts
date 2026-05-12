@@ -27,7 +27,10 @@ export interface ActualizarClientePayload {
 
 export interface ListaClientesRespuesta {
   datos: Cliente[];
-  total: number;
-  pagina: number;
-  totalPaginas: number;
+  meta?: {
+    total: number;
+    pagina: number;
+    limite: number;
+    totalPaginas: number;
+  };
 }

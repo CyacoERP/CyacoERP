@@ -48,7 +48,9 @@ export class AuthService implements OnModuleInit {
         'code' in error &&
         (error as { code?: string }).code === 'P2002'
       ) {
-        throw new BadRequestException({ mensaje: 'Ya existe una cuenta con ese correo.' });
+        throw new BadRequestException({
+          mensaje: 'Ya existe una cuenta con ese correo.',
+        });
       }
       throw error;
     }
@@ -62,7 +64,10 @@ export class AuthService implements OnModuleInit {
       throw new UnauthorizedException({ mensaje: 'Credenciales inválidas.' });
     }
 
-    const passwordValida = await bcrypt.compare(dto.password, usuario.passwordHash);
+    const passwordValida = await bcrypt.compare(
+      dto.password,
+      usuario.passwordHash,
+    );
     if (!passwordValida) {
       throw new UnauthorizedException({ mensaje: 'Credenciales inválidas.' });
     }
@@ -71,7 +76,9 @@ export class AuthService implements OnModuleInit {
   }
 
   async perfil(usuarioId: number) {
-    const usuario = await this.prisma.usuario.findUnique({ where: { id: usuarioId } });
+    const usuario = await this.prisma.usuario.findUnique({
+      where: { id: usuarioId },
+    });
     if (!usuario || !usuario.activo) {
       throw new UnauthorizedException({ mensaje: 'Usuario no autorizado.' });
     }
@@ -80,7 +87,9 @@ export class AuthService implements OnModuleInit {
   }
 
   async actualizarPerfil(usuarioId: number, dto: ActualizarPerfilDto) {
-    const usuario = await this.prisma.usuario.findUnique({ where: { id: usuarioId } });
+    const usuario = await this.prisma.usuario.findUnique({
+      where: { id: usuarioId },
+    });
     if (!usuario || !usuario.activo) {
       throw new UnauthorizedException({ mensaje: 'Usuario no autorizado.' });
     }
@@ -89,8 +98,12 @@ export class AuthService implements OnModuleInit {
       where: { id: usuarioId },
       data: {
         ...(dto.nombre !== undefined && { nombre: dto.nombre.trim() }),
-        ...(dto.telefono !== undefined && { telefono: dto.telefono.trim() || null }),
-        ...(dto.empresa !== undefined && { empresa: dto.empresa.trim() || null }),
+        ...(dto.telefono !== undefined && {
+          telefono: dto.telefono.trim() || null,
+        }),
+        ...(dto.empresa !== undefined && {
+          empresa: dto.empresa.trim() || null,
+        }),
         ...(dto.cargo !== undefined && { cargo: dto.cargo.trim() || null }),
       },
     });
@@ -146,10 +159,14 @@ export class AuthService implements OnModuleInit {
   }
 
   private async ensureAdminSeed(): Promise<void> {
-    const adminEmail = (process.env.ADMIN_EMAIL ?? 'admin@cyaco.local').trim().toLowerCase();
+    const adminEmail = (process.env.ADMIN_EMAIL ?? 'admin@cyaco.local')
+      .trim()
+      .toLowerCase();
     const adminPassword = process.env.ADMIN_PASSWORD ?? 'Admin12345';
 
-    const existente = await this.prisma.usuario.findUnique({ where: { email: adminEmail } });
+    const existente = await this.prisma.usuario.findUnique({
+      where: { email: adminEmail },
+    });
     if (existente) {
       return;
     }

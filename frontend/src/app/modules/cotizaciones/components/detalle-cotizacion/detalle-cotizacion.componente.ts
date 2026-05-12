@@ -135,30 +135,107 @@ export class DetalleCotizacionComponente implements OnInit {
     }).format(price);
   }
 
+  descargarXml(): void {
+    const cotizacion = this.cotizacion();
+    if (!cotizacion) return;
+
+    const iva = 0.16;
+    const subtotalBase = cotizacion.items.reduce((acc, item) => acc + item.subtotal, 0);
+    const importeIva = parseFloat((subtotalBase * iva).toFixed(2));
+    const totalFactura = parseFloat((subtotalBase + importeIva).toFixed(2));
+
+    const esc = (texto: string) =>
+      String(texto)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&apos;');
+
+    const articulos = cotizacion.items
+      .map(
+        (item) => `    <articulo>
+      <id>${item.id ?? ''}</id>
+      <nombre>${esc(item.producto.nombre)}</nombre>
+      <cantidad>${item.cantidad}</cantidad>
+      <precioUnitario>${item.precioUnitario}</precioUnitario>
+      <subtotal>${item.subtotal}</subtotal>
+    </articulo>`,
+      )
+      .join('\n');
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<cotizacion_factura>
+  <numero>${esc(cotizacion.numero)}</numero>
+  <fecha>${new Date(cotizacion.fechaCreacion).toISOString()}</fecha>
+  <emisor>
+    <rfc>CYA123456789</rfc>
+    <razonSocial>CYACO ERP Soluciones S.A. de C.V.</razonSocial>
+    <direccionFiscal>Blvd. Tecnol\u00f3gico 456, C.P. 45000</direccionFiscal>
+  </emisor>
+  <receptor>
+    <rfc>N/A</rfc>
+    <razonSocial>${esc(cotizacion.contacto?.empresa ?? 'N/A')}</razonSocial>
+    <direccionFiscal>N/A</direccionFiscal>
+    <contactoEmail>${esc(cotizacion.contacto?.correo ?? '')}</contactoEmail>
+  </receptor>
+  <detalles_proyecto>
+    <nombre>${esc(cotizacion.proyecto?.nombre ?? 'Sin proyecto')}</nombre>
+    <fechaRequerida>${cotizacion.proyecto?.fechaRequerida ?? ''}</fechaRequerida>
+    <notas>${esc(cotizacion.observaciones ?? '')}</notas>
+  </detalles_proyecto>
+  <articulos>
+${articulos}
+  </articulos>
+  <totales>
+    <subtotal>${subtotalBase.toFixed(2)}</subtotal>
+    <tasaIVA>16%</tasaIVA>
+    <importeIVA>${importeIva.toFixed(2)}</importeIVA>
+    <totalFactura>${totalFactura.toFixed(2)}</totalFactura>
+  </totales>
+</cotizacion_factura>`;
+
+    const blob = new Blob([xml], { type: 'application/xml' });
+    const url = URL.createObjectURL(blob);
+    const enlace = document.createElement('a');
+    enlace.href = url;
+    enlace.download = `factura-cotizacion-${cotizacion.numero}.xml`;
+    document.body.appendChild(enlace);
+    enlace.click();
+    document.body.removeChild(enlace);
+    URL.revokeObjectURL(url);
+  }
+
   descargarPdf(): void {
     const cotizacion = this.cotizacion();
     if (!cotizacion) {
       return;
     }
 
-    const ventana = window.open('', '_blank', 'noopener,noreferrer,width=900,height=700');
-    if (!ventana) {
-      window.print();
-      return;
-    }
+    const ahora = new Date();
+    const fechaEmision = this.formatDate(cotizacion.fechaCreacion);
+    const horaEmision = ahora.toTimeString().split(' ')[0];
+    const fechaRequerida = cotizacion.proyecto?.fechaRequerida
+      ? this.formatDate(new Date(cotizacion.proyecto.fechaRequerida))
+      : 'N/A';
 
     const filas = cotizacion.items
       .map(
         (item, index) => `
           <tr>
             <td>${index + 1}</td>
-            <td>${item.producto.nombre}</td>
-            <td>${item.cantidad}</td>
-            <td>${this.formatPrice(item.precioUnitario)}</td>
-            <td>${this.formatPrice(item.subtotal)}</td>
+            <td>${item.id ?? '—'}</td>
+            <td>${item.producto.nombre}<br/><span class="cat">${item.producto.categoria?.nombre ?? 'Sin categoría'}</span></td>
+            <td style="text-align:center">${item.cantidad}</td>
+            <td style="text-align:right">${this.formatPrice(item.precioUnitario)}</td>
+            <td style="text-align:right">${this.formatPrice(item.subtotal)}</td>
           </tr>`,
       )
       .join('');
+
+    const subtotalPartidas = cotizacion.items.reduce((acc, item) => acc + item.subtotal, 0);
+    const importeIva = parseFloat((subtotalPartidas * 0.16).toFixed(2));
+    const totalConIva = parseFloat((subtotalPartidas + importeIva).toFixed(2));
 
     const contenido = `<!doctype html>
       <html lang="es">
@@ -166,65 +243,252 @@ export class DetalleCotizacionComponente implements OnInit {
           <meta charset="utf-8" />
           <title>${cotizacion.numero}</title>
           <style>
-            body { font-family: Arial, sans-serif; padding: 32px; color: #1f2937; }
-            header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
-            h1 { margin: 0 0 8px; font-size: 28px; }
-            .meta { margin: 0; color: #4b5563; }
-            .summary { margin: 24px 0; padding: 16px; background: #f3f4f6; border-radius: 12px; }
-            table { width: 100%; border-collapse: collapse; margin-top: 16px; }
-            th, td { border-bottom: 1px solid #e5e7eb; text-align: left; padding: 10px 8px; }
-            th { color: #374151; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
-            .total { margin-top: 20px; text-align: right; font-size: 20px; font-weight: 700; }
-            .notes { margin-top: 24px; }
-            @media print { body { padding: 0; } }
+            * { box-sizing: border-box; }
+            html, body {
+              margin: 0;
+              padding: 0;
+              font-family: Arial, Helvetica, sans-serif;
+              color: #1f2937;
+              background: #ffffff;
+            }
+            body {
+              width: 210mm;
+              margin: 0;
+              padding: 8mm;
+              font-size: 11px;
+              line-height: 1.25;
+            }
+            .page {
+              width: 100%;
+              margin: 0 auto;
+              max-width: 194mm;
+            }
+            header {
+              display: flex;
+              justify-content: space-between;
+              align-items: flex-start;
+              gap: 16px;
+              margin-bottom: 8px;
+              padding-bottom: 6px;
+              border-bottom: 2px solid #13295b;
+            }
+            h1 {
+              margin: 0 0 4px;
+              font-size: 18px;
+              line-height: 1.05;
+              color: #13295b;
+            }
+            .brand {
+              font-size: 11px;
+              font-weight: bold;
+              color: #13295b;
+            }
+            .meta {
+              margin: 0 0 2px;
+              color: #4b5563;
+              font-size: 9px;
+            }
+            .parties-grid {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 8px;
+              margin-bottom: 6px;
+            }
+            .party-block {
+              border: 1px solid #dbe2ea;
+              border-radius: 4px;
+              padding: 6px 8px;
+              background: #f8fafc;
+            }
+            .party-block .section-title {
+              display: block;
+              margin-bottom: 4px;
+              color: #0f2755;
+              font-size: 9px;
+              font-weight: bold;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+              border-bottom: 1px solid #dbe2ea;
+              padding-bottom: 2px;
+            }
+            .project-block {
+              border: 1px solid #dbe2ea;
+              border-radius: 4px;
+              padding: 6px 8px;
+              background: #f0f4ff;
+              margin-bottom: 6px;
+            }
+            .project-block .section-title {
+              display: block;
+              margin-bottom: 4px;
+              color: #0f2755;
+              font-size: 9px;
+              font-weight: bold;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin: 6px 0;
+              font-size: 9px;
+            }
+            th {
+              background: #f3f4f6;
+              color: #374151;
+              font-weight: bold;
+              text-align: left;
+              padding: 4px;
+              border-bottom: 1px solid #dbe2ea;
+              font-size: 8px;
+              text-transform: uppercase;
+            }
+            td {
+              padding: 4px;
+              border-bottom: 1px solid #e5e7eb;
+              vertical-align: top;
+            }
+            .cat {
+              color: #6b7280;
+              font-size: 8px;
+            }
+            .totals-block {
+              margin-top: 6px;
+              display: flex;
+              justify-content: flex-end;
+            }
+            .totals-table {
+              width: 220px;
+              font-size: 9px;
+            }
+            .totals-table td {
+              padding: 2px 4px;
+              border: none;
+              border-bottom: 1px solid #e5e7eb;
+            }
+            .totals-table .total-final td {
+              font-weight: bold;
+              font-size: 11px;
+              color: #13295b;
+              border-top: 2px solid #13295b;
+              border-bottom: none;
+            }
+            .notes {
+              margin-top: 6px;
+              padding: 6px 8px;
+              border-left: 3px solid #f59e0b;
+              background: #fffaf0;
+              border-radius: 3px;
+              font-size: 8px;
+            }
+            .notes p { margin: 2px 0; }
+            .footer-info {
+              margin-top: 6px;
+              text-align: center;
+              font-size: 7px;
+              color: #6b7280;
+            }
           </style>
         </head>
         <body>
-          <header>
-            <div>
-              <h1>Cotizacion ${cotizacion.numero}</h1>
-              <p class="meta">Empresa: ${cotizacion.contacto?.empresa ?? 'N/A'}</p>
-              <p class="meta">Contacto: ${cotizacion.contacto?.nombreCompleto ?? 'N/A'}</p>
-              <p class="meta">Fecha: ${this.formatDate(cotizacion.fechaCreacion)}</p>
+          <div class="page">
+            <header>
+              <div>
+                <div class="brand">Cyaco ERP — TECNOLOGÍA INDUSTRIAL</div>
+                <h1>Cotización ${cotizacion.numero}</h1>
+                <p class="meta">Estado: <strong>${this.estadoBadge()}</strong> &nbsp;|&nbsp; Partidas: ${cotizacion.items.length}</p>
+              </div>
+              <div style="text-align: right;">
+                <p class="meta"><strong>Fecha emisión:</strong> ${fechaEmision}</p>
+                <p class="meta"><strong>Hora:</strong> ${horaEmision}</p>
+                <p class="meta"><strong>Moneda:</strong> MXN</p>
+              </div>
+            </header>
+
+            <div class="parties-grid">
+              <div class="party-block">
+                <span class="section-title">Emisor</span>
+                <p class="meta"><strong>Razón social:</strong> CYACO ERP Soluciones S.A. de C.V.</p>
+                <p class="meta"><strong>RFC:</strong> CYA123456789</p>
+                <p class="meta"><strong>Dirección fiscal:</strong> Blvd. Tecnológico 456, C.P. 45000</p>
+              </div>
+              <div class="party-block">
+                <span class="section-title">Receptor</span>
+                <p class="meta"><strong>Empresa:</strong> ${cotizacion.contacto?.empresa ?? 'N/A'}</p>
+                <p class="meta"><strong>Contacto:</strong> ${cotizacion.contacto?.nombreCompleto ?? 'N/A'}</p>
+                <p class="meta"><strong>Cargo:</strong> ${cotizacion.contacto?.cargo ?? 'N/A'}</p>
+                <p class="meta"><strong>Correo:</strong> ${cotizacion.contacto?.correo ?? 'N/A'}</p>
+                <p class="meta"><strong>Teléfono:</strong> ${cotizacion.contacto?.telefono ?? 'N/A'}</p>
+              </div>
             </div>
-            <div>
-              <p class="meta">Estado: ${this.estadoBadge()}</p>
-              <p class="meta">Proyecto: ${cotizacion.proyecto?.nombre ?? 'Sin proyecto'}</p>
+
+            <div class="project-block">
+              <span class="section-title">Detalles del Proyecto</span>
+              <p class="meta"><strong>Proyecto:</strong> ${cotizacion.proyecto?.nombre ?? 'Sin proyecto'}</p>
+              <p class="meta"><strong>Fecha requerida:</strong> ${fechaRequerida}</p>
+              <p class="meta"><strong>Observaciones:</strong> ${cotizacion.observaciones ?? 'Sin observaciones.'}</p>
             </div>
-          </header>
 
-          <section class="summary">
-            <strong>Resumen</strong>
-            <p class="meta">Total de partidas: ${cotizacion.items.length}</p>
-            <p class="meta">Fecha requerida: ${cotizacion.proyecto?.fechaRequerida ?? 'N/A'}</p>
-          </section>
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 5%">#</th>
+                  <th style="width: 7%">ID</th>
+                  <th style="width: 41%">Producto / Categoría</th>
+                  <th style="width: 8%; text-align: center;">Cant.</th>
+                  <th style="width: 19%; text-align: right;">Precio U.</th>
+                  <th style="width: 20%; text-align: right;">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>${filas}</tbody>
+            </table>
 
-          <table>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Producto</th>
-                <th>Cantidad</th>
-                <th>Precio Unitario</th>
-                <th>Subtotal</th>
-              </tr>
-            </thead>
-            <tbody>${filas}</tbody>
-          </table>
+            <div class="totals-block">
+              <table class="totals-table">
+                <tbody>
+                  <tr>
+                    <td>Subtotal</td>
+                    <td style="text-align:right">${this.formatPrice(subtotalPartidas)}</td>
+                  </tr>
+                  <tr>
+                    <td>IVA (16%)</td>
+                    <td style="text-align:right">${this.formatPrice(importeIva)}</td>
+                  </tr>
+                  <tr class="total-final">
+                    <td>Total</td>
+                    <td style="text-align:right">${this.formatPrice(totalConIva)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
 
-          <div class="total">Total: ${this.formatPrice(cotizacion.total)}</div>
+            <section class="notes">
+              <p>* Los precios mostrados son referenciales y no incluyen instalación ni flete salvo indicación expresa.</p>
+              <p>* El precio final será confirmado en propuesta formal firmada por ambas partes.</p>
+            </section>
 
-          <section class="notes">
-            <strong>Observaciones</strong>
-            <p>${cotizacion.observaciones ?? 'Sin observaciones.'}</p>
-          </section>
+            <div class="footer-info">
+              <p>Cyaco ERP Soluciones S.A. de C.V. — RFC: CYA123456789 &nbsp;|&nbsp; ${cotizacion.numero} &nbsp;|&nbsp; Impreso: ${new Date().toLocaleDateString('es-MX')}</p>
+            </div>
+          </div>
         </body>
       </html>`;
 
-    ventana.document.open();
-    ventana.document.write(contenido);
-    ventana.document.close();
-    ventana.focus();
-    ventana.print();
+    const blob = new Blob([contenido], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const ventana = window.open(url, '_blank');
+    if (!ventana) {
+      URL.revokeObjectURL(url);
+      window.alert('No se pudo abrir la ventana de PDF. Verifica si tu navegador bloqueó el popup.');
+      return;
+    }
+
+    setTimeout(() => {
+      ventana.focus();
+      ventana.print();
+    }, 650);
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+    }, 10000);
   }
 }

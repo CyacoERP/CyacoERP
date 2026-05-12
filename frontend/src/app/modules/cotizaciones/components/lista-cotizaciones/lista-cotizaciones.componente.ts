@@ -48,6 +48,14 @@ export class ListaCotizacionesComponente implements OnInit {
   readonly fechaHasta = signal('');
   readonly esVistaAdmin = signal(false);
   readonly actualizandoEstadoId = signal<number | null>(null);
+  readonly cargandoEditorId = signal<number | null>(null);
+  readonly guardandoPreciosId = signal<number | null>(null);
+  readonly errorAccion = signal('');
+  readonly mostrandoEditorPrecios = signal(false);
+  readonly cotizacionEdicion = signal<Cotizacion | null>(null);
+  readonly descuentoEdicion = signal(0);
+  readonly margenEdicion = signal(0);
+  readonly preciosEditados = signal<Record<number, number>>({});
 
   readonly filtros = signal<FiltroEstado[]>([
     { id: 'todos', label: 'Todos' },
@@ -171,23 +179,136 @@ export class ListaCotizacionesComponente implements OnInit {
   }
 
   actualizarEstado(cotizacion: CotizacionFila, estado: Cotizacion['estado']): void {
+    this.errorAccion.set('');
     this.actualizandoEstadoId.set(cotizacion.id);
     this.cotizacionServicio.actualizarEstado(cotizacion.id, estado).subscribe({
       next: () => {
         this.actualizandoEstadoId.set(null);
         this.cargarCotizaciones();
       },
-      error: () => {
+      error: (error) => {
+        this.errorAccion.set(this.obtenerMensajeError(error, 'No se pudo actualizar el estado de la cotización.'));
         this.actualizandoEstadoId.set(null);
       },
     });
   }
 
-  descargarResumenPdf(cotizacion: CotizacionFila): void {
-    const ventana = window.open('', '_blank', 'noopener,noreferrer,width=860,height=680');
-    if (!ventana) {
+  abrirEditorPrecios(cotizacion: CotizacionFila): void {
+    this.errorAccion.set('');
+    this.cargandoEditorId.set(cotizacion.id);
+    this.cotizacionServicio.obtenerPorId(cotizacion.id).subscribe({
+      next: (detalle) => {
+        this.cargandoEditorId.set(null);
+        this.cotizacionEdicion.set(detalle);
+        this.descuentoEdicion.set(0);
+        this.margenEdicion.set(0);
+        this.preciosEditados.set(
+          detalle.items.reduce<Record<number, number>>((acc, item) => {
+            if (item.id) {
+              acc[item.id] = item.precioUnitario;
+            }
+            return acc;
+          }, {}),
+        );
+        this.mostrandoEditorPrecios.set(true);
+      },
+      error: (error) => {
+        this.cargandoEditorId.set(null);
+        this.errorAccion.set(this.obtenerMensajeError(error, 'No se pudo cargar el detalle para editar precios.'));
+      },
+    });
+  }
+
+  cerrarEditorPrecios(): void {
+    this.mostrandoEditorPrecios.set(false);
+    this.cotizacionEdicion.set(null);
+    this.preciosEditados.set({});
+  }
+
+  actualizarPrecioEditado(itemId: number | undefined, valor: string): void {
+    if (!itemId) {
       return;
     }
+    const numero = Number(valor);
+    this.preciosEditados.update((actual) => ({
+      ...actual,
+      [itemId]: Number.isNaN(numero) ? 0 : numero,
+    }));
+  }
+
+  guardarEdicionPrecios(): void {
+    const cotizacion = this.cotizacionEdicion();
+    if (!cotizacion) {
+      return;
+    }
+
+    this.errorAccion.set('');
+    this.guardandoPreciosId.set(cotizacion.id);
+
+    const items = cotizacion.items
+      .map((item) => {
+        if (!item.id) {
+          return null;
+        }
+        const precioUnitario = this.preciosEditados()[item.id] ?? item.precioUnitario;
+        return {
+          itemId: item.id,
+          precioUnitario,
+        };
+      })
+      .filter((item): item is { itemId: number; precioUnitario: number } => item !== null);
+
+    this.cotizacionServicio
+      .actualizarPrecios(cotizacion.id, {
+        descuentoPct: this.descuentoEdicion(),
+        margenPct: this.margenEdicion(),
+        items,
+      })
+      .subscribe({
+        next: () => {
+          this.guardandoPreciosId.set(null);
+          this.cerrarEditorPrecios();
+          this.cargarCotizaciones();
+        },
+        error: (error) => {
+          this.guardandoPreciosId.set(null);
+          this.errorAccion.set(this.obtenerMensajeError(error, 'No se pudo actualizar precios de la cotización.'));
+        },
+      });
+  }
+
+  descargarResumenPdf(cotizacion: CotizacionFila): void {
+    this.errorAccion.set('');
+    this.cargandoEditorId.set(cotizacion.id);
+
+    this.cotizacionServicio.obtenerPorId(cotizacion.id).subscribe({
+      next: (detalle) => {
+        this.cargandoEditorId.set(null);
+        this.abrirVentanaPdf(cotizacion, detalle);
+      },
+      error: (error) => {
+        this.cargandoEditorId.set(null);
+        this.errorAccion.set(this.obtenerMensajeError(error, 'No se pudo generar el PDF.'));
+      },
+    });
+  }
+
+  private abrirVentanaPdf(cotizacion: CotizacionFila, detalle: Cotizacion): void {
+    const ahora = new Date();
+    const hora = ahora.toTimeString().split(' ')[0];
+
+    const filas = detalle.items
+      .map(
+        (item, i) => `<tr>
+          <td>${i + 1}</td>
+          <td>${item.id ?? '—'}</td>
+          <td>${item.producto.nombre}<br/><span style="color:#6b7280;font-size:8px">${(item.producto as { categoria?: { nombre?: string } }).categoria?.nombre ?? 'Sin categoría'}</span></td>
+          <td style="text-align:center">${item.cantidad}</td>
+          <td style="text-align:right">${this.formatPrice(item.precioUnitario)}</td>
+          <td style="text-align:right">${this.formatPrice(item.precioUnitario * item.cantidad)}</td>
+        </tr>`,
+      )
+      .join('');
 
     const contenido = `<!doctype html>
       <html lang="es">
@@ -195,32 +316,68 @@ export class ListaCotizacionesComponente implements OnInit {
           <meta charset="utf-8" />
           <title>${cotizacion.numero}</title>
           <style>
-            body { font-family: Arial, sans-serif; padding: 28px; color: #1f2937; }
-            h1 { margin: 0 0 8px; }
-            .meta { margin: 6px 0; color: #475569; }
-            .card { margin-top: 18px; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; }
-            .total { font-size: 24px; font-weight: 700; margin-top: 10px; }
+            * { box-sizing: border-box; }
+            body { font-family: Arial, sans-serif; margin: 0; padding: 10mm; font-size: 11px; color: #1f2937; }
+            h1 { margin: 0 0 4px; font-size: 17px; color: #13295b; }
+            .brand { font-weight: bold; color: #13295b; font-size: 11px; }
+            .meta { margin: 2px 0; color: #4b5563; font-size: 9px; }
+            header { display: flex; justify-content: space-between; padding-bottom: 6px; border-bottom: 2px solid #13295b; margin-bottom: 8px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 9px; }
+            th { background: #f3f4f6; padding: 4px; border-bottom: 1px solid #dbe2ea; font-size: 8px; text-transform: uppercase; text-align: left; }
+            td { padding: 4px; border-bottom: 1px solid #e5e7eb; vertical-align: top; }
+            .total { text-align: right; font-size: 13px; font-weight: bold; color: #13295b; margin-top: 8px; }
+            .footer { text-align: center; font-size: 7px; color: #9ca3af; margin-top: 10px; }
           </style>
         </head>
         <body>
-          <h1>Cotizacion ${cotizacion.numero}</h1>
-          <p class="meta">Cliente: ${cotizacion.cliente}</p>
-          <p class="meta">Contacto: ${cotizacion.contacto}</p>
-          <p class="meta">Fecha: ${this.formatDate(cotizacion.fecha)}</p>
-          <p class="meta">Estado: ${cotizacion.estadoLabel}</p>
-
-          <section class="card">
-            <p>Items: ${cotizacion.items}</p>
-            <p class="total">Total estimado: ${this.formatPrice(cotizacion.total)}</p>
-          </section>
+          <header>
+            <div>
+              <div class="brand">Cyaco ERP</div>
+              <h1>Cotización ${cotizacion.numero}</h1>
+              <p class="meta">Estado: ${cotizacion.estadoLabel}</p>
+            </div>
+            <div style="text-align:right">
+              <p class="meta"><strong>Cliente:</strong> ${cotizacion.cliente}</p>
+              <p class="meta"><strong>Contacto:</strong> ${cotizacion.contacto}</p>
+              <p class="meta"><strong>Fecha:</strong> ${this.formatDate(cotizacion.fecha)}</p>
+              <p class="meta"><strong>Hora:</strong> ${hora}</p>
+              <p class="meta"><strong>Moneda:</strong> MXN</p>
+            </div>
+          </header>
+          <table>
+            <thead>
+              <tr>
+                <th style="width:5%">#</th>
+                <th style="width:7%">ID</th>
+                <th style="width:43%">Producto / Categoría</th>
+                <th style="width:8%;text-align:center">Cant.</th>
+                <th style="width:18%;text-align:right">Precio U.</th>
+                <th style="width:19%;text-align:right">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>${filas}</tbody>
+          </table>
+          <div class="total">Total: ${this.formatPrice(cotizacion.total)}</div>
+          <div class="footer">Cyaco ERP — ${cotizacion.numero} — Impreso: ${ahora.toLocaleDateString('es-MX')}</div>
         </body>
       </html>`;
 
-    ventana.document.open();
-    ventana.document.write(contenido);
-    ventana.document.close();
-    ventana.focus();
-    ventana.print();
+    const blob = new Blob([contenido], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const ventana = window.open(url, '_blank');
+    if (!ventana) {
+      URL.revokeObjectURL(url);
+      this.errorAccion.set('No se pudo abrir el PDF. Verifica si el navegador bloqueó la ventana.');
+      return;
+    }
+
+    setTimeout(() => {
+      ventana.focus();
+      ventana.print();
+    }, 600);
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+    }, 10000);
   }
 
   puedeAprobar(cotizacion: CotizacionFila): boolean {
@@ -281,5 +438,17 @@ export class ListaCotizacionesComponente implements OnInit {
     }
 
     return 'Pendiente';
+  }
+
+  private obtenerMensajeError(error: unknown, fallback: string): string {
+    const err = error as { error?: { message?: string | string[] } };
+    const message = err?.error?.message;
+    if (Array.isArray(message)) {
+      return message.join(', ');
+    }
+    if (typeof message === 'string' && message.trim()) {
+      return message;
+    }
+    return fallback;
   }
 }

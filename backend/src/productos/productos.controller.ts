@@ -94,6 +94,11 @@ export class ProductosController {
       stock?: number;
       imagenUrl?: string;
       categoriaId: number;
+      compatibilidades?: Array<{
+        productoDestinoId: number;
+        tipo: TipoCompatibilidad;
+        nota?: string;
+      }>;
     },
   ) {
     return this.productosService.create(data);
@@ -131,6 +136,20 @@ export class ProductosController {
     return this.productosService.remove(id);
   }
 
+  @Post(':id/activar')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  activar(@Param('id', ParseIntPipe) id: number) {
+    return this.productosService.activar(id);
+  }
+
+  @Post(':id/desactivar')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  desactivar(@Param('id', ParseIntPipe) id: number) {
+    return this.productosService.remove(id);
+  }
+
   @Get(':id/compatibilidades')
   listarCompatibilidades(@Param('id', ParseIntPipe) id: number) {
     return this.productosService.listarCompatibilidades(id);
@@ -158,6 +177,11 @@ export class ProductosController {
     @Param('compatibilidadId', ParseIntPipe) compatibilidadId: number,
   ) {
     return this.productosService.eliminarCompatibilidad(compatibilidadId);
+  }
+
+  @Post('incompatibilidades/buscar')
+  buscarIncompatibilidades(@Body() data: { productoIds: number[] }) {
+    return this.productosService.buscarIncompatibilidades(data.productoIds);
   }
 
   @Post(':id/documento')

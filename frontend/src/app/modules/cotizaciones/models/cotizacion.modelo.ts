@@ -1,6 +1,7 @@
 import { Producto } from '../../../shared/models/producto.modelo';
 
 export interface ItemCotizacion {
+  id?: number;
   producto: Producto;
   cantidad: number;
   precioUnitario: number;
