@@ -66,6 +66,7 @@ export class PerfilComponente implements OnInit {
 
     this.authServicio.actualizarPerfil({
       nombre: this.nombre().trim(),
+      correo: this.correo().trim() || undefined,
       telefono: this.telefono().trim() || undefined,
       empresa: this.empresa().trim() || undefined,
       cargo: this.cargo().trim() || undefined,

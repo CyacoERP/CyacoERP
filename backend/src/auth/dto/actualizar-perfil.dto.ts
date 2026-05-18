@@ -1,6 +1,13 @@
-import { IsOptional, IsString, MaxLength, Matches } from 'class-validator';
+import { IsOptional, IsString, MaxLength, Matches, IsEmail } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class ActualizarPerfilDto {
+  @IsOptional()
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim().toLowerCase() : value))
+  @IsEmail()
+  @MaxLength(160)
+  correo?: string;
+
   @IsOptional()
   @IsString()
   @MaxLength(160)

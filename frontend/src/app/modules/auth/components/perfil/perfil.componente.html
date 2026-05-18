@@ -13,12 +13,8 @@
       <p class="estado">Cargando perfil...</p>
     } @else {
 
-      <!-- Info de solo lectura -->
+      <!-- Rol (solo lectura) -->
       <div class="info-readonly">
-        <div class="info-item">
-          <span class="info-label">Correo electrónico</span>
-          <span class="info-valor">{{ correo() }}</span>
-        </div>
         <div class="info-item">
           <span class="info-label">Rol</span>
           <span class="badge-rol" [class.admin]="rol() === 'admin'">{{ rol() }}</span>
@@ -44,6 +40,16 @@
               type="text"
               [value]="nombre()"
               (input)="nombre.set($any($event.target).value)"
+              required
+            />
+          </label>
+
+          <label>
+            Correo electrónico *
+            <input
+              type="email"
+              [value]="correo()"
+              (input)="correo.set($any($event.target).value)"
               required
             />
           </label>

@@ -94,21 +94,35 @@ export class AuthService implements OnModuleInit {
       throw new UnauthorizedException({ mensaje: 'Usuario no autorizado.' });
     }
 
-    const actualizado = await this.prisma.usuario.update({
-      where: { id: usuarioId },
-      data: {
-        ...(dto.nombre !== undefined && { nombre: dto.nombre.trim() }),
-        ...(dto.telefono !== undefined && {
-          telefono: dto.telefono.trim() || null,
-        }),
-        ...(dto.empresa !== undefined && {
-          empresa: dto.empresa.trim() || null,
-        }),
-        ...(dto.cargo !== undefined && { cargo: dto.cargo.trim() || null }),
-      },
-    });
+    try {
+      const actualizado = await this.prisma.usuario.update({
+        where: { id: usuarioId },
+        data: {
+          ...(dto.correo !== undefined && { email: dto.correo.trim() }),
+          ...(dto.nombre !== undefined && { nombre: dto.nombre.trim() }),
+          ...(dto.telefono !== undefined && {
+            telefono: dto.telefono.trim() || null,
+          }),
+          ...(dto.empresa !== undefined && {
+            empresa: dto.empresa.trim() || null,
+          }),
+          ...(dto.cargo !== undefined && { cargo: dto.cargo.trim() || null }),
+        },
+      });
 
-    return this.toUsuarioPublico(actualizado);
+      return this.toUsuarioPublico(actualizado);
+    } catch (error: unknown) {
+      if (
+        error &&
+        typeof error === 'object' &&
+        'code' in error &&
+        (error as { code?: string }).code === 'P2002'
+      ) {
+        // Unique constraint violation (email duplicated)
+        throw new BadRequestException({ mensaje: 'Ya existe una cuenta con ese correo.' });
+      }
+      throw error;
+    }
   }
 
   async hashPassword(password: string): Promise<string> {
