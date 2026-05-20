@@ -11,12 +11,14 @@ import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { RegistroDto } from './dto/registro.dto';
 import { ActualizarPerfilDto } from './dto/actualizar-perfil.dto';
+import { EmailService } from './email.service';
 
 @Injectable()
 export class AuthService implements OnModuleInit {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
+    private readonly emailService: EmailService,
   ) {}
 
   async onModuleInit(): Promise<void> {
@@ -203,6 +205,66 @@ export class AuthService implements OnModuleInit {
       activo: usuario.activo,
       fechaRegistro: usuario.creadoEn,
     };
+  }
+
+  async solicitarRecuperacion(email: string): Promise<{ mensaje: string }> {
+    const emailNorm = email.trim().toLowerCase();
+    const usuario = await this.prisma.usuario.findUnique({ where: { email: emailNorm } });
+
+    // No revelar si el correo existe o no (seguridad)
+    if (!usuario || !usuario.activo) {
+      return { mensaje: 'Si el correo existe recibirás un código de recuperación en breve.' };
+    }
+
+    // Generar código de 6 dígitos
+    const codigo = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos
+
+    await this.prisma.codigoRecuperacion.create({
+      data: { email: emailNorm, codigo, expiresAt },
+    });
+
+    await this.emailService.enviarCodigoRecuperacion(emailNorm, codigo);
+
+    return { mensaje: 'Si el correo existe recibirás un código de recuperación en breve.' };
+  }
+
+  async resetearPassword(
+    email: string,
+    codigo: string,
+    nuevaPassword: string,
+  ): Promise<{ mensaje: string }> {
+    const emailNorm = email.trim().toLowerCase();
+    const ahora = new Date();
+
+    const registro = await this.prisma.codigoRecuperacion.findFirst({
+      where: {
+        email: emailNorm,
+        codigo,
+        usado: false,
+        expiresAt: { gt: ahora },
+      },
+      orderBy: { creadoEn: 'desc' },
+    });
+
+    if (!registro) {
+      throw new BadRequestException({ mensaje: 'Código inválido o expirado.' });
+    }
+
+    const passwordHash = await bcrypt.hash(nuevaPassword, 10);
+
+    await this.prisma.$transaction([
+      this.prisma.usuario.update({
+        where: { email: emailNorm },
+        data: { passwordHash },
+      }),
+      this.prisma.codigoRecuperacion.update({
+        where: { id: registro.id },
+        data: { usado: true },
+      }),
+    ]);
+
+    return { mensaje: 'Contraseña actualizada correctamente. Ya puedes iniciar sesión.' };
   }
 
   private async ensureAdminSeed(): Promise<void> {

@@ -4,6 +4,8 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegistroDto } from './dto/registro.dto';
 import { ActualizarPerfilDto } from './dto/actualizar-perfil.dto';
+import { SolicitarRecuperacionDto } from './dto/solicitar-recuperacion.dto';
+import { ResetearPasswordDto } from './dto/resetear-password.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { UsuarioActual } from './decorators/usuario-actual.decorator';
 import { UsuarioAutenticado } from './interfaces';
@@ -30,6 +32,16 @@ export class AuthController {
   @Post('login')
   login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
+  }
+
+  @Post('recuperar-password')
+  solicitarRecuperacion(@Body() dto: SolicitarRecuperacionDto) {
+    return this.authService.solicitarRecuperacion(dto.email);
+  }
+
+  @Post('resetear-password')
+  resetearPassword(@Body() dto: ResetearPasswordDto) {
+    return this.authService.resetearPassword(dto.email, dto.codigo, dto.nuevaPassword);
   }
 
   @UseGuards(JwtAuthGuard)

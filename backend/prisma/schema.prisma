@@ -68,6 +68,18 @@ model Usuario {
   @@map("usuarios")
 }
 
+model CodigoRecuperacion {
+  id        Int      @id @default(autoincrement())
+  email     String   @db.VarChar(160)
+  codigo    String   @db.VarChar(8)
+  expiresAt DateTime @map("expires_at")
+  usado     Boolean  @default(false)
+  creadoEn  DateTime @default(now()) @map("creado_en")
+
+  @@index([email])
+  @@map("codigos_recuperacion")
+}
+
 model Cliente {
   id          Int      @id @default(autoincrement())
   razonSocial String   @db.VarChar(180)
