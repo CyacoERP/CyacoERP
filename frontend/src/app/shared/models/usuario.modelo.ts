@@ -5,6 +5,7 @@ export interface Usuario {
   telefono?: string;
   empresa?: string;
   cargo?: string;
+  codigoPostal?: string;
   rol: 'cliente' | 'gerencia' | 'admin' | 'vendedor';
   activo: boolean;
   fechaRegistro?: Date;

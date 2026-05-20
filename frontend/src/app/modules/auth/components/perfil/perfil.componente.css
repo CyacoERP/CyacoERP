@@ -195,6 +195,19 @@
 .btn-guardar:hover { background: #1d4ed8; }
 .btn-guardar:disabled { background: #93c5fd; cursor: default; }
 
+/* ── Sección títulos ── */
+.seccion-titulo {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 16px;
+}
+
+.req {
+  color: #ef4444;
+  margin-left: 2px;
+}
+
 @media (max-width: 540px) {
   .perfil-card { padding: 24px 18px; }
   .form-grid { grid-template-columns: 1fr; }

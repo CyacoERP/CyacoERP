@@ -26,6 +26,11 @@ export class ActualizarPerfilDto {
 
   @IsOptional()
   @IsString()
-  @MaxLength(100)
+  @MaxLength(120)
   cargo?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(10)
+  codigoPostal?: string;
 }

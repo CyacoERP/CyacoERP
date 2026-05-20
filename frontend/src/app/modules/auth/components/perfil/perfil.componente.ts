@@ -19,18 +19,28 @@ export class PerfilComponente implements OnInit {
 
   readonly cargando = signal(true);
   readonly guardando = signal(false);
-  readonly exito = signal(false);
-  readonly error = signal('');
+  readonly exitoPerfil = signal(false);
+  readonly errorPerfil = signal('');
 
-  // Datos de solo lectura
-  readonly correo = signal('');
+  readonly guardandoPass = signal(false);
+  readonly exitoPass = signal(false);
+  readonly errorPass = signal('');
+
+  // Readonly
   readonly rol = signal('');
 
-  // Campos editables
+  // Campos editables — info personal
   readonly nombre = signal('');
+  readonly correo = signal('');
   readonly telefono = signal('');
   readonly empresa = signal('');
   readonly cargo = signal('');
+  readonly codigoPostal = signal('');
+
+  // Campos de cambio de contraseña
+  readonly passActual = signal('');
+  readonly passNueva = signal('');
+  readonly passConfirmar = signal('');
 
   ngOnInit(): void {
     this.authServicio.perfil().subscribe({
@@ -39,30 +49,31 @@ export class PerfilComponente implements OnInit {
         this.cargando.set(false);
       },
       error: () => {
-        this.error.set('No se pudo cargar el perfil. Intenta de nuevo.');
+        this.errorPerfil.set('No se pudo cargar el perfil. Intenta de nuevo.');
         this.cargando.set(false);
       },
     });
   }
 
   private poblarFormulario(usuario: Usuario): void {
-    this.correo.set(usuario.email);
     this.rol.set(usuario.rol);
     this.nombre.set(usuario.nombre ?? '');
+    this.correo.set(usuario.email);
     this.telefono.set(usuario.telefono ?? '');
     this.empresa.set(usuario.empresa ?? '');
     this.cargo.set(usuario.cargo ?? '');
+    this.codigoPostal.set(usuario.codigoPostal ?? '');
   }
 
   guardar(): void {
     if (!this.nombre().trim()) {
-      this.error.set('El nombre es requerido.');
+      this.errorPerfil.set('El nombre es requerido.');
       return;
     }
 
     this.guardando.set(true);
-    this.error.set('');
-    this.exito.set(false);
+    this.errorPerfil.set('');
+    this.exitoPerfil.set(false);
 
     this.authServicio.actualizarPerfil({
       nombre: this.nombre().trim(),
@@ -70,26 +81,61 @@ export class PerfilComponente implements OnInit {
       telefono: this.telefono().trim() || undefined,
       empresa: this.empresa().trim() || undefined,
       cargo: this.cargo().trim() || undefined,
+      codigoPostal: this.codigoPostal().trim() || undefined,
     }).subscribe({
       next: (usuario) => {
         this.guardando.set(false);
-        this.exito.set(true);
+        this.exitoPerfil.set(true);
         this.poblarFormulario(usuario);
-        // Actualizar localStorage para que el navbar refleje el cambio
         const usuarioLocalJson = localStorage.getItem('usuario');
         if (usuarioLocalJson) {
           try {
-            const usuarioLocal = JSON.parse(usuarioLocalJson);
-            const actualizado = { ...usuarioLocal, nombre: usuario.nombre };
-            localStorage.setItem('usuario', JSON.stringify(actualizado));
+            const local = JSON.parse(usuarioLocalJson);
+            localStorage.setItem('usuario', JSON.stringify({ ...local, nombre: usuario.nombre, email: usuario.email }));
           } catch (_) { /* nada */ }
         }
-        setTimeout(() => this.exito.set(false), 3000);
+        setTimeout(() => this.exitoPerfil.set(false), 3000);
       },
       error: (err) => {
         this.guardando.set(false);
-        const msg = err?.error?.message ?? 'Error al guardar. Intenta de nuevo.';
-        this.error.set(Array.isArray(msg) ? msg.join(', ') : String(msg));
+        const msg = err?.error?.message ?? err?.error?.mensaje ?? 'Error al guardar. Intenta de nuevo.';
+        this.errorPerfil.set(Array.isArray(msg) ? msg.join(', ') : String(msg));
+      },
+    });
+  }
+
+  cambiarContrasena(): void {
+    this.errorPass.set('');
+    this.exitoPass.set(false);
+
+    if (!this.passActual().trim()) {
+      this.errorPass.set('Ingresa tu contraseña actual.');
+      return;
+    }
+    if (this.passNueva().length < 8) {
+      this.errorPass.set('La nueva contraseña debe tener al menos 8 caracteres.');
+      return;
+    }
+    if (this.passNueva() !== this.passConfirmar()) {
+      this.errorPass.set('Las contraseñas no coinciden.');
+      return;
+    }
+
+    this.guardandoPass.set(true);
+
+    this.authServicio.cambiarPassword(this.passActual(), this.passNueva()).subscribe({
+      next: () => {
+        this.guardandoPass.set(false);
+        this.exitoPass.set(true);
+        this.passActual.set('');
+        this.passNueva.set('');
+        this.passConfirmar.set('');
+        setTimeout(() => this.exitoPass.set(false), 3000);
+      },
+      error: (err) => {
+        this.guardandoPass.set(false);
+        const msg = err?.error?.mensaje ?? err?.error?.message ?? 'Error al cambiar la contraseña.';
+        this.errorPass.set(Array.isArray(msg) ? msg.join(', ') : String(msg));
       },
     });
   }

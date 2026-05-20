@@ -57,6 +57,7 @@ model Usuario {
   telefono      String?    @db.VarChar(30)
   empresa       String?    @db.VarChar(180)
   cargo         String?    @db.VarChar(120)
+  codigoPostal  String?    @map("codigo_postal") @db.VarChar(10)
   rol           RolUsuario @default(cliente)
   activo        Boolean    @default(true)
   creadoEn      DateTime   @default(now())

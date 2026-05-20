@@ -36,6 +36,7 @@ export class AuthService implements OnModuleInit {
           telefono: dto.telefono?.trim() || null,
           empresa: dto.empresa?.trim() || null,
           cargo: dto.cargo?.trim() || null,
+          codigoPostal: dto.codigoPostal?.trim() || null,
           rol: RolUsuario.cliente,
         },
       });
@@ -107,6 +108,9 @@ export class AuthService implements OnModuleInit {
             empresa: dto.empresa.trim() || null,
           }),
           ...(dto.cargo !== undefined && { cargo: dto.cargo.trim() || null }),
+          ...(dto.codigoPostal !== undefined && {
+            codigoPostal: dto.codigoPostal.trim() || null,
+          }),
         },
       });
 
@@ -129,6 +133,32 @@ export class AuthService implements OnModuleInit {
     return bcrypt.hash(password, 10);
   }
 
+  async cambiarPasswordPerfil(
+    usuarioId: number,
+    passwordActual: string,
+    passwordNueva: string,
+  ) {
+    const usuario = await this.prisma.usuario.findUnique({
+      where: { id: usuarioId },
+    });
+    if (!usuario || !usuario.activo) {
+      throw new UnauthorizedException({ mensaje: 'Usuario no autorizado.' });
+    }
+
+    const valida = await bcrypt.compare(passwordActual, usuario.passwordHash);
+    if (!valida) {
+      throw new BadRequestException({ mensaje: 'La contraseña actual es incorrecta.' });
+    }
+
+    const passwordHash = await bcrypt.hash(passwordNueva, 10);
+    await this.prisma.usuario.update({
+      where: { id: usuarioId },
+      data: { passwordHash },
+    });
+
+    return { mensaje: 'Contraseña actualizada correctamente.' };
+  }
+
   private buildAuthResponse(usuario: {
     id: number;
     nombre: string;
@@ -136,6 +166,7 @@ export class AuthService implements OnModuleInit {
     telefono: string | null;
     empresa: string | null;
     cargo: string | null;
+    codigoPostal: string | null;
     rol: RolUsuario;
     activo: boolean;
     creadoEn: Date;
@@ -155,6 +186,7 @@ export class AuthService implements OnModuleInit {
     telefono: string | null;
     empresa: string | null;
     cargo: string | null;
+    codigoPostal: string | null;
     rol: RolUsuario;
     activo: boolean;
     creadoEn: Date;
@@ -166,6 +198,7 @@ export class AuthService implements OnModuleInit {
       telefono: usuario.telefono ?? undefined,
       empresa: usuario.empresa ?? undefined,
       cargo: usuario.cargo ?? undefined,
+      codigoPostal: usuario.codigoPostal ?? undefined,
       rol: usuario.rol,
       activo: usuario.activo,
       fechaRegistro: usuario.creadoEn,
