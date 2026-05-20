@@ -5,12 +5,29 @@ import * as nodemailer from 'nodemailer';
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
 
-  private createTransporter() {
-    const host = process.env.SMTP_HOST ?? 'smtp.gmail.com';
-    const port = parseInt(process.env.SMTP_PORT ?? '587', 10);
+  private async createTransporter(): Promise<nodemailer.Transporter> {
     const user = process.env.SMTP_USER ?? '';
     const pass = process.env.SMTP_PASS ?? '';
 
+    // Si no hay credenciales configuradas, usar Ethereal (cuenta de prueba)
+    if (!user || !pass) {
+      this.logger.warn(
+        'SMTP_USER/SMTP_PASS no configurados — usando cuenta Ethereal de prueba.',
+      );
+      const testAccount = await nodemailer.createTestAccount();
+      return nodemailer.createTransport({
+        host: 'smtp.ethereal.email',
+        port: 587,
+        secure: false,
+        connectionTimeout: 8000,
+        greetingTimeout: 8000,
+        socketTimeout: 8000,
+        auth: { user: testAccount.user, pass: testAccount.pass },
+      });
+    }
+
+    const host = process.env.SMTP_HOST ?? 'smtp.gmail.com';
+    const port = parseInt(process.env.SMTP_PORT ?? '587', 10);
     return nodemailer.createTransport({
       host,
       port,
@@ -23,7 +40,7 @@ export class EmailService {
     destinatario: string,
     codigo: string,
   ): Promise<void> {
-    const transporter = this.createTransporter();
+    const transporter = await this.createTransporter();
     const from = process.env.SMTP_FROM ?? process.env.SMTP_USER ?? 'no-reply@cyaco.mx';
 
     const info = await transporter.sendMail({
@@ -46,5 +63,11 @@ export class EmailService {
     });
 
     this.logger.log(`Correo de recuperación enviado a ${destinatario} (messageId: ${info.messageId})`);
+
+    // En modo Ethereal, imprimir el enlace de vista previa en consola
+    const previewUrl = nodemailer.getTestMessageUrl(info);
+    if (previewUrl) {
+      this.logger.log(`\n\n📧  VISTA PREVIA DEL CORREO (Ethereal):\n   ${previewUrl}\n`);
+    }
   }
 }

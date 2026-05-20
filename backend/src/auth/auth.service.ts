@@ -224,7 +224,17 @@ export class AuthService implements OnModuleInit {
       data: { email: emailNorm, codigo, expiresAt },
     });
 
-    await this.emailService.enviarCodigoRecuperacion(emailNorm, codigo);
+    try {
+      await this.emailService.enviarCodigoRecuperacion(emailNorm, codigo);
+    } catch (emailErr) {
+      // No exponer el error de SMTP al cliente por seguridad
+      console.error('[AuthService] Error enviando correo de recuperación:', emailErr);
+    }
+
+    // En desarrollo, mostrar el código en consola para facilitar pruebas
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`\n[DEV] Código de recuperación para ${emailNorm}: ${codigo}\n`);
+    }
 
     return { mensaje: 'Si el correo existe recibirás un código de recuperación en breve.' };
   }
