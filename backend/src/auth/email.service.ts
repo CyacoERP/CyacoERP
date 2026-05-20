@@ -28,10 +28,14 @@ export class EmailService {
 
     const host = process.env.SMTP_HOST ?? 'smtp.gmail.com';
     const port = parseInt(process.env.SMTP_PORT ?? '587', 10);
+    this.logger.log(`Usando SMTP real: ${host}:${port} (usuario: ${user})`);
     return nodemailer.createTransport({
       host,
       port,
       secure: port === 465,
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 10000,
       auth: { user, pass },
     });
   }
