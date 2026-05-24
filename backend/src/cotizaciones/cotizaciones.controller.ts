@@ -17,6 +17,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { UsuarioAutenticado } from '../auth/interfaces';
 import { CotizacionesService } from './cotizaciones.service';
 import { ActualizarEstadoCotizacionDto } from './dto/actualizar-estado-cotizacion.dto';
+import { ActualizarPreciosCotizacionDto } from './dto/actualizar-precios-cotizacion.dto';
 import { CrearCotizacionDto } from './dto/crear-cotizacion.dto';
 
 @UseGuards(JwtAuthGuard)
@@ -70,6 +71,22 @@ export class CotizacionesController {
     return this.cotizacionesService.actualizarEstado(
       id,
       dto.estado,
+      usuario?.id ?? 0,
+      (usuario?.rol ?? RolUsuario.cliente) as RolUsuario,
+    );
+  }
+
+  @Patch(':id/precios')
+  actualizarPreciosYDescuentos(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: ActualizarPreciosCotizacionDto,
+    @UsuarioActual() usuario: UsuarioAutenticado | undefined,
+  ) {
+    return this.cotizacionesService.actualizarPreciosYDescuentos(
+      id,
+      dto.descuentoPct,
+      dto.margenPct,
+      dto.items,
       usuario?.id ?? 0,
       (usuario?.rol ?? RolUsuario.cliente) as RolUsuario,
     );

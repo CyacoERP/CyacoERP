@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cotizacion>
+  <numero>COT-2026-0005</numero>
+  <fecha>2026-05-11T19:50:49.432Z</fecha>
+  <contacto>
+    <nombreCompleto>Maria Lopez</nombreCompleto>
+    <correo>maria.lopez@industrias-nova.com</correo>
+    <telefono>3310010001</telefono>
+    <cargo>Gerente de Planta</cargo>
+    <empresa>Industrias Nova</empresa>
+  </contacto>
+  <proyecto>
+    <nombre>Optimización de Caudal - Planta Hidrotratadora</nombre>
+    <fechaRequerida>2026-05-11</fechaRequerida>
+    <notas>Requiere certificación ASME sección VIII y pruebas de presión hidrostática en sitio.</notas>
+  </proyecto>
+  <articulos>
+    <articulo>
+      <id>9</id>
+      <nombre>Transmisor Temperatura TT-8</nombre>
+      <cantidad>1</cantidad>
+      <precioUnitario>8600</precioUnitario>
+      <subtotal>8600</subtotal>
+    </articulo>
+  </articulos>
+  <total>8600</total>
+</cotizacion>

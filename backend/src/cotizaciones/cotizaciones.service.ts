@@ -200,10 +200,12 @@ export class CotizacionesService {
       throw new ForbiddenException('Solo un admin puede aceptar o rechazar cotizaciones.');
     }
 
-    if (estado === EstadoCotizacion.aceptada && cotizacion.estado === EstadoCotizacion.aceptada) {
+    // No-op: already in the desired state
+    if (estado === cotizacion.estado) {
       return cotizacion;
     }
 
+    // Accepting: validate stock and decrement inventory
     if (estado === EstadoCotizacion.aceptada) {
       return this.prisma.$transaction(async (tx) => {
         for (const item of cotizacion.items) {
@@ -237,12 +239,114 @@ export class CotizacionesService {
       });
     }
 
+    // Moving away from aceptada: restore inventory
+    if (cotizacion.estado === EstadoCotizacion.aceptada) {
+      return this.prisma.$transaction(async (tx) => {
+        for (const item of cotizacion.items) {
+          await tx.producto.update({
+            where: { id: item.productoId },
+            data: { stock: { increment: item.cantidad } },
+          });
+        }
+
+        return tx.cotizacion.update({
+          where: { id },
+          data: {
+            estado,
+            ...(estado === EstadoCotizacion.enviada ? { enviadoEn: new Date() } : {}),
+          },
+        });
+      });
+    }
+
     return this.prisma.cotizacion.update({
       where: { id },
       data: {
         estado,
         ...(estado === EstadoCotizacion.enviada ? { enviadoEn: new Date() } : {}),
       },
+    });
+  }
+
+  async actualizarPreciosYDescuentos(
+    id: number,
+    descuentoPct?: number,
+    margenPct?: number,
+    preciosItems?: Array<{ itemId: number; precioUnitario: number }>,
+    usuarioId?: number,
+    rol?: RolUsuario,
+  ) {
+    const cotizacion = await this.prisma.cotizacion.findUnique({
+      where: { id },
+      include: { items: true },
+    });
+
+    if (!cotizacion) {
+      throw new NotFoundException(`Cotización ${id} no encontrada.`);
+    }
+
+    // Validar permiso
+    if (rol && usuarioId) {
+      const esAdmin = rol === RolUsuario.admin;
+      const esPropietario = cotizacion.usuarioId === usuarioId;
+      if (!esAdmin && !esPropietario) {
+        throw new ForbiddenException('No tienes permiso para modificar esta cotización.');
+      }
+    }
+
+    // No permitir editar cotizaciones aceptadas o rechazadas
+    if (
+      cotizacion.estado === EstadoCotizacion.aceptada ||
+      cotizacion.estado === EstadoCotizacion.rechazada
+    ) {
+      throw new BadRequestException('No se pueden editar cotizaciones aceptadas o rechazadas.');
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      // Actualizar precios unitarios de items si se proporcionan
+      if (preciosItems && preciosItems.length > 0) {
+        for (const itemUpdate of preciosItems) {
+          const item = cotizacion.items.find((i) => i.id === itemUpdate.itemId);
+          if (!item) {
+            throw new BadRequestException(`Item ${itemUpdate.itemId} no encontrado.`);
+          }
+
+          const nuevoSubtotal = itemUpdate.precioUnitario * item.cantidad;
+
+          await tx.itemCotizacion.update({
+            where: { id: itemUpdate.itemId },
+            data: {
+              precioUnitario: itemUpdate.precioUnitario,
+              subtotal: nuevoSubtotal,
+            },
+          });
+        }
+      }
+
+      // Recalcular subtotal total
+      const itemsActualizados = await tx.itemCotizacion.findMany({
+        where: { cotizacionId: id },
+      });
+
+      const nuevoSubtotal = itemsActualizados.reduce((acc, item) => acc + item.subtotal, 0);
+
+      // Aplicar descuento y margen
+      const descto = descuentoPct ?? cotizacion.descuentoPct;
+      const margen = margenPct ?? cotizacion.margenPct;
+
+      const totalConDescuento = nuevoSubtotal - nuevoSubtotal * (descto / 100);
+      const nuevoTotal = totalConDescuento + totalConDescuento * (margen / 100);
+
+      return tx.cotizacion.update({
+        where: { id },
+        data: {
+          subtotal: nuevoSubtotal,
+          descuentoPct: descto,
+          margenPct: margen,
+          total: nuevoTotal,
+        },
+        include: { items: { include: { producto: true } } },
+      });
     });
   }
 

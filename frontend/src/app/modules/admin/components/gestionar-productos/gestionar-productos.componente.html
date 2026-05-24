@@ -23,6 +23,9 @@
   } @else if (productosFiltrados().length === 0) {
     <p class="estado">No se encontraron productos.</p>
   } @else {
+    @if (errorToggle()) {
+      <p class="estado error" style="margin-bottom:8px">{{ errorToggle() }}</p>
+    }
     <div class="tabla-wrap">
       <table class="tabla">
         <thead>
@@ -60,9 +63,13 @@
                   {{ producto.activo ? 'Activo' : 'Inactivo' }}
                 </span>
               </td>
-              <td class="acciones">
-                <button type="button" class="op-btn op-btn--edit" (click)="abrirEditar(producto)">Editar</button>
-                <button type="button" class="op-btn op-btn--delete" (click)="confirmarEliminar(producto)">Eliminar</button>
+              <td>
+                <div class="acciones">
+                  <button type="button" class="op-btn op-btn--edit" (click)="abrirEditar(producto)">Editar</button>
+                  <button type="button" class="op-btn op-btn--edit" (click)="toggleActivo(producto)">
+                    {{ producto.activo ? 'Desactivar' : 'Activar' }}
+                  </button>
+                </div>
               </td>
             </tr>
           }
@@ -207,7 +214,59 @@
             </div>
           </fieldset>
 
-          <!-- ── Sección 5: Compatibilidades (solo modo editar) ── -->
+          <!-- ── Sección 5: Compatibilidades ── -->
+          @if (modoModal() === 'crear') {
+            <fieldset class="form-section">
+              <legend>Compatibilidades iniciales</legend>
+              <p class="hint">Opcional: agrega compatibilidades desde el alta del producto.</p>
+
+              <div class="compat-form">
+                <select [value]="formCompat().productoDestinoId"
+                  (change)="actualizarFormCompat('productoDestinoId', $any($event.target).value)">
+                  <option value="0">Seleccionar producto...</option>
+                  @for (p of productos(); track p.id) {
+                    <option [value]="p.id">{{ p.nombre }}</option>
+                  }
+                </select>
+
+                <select [value]="formCompat().tipo"
+                  (change)="actualizarFormCompat('tipo', $any($event.target).value)">
+                  <option value="compatible">Compatible</option>
+                  <option value="incompatible">Incompatible</option>
+                </select>
+
+                <input type="text" placeholder="Nota (opcional)"
+                  [value]="formCompat().nota"
+                  (input)="actualizarFormCompat('nota', $any($event.target).value)" />
+
+                <button type="button" class="btn-agregar-espec" (click)="agregarCompatibilidadPendiente()">
+                  + Agregar
+                </button>
+              </div>
+
+              @if (errorCompat()) {
+                <p class="modal-error small">{{ errorCompat() }}</p>
+              }
+
+              @if (compatibilidadesPendientes().length > 0) {
+                <div class="compat-lista">
+                  @for (c of compatibilidadesPendientes(); track c.productoDestinoId) {
+                    <div class="compat-item" [class.compat-compatible]="c.tipo === 'compatible'"
+                         [class.compat-incompatible]="c.tipo === 'incompatible'">
+                      <span class="compat-tipo">{{ c.tipo === 'compatible' ? '✓' : '✗' }}</span>
+                      <span class="compat-nombre">{{ c.nombreDestino }}</span>
+                      @if (c.nota) {
+                        <span class="compat-nota">— {{ c.nota }}</span>
+                      }
+                      <button type="button" class="btn-quitar" (click)="quitarCompatibilidadPendiente(c.productoDestinoId)"
+                              title="Eliminar">✕</button>
+                    </div>
+                  }
+                </div>
+              }
+            </fieldset>
+          }
+
           @if (modoModal() === 'editar') {
             <fieldset class="form-section">
               <legend>Compatibilidades</legend>
@@ -270,6 +329,9 @@
 
           <div class="modal-actions full">
             <button type="button" class="btn-secundario" (click)="cerrarModal()">Cancelar</button>
+            @if (modoModal() === 'editar') {
+              <button type="button" class="btn-peligro" (click)="confirmarEliminar(productoEditando()!)">Eliminar</button>
+            }
             <button type="submit" class="btn-nuevo" [disabled]="guardando()">
               {{ guardando() ? 'Guardando...' : 'Guardar' }}
             </button>

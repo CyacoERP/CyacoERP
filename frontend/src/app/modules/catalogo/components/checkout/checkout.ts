@@ -1,9 +1,10 @@
-import { AfterViewInit, Component, ElementRef, inject, ViewChild, } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, signal, ViewChild } from '@angular/core';
 import { CarritoServicio } from '../../services/carrito.servicio';
 import { PaypalService } from '../../services/paypal.servicio';
 import { CurrencyPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
+import { AuthServicio } from '../../../auth/services/auth.servicio';
 
 declare const paypal: any;
 @Component({
@@ -14,74 +15,114 @@ declare const paypal: any;
   styleUrl: './checkout.css',
 })
 export class Checkout implements AfterViewInit {
- @ViewChild('paypalButtonContainer')
+  @ViewChild('paypalButtonContainer')
   paypalButtonContainer!: ElementRef<HTMLDivElement>;
 
   private carritoService = inject(CarritoServicio);
   private paypalService = inject(PaypalService);
+  private authServicio = inject(AuthServicio);
 
   carrito = this.carritoService.itemsCarrito;
-  total = () => this.carritoService.totalPrecio(); 
+  total = () => this.carritoService.totalPrecio();
   mensaje = '';
+  readonly mostrarModalPago = signal(false);
+  itemsPagados: any[] = [];
+  ordenPagadaId = '';
+  nombreArchivoComprobante = '';
+
   ngAfterViewInit(): void {    
     this.renderPayPalButton();
   }
 
-  private descargarXML(datos: any[]) {
-    const xmlContent = this.generarXML(datos);
+  private descargarXML(datos: any[], orderId: string) {
+    const xmlContent = this.generarXML(datos, orderId);
     const blob = new Blob([xmlContent], { type: 'application/xml' });
     const url = URL.createObjectURL(blob);
 
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'pedido.xml';
+    link.download = this.nombreArchivoComprobante || `comprobante-pago-${orderId}.xml`;
     link.click();
 
     URL.revokeObjectURL(url);
   }
 
-  private generarXML(datos: any[]): string {
-    let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
-    xml += '<pedido>\n';
+  private generarXML(datos: any[], orderId: string): string {
+    const usuario = this.authServicio.obtenerUsuarioActual();
+    const subtotalBase = datos.reduce((acc, item) => acc + item.producto.precio * item.cantidad, 0);
+    const importeIva = parseFloat((subtotalBase * 0.16).toFixed(2));
+    const totalFactura = parseFloat((subtotalBase + importeIva).toFixed(2));
+    const folio = this.generarFolioComprobante(orderId);
 
-    datos.forEach(item => {
-      xml += '  <articulo>\n';
-      xml += `    <nombre>${item.producto.nombre}</nombre>\n`;
-      xml += `    <precio>${item.producto.precio}</precio>\n`;
-      xml += `    <cantidad>${item.cantidad}</cantidad>\n`;
-      xml += '  </articulo>\n';
-    });
+    const articulos = datos.map((item) => `    <articulo>
+      <id>${this.escapeXml(String(item.producto.id))}</id>
+      <nombre>${this.escapeXml(item.producto.nombre)}</nombre>
+      <cantidad>${item.cantidad}</cantidad>
+      <precioUnitario>${item.producto.precio.toFixed(2)}</precioUnitario>
+      <subtotal>${(item.producto.precio * item.cantidad).toFixed(2)}</subtotal>
+    </articulo>`).join('\n');
 
-    xml += '</pedido>';
-    return xml;
+    return `<?xml version="1.0" encoding="UTF-8"?>
+<cotizacion_factura>
+  <numero>${this.escapeXml(folio)}</numero>
+  <ordenPayPal>${this.escapeXml(orderId)}</ordenPayPal>
+  <estado>COMPLETED</estado>
+  <fecha>${new Date().toISOString()}</fecha>
+  <emisor>
+    <rfc>CYA123456789</rfc>
+    <razonSocial>CYACO ERP Soluciones S.A. de C.V.</razonSocial>
+    <direccionFiscal>Blvd. Tecnol\u00f3gico 456, C.P. 45000</direccionFiscal>
+  </emisor>
+  <receptor>
+    <rfc>N/A</rfc>
+    <razonSocial>${this.escapeXml(usuario?.empresa || 'Cliente particular')}</razonSocial>
+    <contactoNombre>${this.escapeXml(usuario?.nombre || 'Cliente')}</contactoNombre>
+    <contactoEmail>${this.escapeXml(usuario?.email || '')}</contactoEmail>
+    <contactoTelefono>${this.escapeXml(usuario?.telefono || 'No registrado')}</contactoTelefono>
+  </receptor>
+  <detalles_pago>
+    <metodoPago>PayPal</metodoPago>
+    <moneda>MXN</moneda>
+  </detalles_pago>
+  <articulos>
+${articulos}
+  </articulos>
+  <totales>
+    <subtotal>${subtotalBase.toFixed(2)}</subtotal>
+    <tasaIVA>16%</tasaIVA>
+    <importeIVA>${importeIva.toFixed(2)}</importeIVA>
+    <totalFactura>${totalFactura.toFixed(2)}</totalFactura>
+  </totales>
+</cotizacion_factura>`;
   }
 
-  private mostrarModalPagoExitoso(datos: any[]) {
-    const modal = document.createElement('div');
-    modal.classList.add('modal-overlay');
-
-    modal.innerHTML = `
-      <div class="modal">
-        <h3>Pago realizado con éxito</h3>
-        <p>Gracias por tu compra. Tu pedido ha sido procesado correctamente.</p>
-      </div>
-    `;
-
-    document.body.appendChild(modal);
-
-    // Descargar XML automáticamente
-    this.descargarXML(datos);
-
-    setTimeout(() => {
-      this.cerrarModal();
-    }, 3000); // Cerrar el modal automáticamente después de 3 segundos
+  private generarFolioComprobante(orderId: string): string {
+    const year = new Date().getFullYear();
+    const shortId = orderId.slice(-6).toUpperCase();
+    return `COMP-${year}-${shortId}`;
   }
 
-  private cerrarModal() {
-    const modal = document.querySelector('.modal-overlay');
-    if (modal) {
-      modal.remove();
+  private mostrarModalPagoExitoso(datos: any[], orderId: string) {
+    this.itemsPagados = [...datos];
+    this.ordenPagadaId = orderId;
+    const folio = this.generarFolioComprobante(orderId);
+    this.nombreArchivoComprobante = `factura-cotizacion-${folio}.xml`;
+    this.mostrarModalPago.set(true);
+  }
+
+  cerrarModal() {
+    this.mostrarModalPago.set(false);
+    this.itemsPagados = [];
+    this.ordenPagadaId = '';
+    this.nombreArchivoComprobante = '';
+  }
+
+  descargarComprobante(): void {
+    if (!this.itemsPagados.length || !this.ordenPagadaId) {
+      return;
     }
+
+    this.descargarXML(this.itemsPagados, this.ordenPagadaId);
   }
 
   private renderPayPalButton() {
@@ -117,9 +158,10 @@ export class Checkout implements AfterViewInit {
             this.paypalService.capturarOrden(data.orderID)
           );
 
+          const itemsGuardados = [...this.carrito()];
           console.log('Pago capturado:', capture);
           this.mensaje = 'Pago realizado correctamente.';
-          this.mostrarModalPagoExitoso(this.carrito());
+          this.mostrarModalPagoExitoso(itemsGuardados, data.orderID);
           this.carritoService.vaciarCarrito();
           this.paypalButtonContainer.nativeElement.innerHTML = '';
         } catch (error) {
@@ -138,5 +180,14 @@ export class Checkout implements AfterViewInit {
       }
     }).render(this.paypalButtonContainer.nativeElement);
 
+  }
+
+  private escapeXml(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&apos;');
   }
 }

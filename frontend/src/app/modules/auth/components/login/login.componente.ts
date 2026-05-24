@@ -6,12 +6,12 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthServicio } from '../../services/auth.servicio';
 
 @Component({
   selector: 'app-login',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './login.componente.html',
   styleUrl: './login.componente.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

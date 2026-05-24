@@ -57,6 +57,7 @@ model Usuario {
   telefono      String?    @db.VarChar(30)
   empresa       String?    @db.VarChar(180)
   cargo         String?    @db.VarChar(120)
+  codigoPostal  String?    @map("codigo_postal") @db.VarChar(10)
   rol           RolUsuario @default(cliente)
   activo        Boolean    @default(true)
   creadoEn      DateTime   @default(now())
@@ -67,13 +68,24 @@ model Usuario {
   @@map("usuarios")
 }
 
+model CodigoRecuperacion {
+  id        Int      @id @default(autoincrement())
+  email     String   @db.VarChar(160)
+  codigo    String   @db.VarChar(8)
+  expiresAt DateTime @map("expires_at")
+  usado     Boolean  @default(false)
+  creadoEn  DateTime @default(now()) @map("creado_en")
+
+  @@index([email])
+  @@map("codigos_recuperacion")
+}
+
 model Cliente {
   id          Int      @id @default(autoincrement())
   razonSocial String   @db.VarChar(180)
   rfc         String   @unique @db.VarChar(13)
-  email       String?  @unique @db.VarChar(160)
-  telefono    String?  @db.VarChar(30)
   sector      String?  @db.VarChar(120)
+  codigoPostal String?  @map("codigo_postal") @db.VarChar(10)
   activo      Boolean  @default(true)
   creadoEn    DateTime @default(now())
 	actualizadoEn DateTime @updatedAt

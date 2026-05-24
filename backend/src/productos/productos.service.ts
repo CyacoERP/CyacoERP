@@ -91,6 +91,11 @@ export class ProductosService {
     stock?: number;
     imagenUrl?: string;
     categoriaId: number;
+    compatibilidades?: Array<{
+      productoDestinoId: number;
+      tipo: TipoCompatibilidad;
+      nota?: string;
+    }>;
   }): Promise<Producto> {
     const payload: Prisma.ProductoCreateInput = {
       nombre: data.nombre.trim(),
@@ -108,7 +113,26 @@ export class ProductosService {
       activo: true,
     };
 
-    return this.prisma.producto.create({ data: payload });
+    return this.prisma.$transaction(async (tx) => {
+      const producto = await tx.producto.create({ data: payload });
+
+      const compatibilidades = (data.compatibilidades ?? []).filter(
+        (c) => c.productoDestinoId && c.productoDestinoId !== producto.id,
+      );
+
+      for (const compatibilidad of compatibilidades) {
+        await tx.compatibilidadProducto.create({
+          data: {
+            productoOrigenId: producto.id,
+            productoDestinoId: compatibilidad.productoDestinoId,
+            tipo: compatibilidad.tipo,
+            nota: compatibilidad.nota?.trim() || null,
+          },
+        });
+      }
+
+      return producto;
+    });
   }
 
   async update(
@@ -157,6 +181,11 @@ export class ProductosService {
     return this.prisma.producto.update({ where: { id }, data: { activo: false } });
   }
 
+  async activar(id: number): Promise<Producto> {
+    await this.findOne(id);
+    return this.prisma.producto.update({ where: { id }, data: { activo: true } });
+  }
+
   async actualizarUrlDocumento(id: number, urlDocumento: string): Promise<Producto> {
     const producto = await this.prisma.producto.findUnique({ where: { id } });
     if (!producto) throw new NotFoundException(`Producto ${id} no encontrado.`);
@@ -177,13 +206,29 @@ export class ProductosService {
 
   async listarCompatibilidades(id: number): Promise<CompatibilidadProducto[]> {
     await this.findOne(id);
-    return this.prisma.compatibilidadProducto.findMany({
-      where: { productoOrigenId: id },
+    const compatibilidades = await this.prisma.compatibilidadProducto.findMany({
+      where: {
+        OR: [{ productoOrigenId: id }, { productoDestinoId: id }],
+      },
       include: {
         productoOrigen: true,
         productoDestino: true,
       },
       orderBy: { creadoEn: 'desc' },
+    });
+
+    return compatibilidades.map((compatibilidad) => {
+      if (compatibilidad.productoOrigenId === id) {
+        return compatibilidad;
+      }
+
+      return {
+        ...compatibilidad,
+        productoOrigenId: id,
+        productoDestinoId: compatibilidad.productoOrigenId,
+        productoOrigen: compatibilidad.productoDestino,
+        productoDestino: compatibilidad.productoOrigen,
+      };
     });
   }
 
@@ -220,6 +265,69 @@ export class ProductosService {
       throw new NotFoundException(`Compatibilidad ${id} no encontrada.`);
     }
     return this.prisma.compatibilidadProducto.delete({ where: { id } });
+  }
+
+  async buscarIncompatibilidades(productoIds: number[]): Promise<Array<{
+    nombre1: string;
+    nombre2: string;
+    razon?: string;
+  }>> {
+    if (!productoIds || productoIds.length < 2) {
+      return [];
+    }
+
+    // Normalize ids to numbers in case they arrive as strings from JSON body
+    const ids = productoIds.map(Number);
+
+    // 1. Fetch names for all cart products
+    const productos = await this.prisma.producto.findMany({
+      where: { id: { in: ids } },
+      select: { id: true, nombre: true },
+    });
+    const nombrePorId = new Map(productos.map((p) => [p.id, p.nombre]));
+
+    // 2. Fetch ALL compatibility relations where BOTH endpoints are in the cart
+    const relaciones = await this.prisma.compatibilidadProducto.findMany({
+      where: {
+        productoOrigenId: { in: ids },
+        productoDestinoId: { in: ids },
+      },
+    });
+
+    const incompats: Array<{ nombre1: string; nombre2: string; razon?: string }> = [];
+
+    for (let i = 0; i < ids.length; i++) {
+      for (let j = i + 1; j < ids.length; j++) {
+        const id1 = ids[i];
+        const id2 = ids[j];
+
+        // Find relation between this pair (either direction)
+        const rel = relaciones.find(
+          (r) =>
+            (r.productoOrigenId === id1 && r.productoDestinoId === id2) ||
+            (r.productoOrigenId === id2 && r.productoDestinoId === id1),
+        );
+
+        if (rel && rel.tipo === 'incompatible') {
+          // Explicit incompatibility declared
+          incompats.push({
+            nombre1: nombrePorId.get(id1) ?? `ID:${id1}`,
+            nombre2: nombrePorId.get(id2) ?? `ID:${id2}`,
+            razon: rel.nota ?? 'Incompatibilidad declarada',
+          });
+        } else if (!rel) {
+          // No explicit compatible relation exists between these two products
+          incompats.push({
+            nombre1: nombrePorId.get(id1) ?? `ID:${id1}`,
+            nombre2: nombrePorId.get(id2) ?? `ID:${id2}`,
+            razon: 'Compatibilidad no verificada entre estos artículos',
+          });
+        }
+        // If rel.tipo === 'compatible' → no warning
+      }
+    }
+
+    return incompats;
   }
 }
 

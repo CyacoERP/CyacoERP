@@ -100,6 +100,31 @@
   background: #1a325f;
 }
 
+.btn-xml {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  background: #059669;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-xml svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.btn-xml:hover {
+  background: #047857;
+}
+
 .detail-content {
   max-width: 1240px;
   margin: 0 auto;

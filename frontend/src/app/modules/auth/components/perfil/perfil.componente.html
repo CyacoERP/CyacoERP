@@ -13,12 +13,8 @@
       <p class="estado">Cargando perfil...</p>
     } @else {
 
-      <!-- Info de solo lectura -->
+      <!-- Rol (solo lectura) -->
       <div class="info-readonly">
-        <div class="info-item">
-          <span class="info-label">Correo electrónico</span>
-          <span class="info-valor">{{ correo() }}</span>
-        </div>
         <div class="info-item">
           <span class="info-label">Rol</span>
           <span class="badge-rol" [class.admin]="rol() === 'admin'">{{ rol() }}</span>
@@ -27,44 +23,48 @@
 
       <hr class="separador" />
 
-      <!-- Alertas -->
-      @if (error()) {
-        <div class="alerta error">{{ error() }}</div>
+      <!-- ── Sección: Información personal ── -->
+      <h2 class="seccion-titulo">Información personal</h2>
+
+      @if (errorPerfil()) {
+        <div class="alerta error">{{ errorPerfil() }}</div>
       }
-      @if (exito()) {
+      @if (exitoPerfil()) {
         <div class="alerta exito">✓ Perfil actualizado correctamente.</div>
       }
 
-      <!-- Formulario editable -->
       <form class="form-perfil" (submit)="guardar(); $event.preventDefault()">
         <div class="form-grid">
+
           <label class="full">
-            Nombre completo *
+            Nombre completo <span class="req">*</span>
             <input
               type="text"
               [value]="nombre()"
               (input)="nombre.set($any($event.target).value)"
+              placeholder="ej: Ing. Juan Pérez"
               required
             />
           </label>
 
           <label>
-            Teléfono
+            Correo electrónico <span class="req">*</span>
             <input
-              type="tel"
-              [value]="telefono()"
-              (input)="telefono.set($any($event.target).value)"
-              placeholder="ej: +52 33 1234 5678"
+              type="email"
+              [value]="correo()"
+              (input)="correo.set($any($event.target).value)"
+              placeholder="tu@empresa.com"
+              required
             />
           </label>
 
           <label>
-            Cargo / Puesto
+            Teléfono / WhatsApp
             <input
-              type="text"
-              [value]="cargo()"
-              (input)="cargo.set($any($event.target).value)"
-              placeholder="ej: Gerente de compras"
+              type="tel"
+              [value]="telefono()"
+              (input)="telefono.set($any($event.target).value)"
+              placeholder="+52 81 0000 0000"
             />
           </label>
 
@@ -74,15 +74,95 @@
               type="text"
               [value]="empresa()"
               (input)="empresa.set($any($event.target).value)"
-              placeholder="ej: CYACO S.A. de C.V."
+              placeholder="ej: PEMEX Refinación"
             />
           </label>
+
+          <label>
+            Cargo / Puesto
+            <input
+              type="text"
+              [value]="cargo()"
+              (input)="cargo.set($any($event.target).value)"
+              placeholder="ej: Gerente de Compras"
+            />
+          </label>
+
+          <label>
+            Código Postal
+            <input
+              type="text"
+              [value]="codigoPostal()"
+              (input)="codigoPostal.set($any($event.target).value)"
+              placeholder="00000"
+              maxlength="10"
+            />
+          </label>
+
         </div>
 
         <div class="form-acciones">
           <a routerLink="/catalogo" class="btn-cancelar">Volver al catálogo</a>
           <button type="submit" class="btn-guardar" [disabled]="guardando()">
             {{ guardando() ? 'Guardando...' : 'Guardar cambios' }}
+          </button>
+        </div>
+      </form>
+
+      <hr class="separador" />
+
+      <!-- ── Sección: Cambiar contraseña ── -->
+      <h2 class="seccion-titulo">Cambiar contraseña</h2>
+
+      @if (errorPass()) {
+        <div class="alerta error">{{ errorPass() }}</div>
+      }
+      @if (exitoPass()) {
+        <div class="alerta exito">✓ Contraseña actualizada correctamente.</div>
+      }
+
+      <form class="form-perfil" (submit)="cambiarContrasena(); $event.preventDefault()">
+        <div class="form-grid">
+
+          <label class="full">
+            Contraseña actual <span class="req">*</span>
+            <input
+              type="password"
+              [value]="passActual()"
+              (input)="passActual.set($any($event.target).value)"
+              placeholder="Tu contraseña actual"
+              autocomplete="current-password"
+            />
+          </label>
+
+          <label>
+            Nueva contraseña <span class="req">*</span>
+            <input
+              type="password"
+              [value]="passNueva()"
+              (input)="passNueva.set($any($event.target).value)"
+              placeholder="Mínimo 8 caracteres"
+              autocomplete="new-password"
+              minlength="8"
+            />
+          </label>
+
+          <label>
+            Confirmar contraseña <span class="req">*</span>
+            <input
+              type="password"
+              [value]="passConfirmar()"
+              (input)="passConfirmar.set($any($event.target).value)"
+              placeholder="Repite la nueva contraseña"
+              autocomplete="new-password"
+            />
+          </label>
+
+        </div>
+
+        <div class="form-acciones">
+          <button type="submit" class="btn-guardar" [disabled]="guardandoPass()">
+            {{ guardandoPass() ? 'Actualizando...' : 'Actualizar contraseña' }}
           </button>
         </div>
       </form>

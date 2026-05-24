@@ -54,12 +54,28 @@ import { ModalStateServicio } from '../../services/modal-state.servicio';
           </div>
 
           <div class="cart-summary">
+            @if (subtotalPorCategoria().length > 0) {
+              <div class="subtotal-categorias">
+                <div class="subtotal-categorias-titulo">Subtotal por categoría</div>
+                @for (entry of subtotalPorCategoria(); track entry.categoria) {
+                  <div class="subtotal-categoria-item">
+                    <span>{{ entry.categoria }}</span>
+                    <strong>{{ formatPrice(entry.subtotal) }}</strong>
+                  </div>
+                }
+              </div>
+            }
+
             <div class="summary-label">Subtotal estimado:</div>
             <div class="summary-total">{{ formatPrice(totalPrecio()) }}</div>
             
             <div class="info-text">
               El precio final se confirmará en la cotización formal
             </div>
+
+            @if (incompatibilidades().length > 0) {
+              <div class="texto-incompatibilidades">Hay articulos incompatibles</div>
+            }
 
             <a routerLink="/cotizaciones/solicitar" (click)="cerrar()" class="btn-solicitar">
               Solicitar Cotización Formal
@@ -69,9 +85,6 @@ import { ModalStateServicio } from '../../services/modal-state.servicio';
               Continuar explorando
             </a>
           </div>
-          <a routerLink="/checkout" (click)="cerrar()" class="btn-solicitar">
-             Ir al checkout
-          </a>
         }
       </div>
     </div>
@@ -330,6 +343,30 @@ import { ModalStateServicio } from '../../services/modal-state.servicio';
       flex-shrink: 0;
     }
 
+    .subtotal-categorias {
+      border: 1px solid #bfdbfe;
+      background: #eff6ff;
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 12px;
+    }
+
+    .subtotal-categorias-titulo {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #1e3a8a;
+      margin-bottom: 8px;
+    }
+
+    .subtotal-categoria-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      color: #334155;
+      font-size: 0.8rem;
+      padding: 2px 0;
+    }
+
     .summary-label {
       color: #334155;
       font-size: 0.9rem;
@@ -352,6 +389,14 @@ import { ModalStateServicio } from '../../services/modal-state.servicio';
       background: transparent;
       border: none;
       border-radius: 0;
+    }
+
+    .texto-incompatibilidades {
+      margin-top: -8px;
+      margin-bottom: 12px;
+      color: #e11d48;
+      font-size: 0.84rem;
+      font-weight: 700;
     }
 
     .btn-solicitar {
@@ -412,6 +457,14 @@ export class CarritoPreviewComponent {
 
   get totalPrecio() {
     return this.carritoServicio.totalPrecio;
+  }
+
+  get incompatibilidades() {
+    return this.carritoServicio.incompatibilidades;
+  }
+
+  get subtotalPorCategoria() {
+    return this.carritoServicio.subtotalPorCategoria;
   }
 
   get isOpen() {

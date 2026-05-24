@@ -235,6 +235,99 @@
   color: #e53935;
 }
 
+/* Alertas de incompatibilidades */
+.alerta-incompatibilidades {
+  background: #fff3cd;
+  border-left: 4px solid #ffc107;
+  padding: 16px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.alerta-titulo {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #856404;
+}
+
+.btn-ver-incompatibilidades {
+  background: #ffc107;
+  color: #333;
+  border: none;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: background 0.2s ease;
+  text-decoration: underline;
+  width: 100%;
+  text-align: left;
+}
+
+.btn-ver-incompatibilidades:hover {
+  background: #ffb300;
+}
+
+.lista-incompatibilidades {
+  list-style: none;
+  margin: 12px 0 0 0;
+  padding: 0;
+  border-top: 1px solid #ffc107;
+  padding-top: 12px;
+}
+
+.item-incomp {
+  font-size: 12px;
+  color: #333;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #ffe9a3;
+}
+
+.item-incomp:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.item-incomp strong {
+  color: #333;
+  font-weight: 600;
+}
+
+.razon {
+  margin: 4px 0 0 0;
+  font-size: 11px;
+  color: #666;
+  font-style: italic;
+}
+
+/* Subtotal por categoría */
+.subtotal-por-categoria {
+  background: #f9f9f9;
+  padding: 12px;
+  border-radius: 3px;
+  border-left: 3px solid #0056b3;
+}
+
+.subtotal-titulo {
+  margin: 0 0 8px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #0056b3;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.subtotal-linea {
+  margin: 6px 0;
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #666;
+}
+
 @media (max-width: 900px) {
   .contenido {
     grid-template-columns: 1fr;

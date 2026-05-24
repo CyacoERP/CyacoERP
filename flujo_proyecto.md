@@ -2,6 +2,8 @@
 
 Este documento explica cómo funcionan internamente todas las funcionalidades del sistema: cómo se relacionan los módulos, cómo se mueven los datos, cómo se generan documentos y cómo Angular consume el backend.
 
+> **Última actualización:** 12 mayo 2026 — Incluye: gestión de inventario por cotización, CRUD de categorías, rediseño PDF/XML de cotizaciones, XML de comprobante PayPal, control de visibilidad de menús por rol, y detección de incompatibilidades de productos.
+
 ---
 
 ## 1. Vista General del Stack
@@ -50,7 +52,7 @@ Angular component
 
 El token se crea al inicio del proyecto automáticamente si no existe un admin:
 - `auth.service.ts → onModuleInit → ensureAdminSeed()`
-- Crea `admin@cyaco.local` / `Admin12345` si la BD está vacía.
+- Crea `admin@cyaco.local` / `Admin1234!` si la BD está vacía.
 
 ### 2.4 Perfil y cierre de sesión
 
@@ -100,7 +102,38 @@ Cada producto pertenece a **una** categoría. Las categorías se crean primero, 
 - El frontend los carga en el módulo `catalogo` para cualquier visitante.
 - Las operaciones POST/PUT/DELETE requieren JWT + admin.
 
-### 4.3 Subida de ficha técnica PDF
+### 4.3 CRUD de Categorías (Admin)
+
+Las categorías se gestionan desde `/admin/categorias`. El flujo es:
+
+1. Admin navega a `/admin/categorias` (accesible desde el menú Administración del navbar).
+2. El componente `GestionarCategoriasComponente` llama `GET /api/categorias` al inicializar.
+3. **Crear:** modal con campos nombre (obligatorio, máx 100 chars) y descripción (opcional, máx 255). Llama `POST /api/categorias`.
+4. **Editar:** mismo modal pre-relleno. Llama `PUT /api/categorias/:id`.
+5. **Eliminar:** confirmación de dos pasos. Llama `DELETE /api/categorias/:id`. Si la categoría tiene productos asignados, la BD rechaza la operación (FK constraint) y se muestra el error al usuario.
+6. **Búsqueda local:** filtrado en memoria por nombre o descripción sin llamadas extra al backend.
+
+```
+Admin abre /admin/categorias
+  → GET /api/categorias (CategoriaServicio)
+  → Lista con búsqueda en tiempo real
+
+Admin crea categoría
+  → Modal → POST /api/categorias { nombre, descripcion }
+  → Backend guarda en tabla categorias
+  → Lista se recarga
+
+Admin elimina categoría (sin productos)
+  → DELETE /api/categorias/:id
+  → Backend: prisma.categoria.delete() → éxito
+
+Admin elimina categoría (con productos)
+  → DELETE /api/categorias/:id
+  → Backend: error FK → 500
+  → Frontend muestra: "No se puede eliminar. La categoría puede tener productos asociados."
+```
+
+### 4.4 Subida de ficha técnica PDF
 
 1. Admin abre el producto en `/admin/productos`.
 2. Selecciona un archivo PDF (máx 10 MB).
@@ -119,6 +152,30 @@ Angular FormData
   → Devuelve producto actualizado con URL
 ```
 
+### 4.5 Detección de incompatibilidades en el carrito
+
+Cuando el carrito tiene 2 o más productos, el servicio `CarritoServicio` lanza automáticamente una verificación de compatibilidades:
+
+```
+CarritoServicio (effect)
+  → carrito cambia con ≥2 productos
+  → POST /api/productos/incompatibilidades/buscar
+      { productoIds: [1, 2, 3, ...] }
+  → Backend evalúa TODOS los pares posibles
+  → Si par (A, B) tiene relación tipo "incompatible" → lo marca
+  → Si par (A, B) NO tiene ninguna relación → "Compatibilidad no verificada"
+  → Si par (A, B) tiene relación "compatible" → se omite (sin alerta)
+  → Devuelve array de incompatibilidades/advertencias
+  → CarritoPreview muestra banner de alerta si hay resultados
+```
+
+**Lógica del backend** (`ProductosService.buscarIncompatibilidades`):
+- Obtiene todas las relaciones de compatibilidad que involucren cualquiera de los productos.
+- Para cada par de productos en el carrito, busca la relación en **ambas direcciones** (A→B o B→A).
+- Si la relación es `incompatible`: alerta roja.
+- Si no existe relación: alerta amarilla ("no verificada").
+- Si es `compatible`: sin alerta.
+
 ---
 
 ## 5. Cotizaciones
@@ -127,8 +184,10 @@ Angular FormData
 
 ```
 Cliente crea cotización  →  estado: borrador
-Admin la revisa          →  estado: enviada (se manda al cliente)
-Cliente acepta o rechaza →  estado: aceptada | rechazada
+Admin la revisa          →  estado: enviada  (se manda al cliente)
+Admin acepta             →  estado: aceptada  ← descuenta inventario
+Admin rechaza/cancela    →  estado: rechazada | cancelada  ← restaura inventario
+Admin vuelve a aceptar   →  estado: aceptada  ← vuelve a descontar
 ```
 
 ### 5.2 Cómo se crea y calcula
@@ -142,7 +201,7 @@ Cliente acepta o rechaza →  estado: aceptada | rechazada
    total = totalConDescuento + totalConDescuento × (margenPct / 100)
    ```
 4. Genera número único de cotización con `generarNumeroCotizacion()`.
-5. Crea la cotización y sus items en una **transacción Prisma** (atómica: si falla un item, no se crea nada).
+5. Crea la cotización y sus items en una **transacción Prisma** (atómica).
 
 ### 5.3 Control de acceso por rol
 
@@ -150,10 +209,60 @@ Cliente acepta o rechaza →  estado: aceptada | rechazada
 - `GET /api/cotizaciones` → solo admin, devuelve **todas**.
 - `GET /api/cotizaciones/:id` → el cliente solo puede ver las suyas; admin ve cualquiera.
 
-### 5.4 Cambio de estado
+### 5.4 Cambio de estado e inventario
 
-- `PATCH /api/cotizaciones/:id/estado` con `{ estado: "aceptada" }`.
-- El servicio valida que el cambio de estado sea permitido según el rol.
+`PATCH /api/cotizaciones/:id/estado` con `{ estado: "aceptada" | "rechazada" | ... }`
+
+La lógica de stock está implementada en `CotizacionesService.actualizarEstado()`:
+
+```
+Transición → aceptada (desde cualquier estado no-aceptada)
+  → Valida que todos los productos del pedido existen y están activos
+  → Valida que producto.stock >= item.cantidad para cada item
+  → En transacción: decrementa stock de cada producto
+  → Actualiza estado de la cotización
+
+Transición aceptada → rechazada | cancelada | borrador | enviada
+  → En transacción: incrementa stock de cada producto (restauración)
+  → Actualiza estado de la cotización
+
+Transición entre estados no-aceptada (ej. borrador → enviada)
+  → Solo actualiza el estado, NO toca el inventario
+
+Misma transición (estado === estado actual)
+  → No-op, retorna la cotización sin cambios
+```
+
+Esto garantiza que el inventario siempre refleja exactamente las cotizaciones en estado `aceptada`.
+
+### 5.5 Descarga de documentos de cotización
+
+Desde la vista de detalle (`/cotizaciones/:id`) el usuario puede descargar dos documentos:
+
+#### XML (Factura)
+- Botón **Descargar XML** llama `descargarXml()` en `DetalleCotizacionComponente`.
+- Genera el documento en el **cliente** (sin llamada al backend).
+- Formato raíz: `<cotizacion_factura>` con secciones:
+  - `<numero>` — número de cotización (ej. `COT-2026-0001`)
+  - `<fecha>` — ISO timestamp
+  - `<emisor>` — RFC: CYA123456789, razón social, dirección fiscal
+  - `<receptor>` — razón social, RFC (N/A), email de contacto
+  - `<detalles_proyecto>` — nombre del proyecto, fecha requerida, observaciones
+  - `<articulos>` — lista de `<articulo>` con id, nombre, cantidad, precioUnitario, subtotal
+  - `<totales>` — subtotal, tasaIVA (16%), importeIVA, totalFactura
+- Nombre del archivo: `factura-cotizacion-{numero}.xml` (ej. `factura-cotizacion-COT-2026-0001.xml`)
+
+#### PDF (Cotización formal)
+- Botón **Descargar PDF** llama `descargarPdf()`.
+- Genera HTML en el cliente y abre ventana de impresión del navegador (`window.print()`).
+- Estructura del documento:
+  1. **Encabezado** — logo/marca Cyaco ERP, número de cotización, estado, fecha/hora
+  2. **Bloque Emisor** — RFC CYA123456789, razón social, dirección fiscal
+  3. **Bloque Receptor** — empresa, contacto, cargo, correo, teléfono
+  4. **Detalles del Proyecto** — nombre, fecha requerida, observaciones
+  5. **Tabla de partidas** — #, ID, Producto/Categoría, Cantidad, Precio U., Subtotal
+  6. **Totales** — Subtotal + IVA 16% + Total (en tabla alineada a la derecha)
+  7. **Notas legales** y pie con RFC + número + fecha de impresión
 
 ---
 
@@ -208,7 +317,7 @@ pendiente → en_progreso → completada
 
 ---
 
-## 7. Reportes y Exportación de Documentos
+## 7. Reportes, Documentos y Exportación
 
 ### 7.1 Flujo de generación de reporte
 
@@ -258,6 +367,59 @@ Los dashboards consultan directamente la BD cada vez:
 - `GET /api/reportes/dashboard/clientes` → `COUNT` con filtro por mes actual.
 - `GET /api/reportes/dashboard/proyectos` → `COUNT`, `AVG` sobre tablas `Proyecto` y `TareaProyecto`.
 
+> **Control de visibilidad:** el menú "Dashboards" en el navbar **solo es visible para usuarios con rol `admin`**. Los clientes no ven ese menú aunque intenten acceder directamente a las rutas (el `RolGuard` los redirige).
+
+### 7.6 Comprobante de pago PayPal (XML)
+
+Al completar un pago con PayPal en `/checkout`, el sistema genera un comprobante XML en el cliente:
+
+```
+PayPal SDK captura el pago
+  → orderId devuelto por PayPal (ej. "4G294227W50189220")
+  → Checkout.mostrarModalPagoExitoso(datos, orderId)
+  → Nombre del archivo: factura-cotizacion-COMP-{año}-{últimos6delOrderId}.xml
+      (ej. factura-cotizacion-COMP-2026-189220.xml)
+  → Usuario hace clic en "Descargar Comprobante"
+  → Checkout.descargarComprobante() → generarXML() → Blob → descarga
+```
+
+Formato del XML generado (`<cotizacion_factura>`):
+```xml
+<cotizacion_factura>
+  <numero>COMP-2026-189220</numero>
+  <ordenPayPal>4G294227W50189220</ordenPayPal>
+  <estado>COMPLETED</estado>
+  <fecha>2026-05-12T07:00:00.000Z</fecha>
+  <emisor>
+    <rfc>CYA123456789</rfc>
+    <razonSocial>CYACO ERP Soluciones S.A. de C.V.</razonSocial>
+    <direccionFiscal>Blvd. Tecnológico 456, C.P. 45000</direccionFiscal>
+  </emisor>
+  <receptor>
+    <rfc>N/A</rfc>
+    <razonSocial>...</razonSocial>
+    <contactoNombre>...</contactoNombre>
+    <contactoEmail>...</contactoEmail>
+    <contactoTelefono>...</contactoTelefono>
+  </receptor>
+  <detalles_pago>
+    <metodoPago>PayPal</metodoPago>
+    <moneda>MXN</moneda>
+  </detalles_pago>
+  <articulos>
+    <articulo>...</articulo>
+  </articulos>
+  <totales>
+    <subtotal>...</subtotal>
+    <tasaIVA>16%</tasaIVA>
+    <importeIVA>...</importeIVA>
+    <totalFactura>...</totalFactura>
+  </totales>
+</cotizacion_factura>
+```
+
+Este formato es **idéntico en estructura** al XML generado desde el detalle de cotización, facilitando la integración y validación con sistemas externos.
+
 ---
 
 ## 8. Comunicación Frontend ↔ Backend
@@ -267,25 +429,45 @@ Los dashboards consultan directamente la BD cada vez:
 Cada módulo tiene su propio servicio que encapsula las llamadas HTTP:
 
 ```
-CatalogoServicio  → HttpClient.get('/api/productos')
-ClienteServicio   → HttpClient.get('/api/clientes')
-ProyectoServicio  → HttpClient.get('/api/proyectos')
-CotizacionServicio→ HttpClient.post('/api/cotizaciones', body)
-AuthServicio      → HttpClient.post('/api/auth/login', body)
+CatalogoServicio   → HttpClient.get('/api/productos')
+CategoriaServicio  → HttpClient.get/post/put/delete('/api/categorias')
+ClienteServicio    → HttpClient.get('/api/clientes')
+ProyectoServicio   → HttpClient.get('/api/proyectos')
+CotizacionServicio → HttpClient.post('/api/cotizaciones', body)
+AuthServicio       → HttpClient.post('/api/auth/login', body)
 ```
 
 ### 8.2 Interceptor de autenticación
 
 - Definido en `core/interceptors/`.
 - Se inyecta globalmente en `app.config.ts` con `provideHttpClient(withInterceptors([...]))`.
-- Lee el token de `localStorage` y lo agrega como `Authorization: Bearer <token>` en cada request a `/api/*`.
+- Lee el token de `localStorage` con clave **`token`** (no `access_token`) y lo agrega como `Authorization: Bearer <token>` en cada request a `/api/*`.
+- Si la respuesta es `401`, cierra la sesión y redirige a `/auth/login`.
 
 ### 8.3 Guards de rutas Angular
 
 - `AuthGuard` → protege rutas que requieren estar autenticado. Si no hay token, redirige a `/auth/login`.
 - `RolGuard` → protege rutas de admin. Si el rol no es `admin`, redirige al home.
 
-### 8.4 Proxy de desarrollo
+Rutas con ambos guards: `/admin/**`, `/cotizaciones/**`, `/proyectos/**`.
+
+### 8.4 Control de visibilidad del navbar por rol
+
+El componente `NavbarComponente` usa la señal computada `esAdmin()` (lee el rol del token decodificado) para mostrar u ocultar menús:
+
+```
+Usuario no autenticado: Inicio · Catálogo
+Cliente autenticado:    + Cotizaciones · Proyectos · Blog · Contacto
+Admin:                  + Dashboards · Administración
+```
+
+Los menús **Dashboards** y **Administración** están envueltos en `@if (esAdmin())` en la plantilla. El menú **Administración** expone:
+- Gestionar Clientes → `/admin/clientes`
+- Gestionar Cotizaciones → `/admin/cotizaciones`
+- Gestionar Inventario → `/admin/productos`
+- Gestionar Categorías → `/admin/categorias`
+
+### 8.5 Proxy de desarrollo
 
 `proxy.conf.json` redirige todas las peticiones `/api/*` al backend:
 ```json
@@ -462,4 +644,4 @@ Accesos:
 - Frontend: http://localhost:4200
 - Backend API: http://localhost:3000/api
 - pgAdmin (gestor BD): http://localhost:5050
-- Credenciales admin: `admin@cyaco.local` / `Admin12345`
+- Credenciales admin: `admin@cyaco.local` / `Admin1234!`

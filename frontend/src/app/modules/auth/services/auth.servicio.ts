@@ -9,6 +9,8 @@ export interface ActualizarPerfilDto {
   telefono?: string;
   empresa?: string;
   cargo?: string;
+  correo?: string;
+  codigoPostal?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -52,6 +54,21 @@ export class AuthServicio {
 
   actualizarPerfil(dto: ActualizarPerfilDto): Observable<Usuario> {
     return this.http.put<Usuario>('/api/auth/perfil', dto);
+  }
+
+  cambiarPassword(passwordActual: string, passwordNueva: string): Observable<{ mensaje: string }> {
+    return this.http.put<{ mensaje: string }>('/api/auth/perfil/password', {
+      passwordActual,
+      passwordNueva,
+    });
+  }
+
+  solicitarRecuperacion(email: string): Observable<{ mensaje: string }> {
+    return this.http.post<{ mensaje: string }>('/api/auth/recuperar-password', { email });
+  }
+
+  resetearPassword(email: string, codigo: string, nuevaPassword: string): Observable<{ mensaje: string }> {
+    return this.http.post<{ mensaje: string }>('/api/auth/resetear-password', { email, codigo, nuevaPassword });
   }
 
   obtenerToken(): string | null {

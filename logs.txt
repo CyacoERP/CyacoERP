@@ -1,28 +1,207 @@
-hrow new PrismaClientKnownRequestError(message, {
-            ^
 
-PrismaClientKnownRequestError: 
-Invalid `this.prisma.usuario.findUnique()` invocation in
-C:\Users\leosa\Desktop\LEO CETI TRABAJOS\PrograWeb2\FinalCYACO\CyacoERP\backend\src\auth\auth.service.ts:132:49
 
-  129 const adminEmail = (process.env.ADMIN_EMAIL ?? 'admin@cyaco.local').trim().toLowerCase();
-  130 const adminPassword = process.env.ADMIN_PASSWORD ?? 'Admin12345';
-  131 
-→ 132 const existente = await this.prisma.usuario.findUnique(
-The table `public.usuarios` does not exist in the current database.
-    at ei.handleRequestError (C:\Users\leosa\Desktop\LEO CETI TRABAJOS\PrograWeb2\FinalCYACO\CyacoERP\backend\node_modules\@prisma\client\src\runtime\RequestHandler.ts:228:13)
-    at ei.handleAndLogRequestError (C:\Users\leosa\Desktop\LEO CETI TRABAJOS\PrograWeb2\FinalCYACO\CyacoERP\backend\node_modules\@prisma\client\src\runtime\RequestHandler.ts:174:12)
-    at ei.request (C:\Users\leosa\Desktop\LEO CETI TRABAJOS\PrograWeb2\FinalCYACO\CyacoERP\backend\node_modules\@prisma\client\src\runtime\RequestHandler.ts:143:12)
-    at async a (C:\Users\leosa\Desktop\LEO CETI TRABAJOS\PrograWeb2\FinalCYACO\CyacoERP\backend\node_modules\@prisma\client\src\runtime\getPrismaClient.ts:833:24)
-    at async AuthService.ensureAdminSeed (C:\Users\leosa\Desktop\LEO CETI TRABAJOS\PrograWeb2\FinalCYACO\CyacoERP\backend\src\auth\auth.service.ts:132:23)
-    at async AuthService.onModuleInit (C:\Users\leosa\Desktop\LEO CETI TRABAJOS\PrograWeb2\FinalCYACO\CyacoERP\backend\src\auth\auth.service.ts:22:5)
-    at async Promise.all (index 0)
-    at async callModuleInitHook (C:\Users\leosa\Desktop\LEO CETI TRABAJOS\PrograWeb2\FinalCYACO\CyacoERP\backend\node_modules\@nestjs\core\hooks\on-module-init.hook.js:43:5)
-    at async NestApplication.callInitHook (C:\Users\leosa\Desktop\LEO CETI TRABAJOS\PrograWeb2\FinalCYACO\CyacoERP\backend\node_modules\@nestjs\core\nest-application-context.js:252:13)
-    at async NestApplication.init (C:\Users\leosa\Desktop\LEO CETI TRABAJOS\PrograWeb2\FinalCYACO\CyacoERP\backend\node_modules\@nestjs\core\nest-application.js:103:9)
-    at async NestApplication.listen (C:\Users\leosa\Desktop\LEO CETI TRABAJOS\PrograWeb2\FinalCYACO\CyacoERP\backend\node_modules\@nestjs\core\nest-application.js:175:13)
-    at async bootstrap (C:\Users\leosa\Desktop\LEO CETI TRABAJOS\PrograWeb2\FinalCYACO\CyacoERP\backend\src\main.ts:25:3) {
-  code: 'P2021',
-  meta: { modelName: 'Usuario', table: 'public.usuarios' },
-  clientVersion: '6.16.2'
+Errores en VSCode
+{
+[{
+	"resource": "/c:/Users/jos20/Documents/CETI/Web/Integrador_CyacoERP/CyacoERP/backend/src/auth/auth.service.ts",
+	"owner": "typescript",
+	"code": "2339",
+	"severity": 8,
+	"message": "Property 'codigoRecuperacion' does not exist on type 'PrismaService'.",
+	"source": "ts",
+	"startLineNumber": 223,
+	"startColumn": 23,
+	"endLineNumber": 223,
+	"endColumn": 41,
+	"modelVersionId": 3,
+	"origin": "extHost1"
+},{
+	"resource": "/c:/Users/jos20/Documents/CETI/Web/Integrador_CyacoERP/CyacoERP/backend/src/auth/auth.service.ts",
+	"owner": "typescript",
+	"code": "2339",
+	"severity": 8,
+	"message": "Property 'codigoRecuperacion' does not exist on type 'PrismaService'.",
+	"source": "ts",
+	"startLineNumber": 240,
+	"startColumn": 40,
+	"endLineNumber": 240,
+	"endColumn": 58,
+	"modelVersionId": 3,
+	"origin": "extHost1"
+},{
+	"resource": "/c:/Users/jos20/Documents/CETI/Web/Integrador_CyacoERP/CyacoERP/backend/src/auth/auth.service.ts",
+	"owner": "typescript",
+	"code": "2339",
+	"severity": 8,
+	"message": "Property 'codigoRecuperacion' does not exist on type 'PrismaService'.",
+	"source": "ts",
+	"startLineNumber": 261,
+	"startColumn": 19,
+	"endLineNumber": 261,
+	"endColumn": 37,
+	"modelVersionId": 3,
+	"origin": "extHost1"
+},{
+	"resource": "/c:/Users/jos20/Documents/CETI/Web/Integrador_CyacoERP/CyacoERP/frontend/node_modules/rxjs/tsconfig.json",
+	"owner": "typescript",
+	"severity": 8,
+	"message": "Option 'moduleResolution=node10' is deprecated and will stop functioning in TypeScript 7.0. Specify compilerOption '\"ignoreDeprecations\": \"6.0\"' to silence this error.\n  Visit https://aka.ms/ts6 for migration information.",
+	"source": "ts",
+	"startLineNumber": 9,
+	"startColumn": 25,
+	"endLineNumber": 9,
+	"endColumn": 31,
+	"origin": "extHost1"
+},{
+	"resource": "/c:/Users/jos20/Documents/CETI/Web/Integrador_CyacoERP/CyacoERP/frontend/node_modules/rxjs/tsconfig.json",
+	"owner": "typescript",
+	"severity": 8,
+	"message": "Option 'baseUrl' is deprecated and will stop functioning in TypeScript 7.0. Specify compilerOption '\"ignoreDeprecations\": \"6.0\"' to silence this error.\n  Visit https://aka.ms/ts6 for migration information.",
+	"source": "ts",
+	"startLineNumber": 17,
+	"startColumn": 5,
+	"endLineNumber": 17,
+	"endColumn": 14,
+	"origin": "extHost1"
+}]
+}
+
+Errores consola Web
+{
+_effect-chunk2.mjs:2847 The 'allowSignalWrites' flag is deprecated and no longer impacts effect() (writes are always allowed)
+effect @ _effect-chunk2.mjs:2847
+_debug_node-chunk.mjs:11020 Angular is running in development mode.
+:4200/api/auth/recuperar-password:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+recuperar-password.componente.ts:52  POST http://localhost:4200/api/auth/recuperar-password 500 (Internal Server Error)
+(anonymous) @ _module-chunk.mjs:755
+(anonymous) @ _module-chunk.mjs:784
+runOutsideAngular @ _effect-chunk2.mjs:2576
+doRequest @ _module-chunk.mjs:784
+(anonymous) @ _module-chunk.mjs:761
+(anonymous) @ Observable.js:38
+(anonymous) @ Observable.js:32
+errorContext @ errorContext.js:19
+(anonymous) @ Observable.js:23
+(anonymous) @ catchError.js:9
+(anonymous) @ lift.js:10
+(anonymous) @ Observable.js:27
+errorContext @ errorContext.js:19
+(anonymous) @ Observable.js:23
+(anonymous) @ finalize.js:5
+(anonymous) @ lift.js:10
+(anonymous) @ Observable.js:27
+errorContext @ errorContext.js:19
+(anonymous) @ Observable.js:23
+(anonymous) @ finalize.js:5
+(anonymous) @ lift.js:10
+(anonymous) @ Observable.js:27
+errorContext @ errorContext.js:19
+(anonymous) @ Observable.js:23
+(anonymous) @ mergeInternals.js:19
+(anonymous) @ mergeInternals.js:14
+(anonymous) @ OperatorSubscriber.js:15
+(anonymous) @ Subscriber.js:34
+(anonymous) @ innerFrom.js:51
+(anonymous) @ Observable.js:38
+(anonymous) @ Observable.js:32
+errorContext @ errorContext.js:19
+(anonymous) @ Observable.js:23
+mergeInternals @ mergeInternals.js:53
+(anonymous) @ mergeMap.js:14
+(anonymous) @ lift.js:10
+(anonymous) @ Observable.js:27
+errorContext @ errorContext.js:19
+(anonymous) @ Observable.js:23
+(anonymous) @ filter.js:6
+(anonymous) @ lift.js:10
+(anonymous) @ Observable.js:27
+errorContext @ errorContext.js:19
+(anonymous) @ Observable.js:23
+(anonymous) @ map.js:6
+(anonymous) @ lift.js:10
+(anonymous) @ Observable.js:27
+errorContext @ errorContext.js:19
+(anonymous) @ Observable.js:23
+solicitarCodigo @ recuperar-password.componente.ts:52
+RecuperarPasswordComponente_Conditional_14_Template_form_ngSubmit_4_listener @ recuperar-password.componente.html:22
+executeListenerWithErrorHandling @ _debug_node-chunk.mjs:8234
+wrapListenerIn_markDirtyAndPreventDefault @ _debug_node-chunk.mjs:8221
+(anonymous) @ Subscriber.js:96
+(anonymous) @ Subscriber.js:63
+(anonymous) @ Subscriber.js:34
+(anonymous) @ Subject.js:41
+errorContext @ errorContext.js:19
+(anonymous) @ Subject.js:31
+emit @ _effect-chunk2.mjs:2264
+onSubmit @ forms.mjs:1823
+NgForm_submit_HostBindingHandler @ forms.mjs:1852
+executeListenerWithErrorHandling @ _debug_node-chunk.mjs:8234
+wrapListenerIn_markDirtyAndPreventDefault @ _debug_node-chunk.mjs:8221
+(anonymous) @ _dom_renderer-chunk.mjs:566
+recuperar-password.componente.ts:52  POST http://localhost:4200/api/auth/recuperar-password 500 (Internal Server Error)
+(anonymous) @ _module-chunk.mjs:755
+(anonymous) @ _module-chunk.mjs:784
+runOutsideAngular @ _effect-chunk2.mjs:2576
+doRequest @ _module-chunk.mjs:784
+(anonymous) @ _module-chunk.mjs:761
+(anonymous) @ Observable.js:38
+(anonymous) @ Observable.js:32
+errorContext @ errorContext.js:19
+(anonymous) @ Observable.js:23
+(anonymous) @ catchError.js:9
+(anonymous) @ lift.js:10
+(anonymous) @ Observable.js:27
+errorContext @ errorContext.js:19
+(anonymous) @ Observable.js:23
+(anonymous) @ finalize.js:5
+(anonymous) @ lift.js:10
+(anonymous) @ Observable.js:27
+errorContext @ errorContext.js:19
+(anonymous) @ Observable.js:23
+(anonymous) @ finalize.js:5
+(anonymous) @ lift.js:10
+(anonymous) @ Observable.js:27
+errorContext @ errorContext.js:19
+(anonymous) @ Observable.js:23
+(anonymous) @ mergeInternals.js:19
+(anonymous) @ mergeInternals.js:14
+(anonymous) @ OperatorSubscriber.js:15
+(anonymous) @ Subscriber.js:34
+(anonymous) @ innerFrom.js:51
+(anonymous) @ Observable.js:38
+(anonymous) @ Observable.js:32
+errorContext @ errorContext.js:19
+(anonymous) @ Observable.js:23
+mergeInternals @ mergeInternals.js:53
+(anonymous) @ mergeMap.js:14
+(anonymous) @ lift.js:10
+(anonymous) @ Observable.js:27
+errorContext @ errorContext.js:19
+(anonymous) @ Observable.js:23
+(anonymous) @ filter.js:6
+(anonymous) @ lift.js:10
+(anonymous) @ Observable.js:27
+errorContext @ errorContext.js:19
+(anonymous) @ Observable.js:23
+(anonymous) @ map.js:6
+(anonymous) @ lift.js:10
+(anonymous) @ Observable.js:27
+errorContext @ errorContext.js:19
+(anonymous) @ Observable.js:23
+solicitarCodigo @ recuperar-password.componente.ts:52
+RecuperarPasswordComponente_Conditional_14_Template_form_ngSubmit_4_listener @ recuperar-password.componente.html:22
+executeListenerWithErrorHandling @ _debug_node-chunk.mjs:8234
+wrapListenerIn_markDirtyAndPreventDefault @ _debug_node-chunk.mjs:8221
+(anonymous) @ Subscriber.js:96
+(anonymous) @ Subscriber.js:63
+(anonymous) @ Subscriber.js:34
+(anonymous) @ Subject.js:41
+errorContext @ errorContext.js:19
+(anonymous) @ Subject.js:31
+emit @ _effect-chunk2.mjs:2264
+onSubmit @ forms.mjs:1823
+NgForm_submit_HostBindingHandler @ forms.mjs:1852
+executeListenerWithErrorHandling @ _debug_node-chunk.mjs:8234
+wrapListenerIn_markDirtyAndPreventDefault @ _debug_node-chunk.mjs:8221
+(anonymous) @ _dom_renderer-chunk.mjs:566
 }

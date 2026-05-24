@@ -1,27 +1,36 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {
   HttpInterceptor,
   HttpRequest,
   HttpHandler,
   HttpEvent,
+  HttpErrorResponse,
 } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { Router } from '@angular/router';
 import { AuthServicio } from '../../modules/auth/services/auth.servicio';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-  constructor(private authServicio: AuthServicio) {}
+  constructor(private authServicio: AuthServicio, private router: Router) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const token = this.authServicio.obtenerToken();
 
-    if (token) {
-      const clonedReq = req.clone({
-        headers: req.headers.set('Authorization', `Bearer ${token}`),
-      });
-      return next.handle(clonedReq);
-    }
+    const peticion = token
+      ? next.handle(req.clone({ headers: req.headers.set('Authorization', `Bearer ${token}`) }))
+      : next.handle(req);
 
-    return next.handle(req);
+    return peticion.pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 401) {
+          // Token expirado o inválido — limpiar sesión y redirigir a login
+          this.authServicio.logout();
+          this.router.navigate(['/auth/login']);
+        }
+        return throwError(() => error);
+      })
+    );
   }
 }

@@ -1,4 +1,5 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Producto } from '../../../shared/models/producto.modelo';
 
 export interface ItemCarrito {
@@ -6,9 +7,17 @@ export interface ItemCarrito {
   cantidad: number;
 }
 
+export interface IncompatibilidadDetectada {
+  nombre1: string;
+  nombre2: string;
+  razon?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class CarritoServicio {
+  private readonly http = inject(HttpClient);
   private items = signal<ItemCarrito[]>([]);
+  private readonly incompatibilidadesState = signal<IncompatibilidadDetectada[]>([]);
 
   readonly itemsCarrito = this.items.asReadonly();
 
@@ -19,6 +28,40 @@ export class CarritoServicio {
   readonly totalPrecio = computed(() =>
     this.items().reduce((acc, item) => acc + item.producto.precio * item.cantidad, 0)
   );
+
+  readonly subtotalPorCategoria = computed(() => {
+    const mapa = new Map<string, number>();
+    this.items().forEach((item) => {
+      const catNombre = item.producto.categoria?.nombre || 'Sin categoría';
+      const actual = mapa.get(catNombre) || 0;
+      mapa.set(catNombre, actual + item.producto.precio * item.cantidad);
+    });
+    return Array.from(mapa.entries()).map(([categoria, subtotal]) => ({ categoria, subtotal }));
+  });
+
+  readonly incompatibilidades = this.incompatibilidadesState.asReadonly();
+
+  constructor() {
+    effect(
+      () => {
+        const idsUnicos = [...new Set(this.obtenerIdsProductos())];
+        if (idsUnicos.length < 2) {
+          this.incompatibilidadesState.set([]);
+          return;
+        }
+
+        this.http
+          .post<IncompatibilidadDetectada[]>('/api/productos/incompatibilidades/buscar', {
+            productoIds: idsUnicos,
+          })
+          .subscribe({
+            next: (respuesta) => this.incompatibilidadesState.set(respuesta ?? []),
+            error: () => this.incompatibilidadesState.set([]),
+          });
+      },
+      { allowSignalWrites: true },
+    );
+  }
 
   agregarProducto(producto: Producto): void {
     const actuales = this.items();

@@ -109,6 +109,19 @@ export class CotizacionServicio {
       .pipe(map((respuesta) => this.mapearDesdeApi(respuesta)));
   }
 
+  actualizarPrecios(
+    id: number,
+    payload: {
+      descuentoPct?: number;
+      margenPct?: number;
+      items?: Array<{ itemId: number; precioUnitario: number }>;
+    },
+  ): Observable<Cotizacion> {
+    return this.http
+      .patch<CotizacionApi>(`${this.apiUrl}/${id}/precios`, payload)
+      .pipe(map((respuesta) => this.mapearDesdeApi(respuesta)));
+  }
+
   exportarPDF(): Observable<Blob> {
     return this.obtenerTodas().pipe(
       map((cotizaciones) => new Blob([JSON.stringify(cotizaciones, null, 2)], { type: 'application/json' }))
@@ -129,6 +142,7 @@ export class CotizacionServicio {
       numero: cotizacion.numero,
       usuarioId: cotizacion.usuarioId,
       items: cotizacion.items.map((item) => ({
+        id: item.id,
         producto: item.producto,
         cantidad: item.cantidad,
         precioUnitario: item.precioUnitario,
@@ -179,6 +193,7 @@ interface CotizacionApi {
   enviadoEn?: string | null;
   creadoEn: string;
   items: Array<{
+    id: number;
     cantidad: number;
     precioUnitario: number;
     subtotal: number;

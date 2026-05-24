@@ -111,15 +111,13 @@ export class SolicitarCotizacionComponente {
 
     this.cotizacionServicio.crearDesdeSolicitud(payload).subscribe({
       next: (cotizacionCreada) => {
-        this.descargarXmlCotizacion(cotizacionCreada.numero, payload);
+        // Se omite la descarga aquí para que se genere tras el checkout
+        // this.descargarXmlCotizacion(cotizacionCreada.numero, payload);
         this.enviado.set(true);
 
-        // Espera breve para que el navegador inicie la descarga antes de redirigir.
+        // Permitimos una pausa visual antes de redirigir al checkout
         setTimeout(() => {
-          this.carritoServicio.vaciarCarrito();
-          this.router.navigate(['/cotizaciones/enviada'], {
-            queryParams: { numero: cotizacionCreada.numero },
-          });
+          this.router.navigate(['/checkout']);
         }, 500);
       },
       error: () => {
@@ -129,7 +127,10 @@ export class SolicitarCotizacionComponente {
   }
 
   private descargarXmlCotizacion(numeroCotizacion: string, payload: SolicitudCotizacion): void {
-    const total = payload.items.reduce((acc, item) => acc + item.subtotal, 0);
+    const subtotal = payload.items.reduce((acc, item) => acc + item.subtotal, 0);
+    const iva_pct = 0.16;
+    const impuesto_iva = subtotal * iva_pct;
+    const total = subtotal + impuesto_iva;
     const fecha = new Date().toISOString();
 
     const itemsXml = payload.items
@@ -143,32 +144,46 @@ export class SolicitarCotizacionComponente {
     </articulo>`)
       .join('');
 
+    // Datos fiscales base extraidos de informacion de la empresa o hardcodeados para el mock si no existen
+    const rfc = this.formulario.value.empresa ? this.formulario.value.empresa.substring(0, 3).toUpperCase() + '010101XYZ' : 'XAXX010101000';
+    const razonSocialObj = this.escapeXml(payload.empresa || 'Cliente Genérico S.A. de C.V.');
+    const dirFiscal = this.escapeXml('Av. Conocida 123, Col. Centro, C.P. 00000, Ciudad, País');
+
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<cotizacion>
+<cotizacion_factura>
   <numero>${this.escapeXml(numeroCotizacion)}</numero>
   <fecha>${fecha}</fecha>
-  <contacto>
-    <nombreCompleto>${this.escapeXml(payload.nombreCompleto)}</nombreCompleto>
-    <correo>${this.escapeXml(payload.correo)}</correo>
-    <telefono>${this.escapeXml(payload.telefono)}</telefono>
-    <cargo>${this.escapeXml(payload.cargo)}</cargo>
-    <empresa>${this.escapeXml(payload.empresa)}</empresa>
-  </contacto>
-  <proyecto>
+  <emisor>
+    <rfc>CYA123456789</rfc>
+    <razonSocial>CYACO ERP Soluciones S.A. de C.V.</razonSocial>
+    <direccionFiscal>Blvd. Tecnológico 456, C.P. 45000</direccionFiscal>
+  </emisor>
+  <receptor>
+    <rfc>${rfc}</rfc>
+    <razonSocial>${razonSocialObj}</razonSocial>
+    <direccionFiscal>${dirFiscal}</direccionFiscal>
+    <contactoEmail>${this.escapeXml(payload.correo)}</contactoEmail>
+  </receptor>
+  <detalles_proyecto>
     <nombre>${this.escapeXml(payload.proyecto)}</nombre>
     <fechaRequerida>${this.escapeXml(payload.fechaRequerida)}</fechaRequerida>
     <notas>${this.escapeXml(payload.notas)}</notas>
-  </proyecto>
+  </detalles_proyecto>
   <articulos>${itemsXml}
   </articulos>
-  <total>${total}</total>
-</cotizacion>`;
+  <totales>
+    <subtotal>${subtotal.toFixed(2)}</subtotal>
+    <tasaIVA>16%</tasaIVA>
+    <importeIVA>${impuesto_iva.toFixed(2)}</importeIVA>
+    <totalFactura>${total.toFixed(2)}</totalFactura>
+  </totales>
+</cotizacion_factura>`;
 
     const blob = new Blob([xml], { type: 'application/xml;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `cotizacion-${numeroCotizacion}.xml`;
+    a.download = `factura-cotizacion-${numeroCotizacion}.xml`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

@@ -48,6 +48,10 @@ export class GestionarClientesComponente implements OnInit {
 
   readonly mostrarConfirmDesactivar = signal(false);
   readonly clienteADesactivar = signal<Cliente | null>(null);
+  readonly errorActivar = signal('');
+
+  readonly mostrarConfirmEliminar = signal(false);
+  readonly clienteAEliminar = signal<Cliente | null>(null);
 
   readonly form = signal<FormCliente>({
     razonSocial: '',
@@ -71,8 +75,8 @@ export class GestionarClientesComponente implements OnInit {
     this.clienteServicio.listar(this.pagina(), 15, this.termino()).subscribe({
       next: (resp) => {
         this.clientes.set(resp.datos ?? []);
-        this.total.set(resp.total ?? 0);
-        this.totalPaginas.set(resp.totalPaginas ?? 1);
+        this.total.set(resp.meta?.total ?? 0);
+        this.totalPaginas.set(resp.meta?.totalPaginas ?? 1);
         this.cargando.set(false);
       },
       error: () => {
@@ -182,6 +186,47 @@ export class GestionarClientesComponente implements OnInit {
       },
       error: () => {
         this.mostrarConfirmDesactivar.set(false);
+      },
+    });
+  }
+
+  ejecutarActivar(cliente: Cliente): void {
+    this.errorActivar.set('');
+    this.clienteServicio.activar(cliente.id).subscribe({
+      next: () => this.cargar(),
+      error: (err) => {
+        const msg = err?.error?.message;
+        this.errorActivar.set(
+          Array.isArray(msg) ? msg.join(', ') : (typeof msg === 'string' ? msg : 'No se pudo activar el cliente.'),
+        );
+      },
+    });
+  }
+
+  confirmarEliminarDesdeEdicion(): void {
+    const cliente = this.clienteEditando();
+    if (!cliente) return;
+    this.clienteAEliminar.set(cliente);
+    this.mostrarConfirmEliminar.set(true);
+  }
+
+  cancelarEliminar(): void {
+    this.mostrarConfirmEliminar.set(false);
+    this.clienteAEliminar.set(null);
+  }
+
+  ejecutarEliminar(): void {
+    const c = this.clienteAEliminar();
+    if (!c) return;
+    this.clienteServicio.desactivar(c.id).subscribe({
+      next: () => {
+        this.mostrarConfirmEliminar.set(false);
+        this.clienteAEliminar.set(null);
+        this.mostrarModal.set(false);
+        this.cargar();
+      },
+      error: () => {
+        this.mostrarConfirmEliminar.set(false);
       },
     });
   }

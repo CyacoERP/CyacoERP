@@ -40,6 +40,21 @@ interface FormCompatibilidad {
   nota: string;
 }
 
+interface CompatibilidadPendiente {
+  productoDestinoId: number;
+  nombreDestino: string;
+  tipo: 'compatible' | 'incompatible';
+  nota: string;
+}
+
+interface ProductoPayloadAdmin extends Partial<Producto> {
+  compatibilidades?: Array<{
+    productoDestinoId: number;
+    tipo: 'compatible' | 'incompatible';
+    nota?: string;
+  }>;
+}
+
 @Component({
   selector: 'app-gestionar-productos',
   standalone: true,
@@ -66,6 +81,7 @@ export class GestionarProductosComponente implements OnInit {
 
   readonly mostrarConfirmEliminar = signal(false);
   readonly productoAEliminar = signal<Producto | null>(null);
+  readonly errorToggle = signal('');
 
   // Especificaciones técnicas como pares clave/valor
   readonly especPares = signal<EspecPar[]>([]);
@@ -76,6 +92,7 @@ export class GestionarProductosComponente implements OnInit {
   readonly formCompat = signal<FormCompatibilidad>({ productoDestinoId: 0, tipo: 'compatible', nota: '' });
   readonly guardandoCompat = signal(false);
   readonly errorCompat = signal('');
+  readonly compatibilidadesPendientes = signal<CompatibilidadPendiente[]>([]);
 
   readonly formVacio: FormProducto = {
     nombre: '',
@@ -144,6 +161,8 @@ export class GestionarProductosComponente implements OnInit {
     this.form.set({ ...this.formVacio });
     this.especPares.set([]);
     this.compatibilidades.set([]);
+    this.compatibilidadesPendientes.set([]);
+    this.formCompat.set({ productoDestinoId: 0, tipo: 'compatible', nota: '' });
     this.errorModal.set('');
     this.mostrarModal.set(true);
   }
@@ -281,7 +300,7 @@ export class GestionarProductosComponente implements OnInit {
       ? Object.fromEntries(pares.map((p) => [p.clave.trim(), p.valor.trim()]))
       : undefined;
 
-    const payload: Partial<Producto> = {
+    const payload: ProductoPayloadAdmin = {
       nombre: form.nombre.trim(),
       descripcion: form.descripcion.trim() || undefined,
       precio: Number(form.precio),
@@ -296,6 +315,14 @@ export class GestionarProductosComponente implements OnInit {
       moneda: form.moneda,
       especificacionesTecnicas: especificacionesTecnicas as Record<string, unknown>,
     };
+
+    if (this.modoModal() === 'crear' && this.compatibilidadesPendientes().length > 0) {
+      payload.compatibilidades = this.compatibilidadesPendientes().map((c) => ({
+        productoDestinoId: c.productoDestinoId,
+        tipo: c.tipo,
+        nota: c.nota.trim() || undefined,
+      }));
+    }
 
     this.guardando.set(true);
     this.errorModal.set('');
@@ -334,7 +361,7 @@ export class GestionarProductosComponente implements OnInit {
     const producto = this.productoAEliminar();
     if (!producto) return;
 
-    this.productoServicio.eliminar(producto.id).subscribe({
+    this.productoServicio.desactivar(producto.id).subscribe({
       next: () => {
         this.mostrarConfirmEliminar.set(false);
         this.productoAEliminar.set(null);
@@ -342,6 +369,61 @@ export class GestionarProductosComponente implements OnInit {
       },
       error: () => this.mostrarConfirmEliminar.set(false),
     });
+  }
+
+  toggleActivo(producto: Producto): void {
+    this.errorToggle.set('');
+    const peticion = producto.activo
+      ? this.productoServicio.desactivar(producto.id)
+      : this.productoServicio.activar(producto.id);
+
+    peticion.subscribe({
+      next: () => this.cargar(),
+      error: (err) => {
+        const msg = err?.error?.message;
+        this.errorToggle.set(
+          Array.isArray(msg) ? msg.join(', ') : (typeof msg === 'string' ? msg : 'No se pudo cambiar el estado del producto.'),
+        );
+      },
+    });
+  }
+
+  agregarCompatibilidadPendiente(): void {
+    const fc = this.formCompat();
+    if (fc.productoDestinoId <= 0) {
+      this.errorCompat.set('Selecciona un producto de destino.');
+      return;
+    }
+
+    if (this.compatibilidadesPendientes().some((c) => c.productoDestinoId === fc.productoDestinoId)) {
+      this.errorCompat.set('Esa compatibilidad ya está en la lista pendiente.');
+      return;
+    }
+
+    const destino = this.productos().find((p) => p.id === fc.productoDestinoId);
+    if (!destino) {
+      this.errorCompat.set('Producto de destino no encontrado.');
+      return;
+    }
+
+    this.compatibilidadesPendientes.update((actuales) => [
+      ...actuales,
+      {
+        productoDestinoId: fc.productoDestinoId,
+        nombreDestino: destino.nombre,
+        tipo: fc.tipo,
+        nota: fc.nota,
+      },
+    ]);
+
+    this.errorCompat.set('');
+    this.formCompat.set({ productoDestinoId: 0, tipo: 'compatible', nota: '' });
+  }
+
+  quitarCompatibilidadPendiente(productoDestinoId: number): void {
+    this.compatibilidadesPendientes.update((actuales) =>
+      actuales.filter((c) => c.productoDestinoId !== productoDestinoId),
+    );
   }
 
   trackPorId(_: number, producto: Producto): number {

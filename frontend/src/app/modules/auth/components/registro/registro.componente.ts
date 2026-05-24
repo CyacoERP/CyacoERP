@@ -25,6 +25,7 @@ export class RegistroComponente {
     empresa: ['', [Validators.required]],
     correo: ['', [Validators.required, Validators.email]],
     telefono: ['', [Validators.required]],
+    codigoPostal: ['', [Validators.required]],
     cargo: [''],
     password: ['', [Validators.required, Validators.minLength(8)]],
     confirmarPassword: ['', [Validators.required]],
@@ -65,6 +66,7 @@ export class RegistroComponente {
       empresa: this.formulario.controls.empresa.value,
       correo: this.formulario.controls.correo.value,
       telefono: this.formulario.controls.telefono.value,
+      codigoPostal: this.formulario.controls.codigoPostal.value,
       cargo: this.formulario.controls.cargo.value,
       password: this.formulario.controls.password.value,
     };

@@ -37,20 +37,49 @@
 
     <aside class="resumen">
       <h2 class="resumen-titulo">Resumen</h2>
+
+      @if (incompatibilidades.length > 0) {
+        <div class="alerta-incompatibilidades">
+          <p class="alerta-titulo">⚠️ Productos Incompatibles Detectados</p>
+          <button class="btn-ver-incompatibilidades" (click)="toggleMostrarIncompatibilidades()">
+            {{ mostrarIncompatibilidades() ? 'Ocultar' : 'Ver' }} Incompatibilidades
+          </button>
+          @if (mostrarIncompatibilidades()) {
+            <ul class="lista-incompatibilidades">
+              @for (incomp of incompatibilidades; track $index) {
+                <li class="item-incomp">
+                  <strong>{{ incomp.nombre1 }}</strong> ↔️ <strong>{{ incomp.nombre2 }}</strong>
+                  <p class="razon">{{ incomp.razon }}</p>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+        <hr class="separador" />
+      }
+
+      <div class="subtotal-por-categoria">
+        <p class="subtotal-titulo">Subtotal por Categoría:</p>
+        @for (entry of subtotalPorCategoria; track entry.categoria) {
+          <p class="subtotal-linea">
+            <span>{{ entry.categoria }}</span>
+            <span>{{ formatearMoneda(entry.subtotal) }}</span>
+          </p>
+        }
+      </div>
+      <hr class="separador" />
+
       <p class="resumen-linea">
         <span>Artículos ({{ totalItems }})</span>
         <span>{{ totalFormateado }}</span>
       </p>
       <hr class="separador" />
       <p class="resumen-total">
-        <strong>Total</strong>
+        <strong>Total Estimado</strong>
         <strong>{{ totalFormateado }}</strong>
       </p>
-      <button class="btn-recibo" (click)="onGenerarRecibo()">📄 Generar recibo XML</button>
-      <button class="btn-vaciar" (click)="onVaciarCarrito()">Vaciar carrito</button>
+      <a routerLink="/cotizaciones/solicitar" class="btn-vaciar" style="background-color: #0056b3; color: white; display: block; text-align: center; margin-bottom: 10px; text-decoration: none;">Solicitar Cotización Formal</a>
+      <button class="btn-vaciar" (click)="onVaciarCarrito()" style="background-color: #ccc; color: #333;">Vaciar carrito</button>
     </aside>
   </div>
-  <<div style="border:2px solid red; padding:10px;">
-  TEST CHECKOUT
-</div>
 }

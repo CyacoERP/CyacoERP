@@ -10,14 +10,9 @@ export class CrearClienteDto {
   rfc!: string;
 
   @IsOptional()
-  @IsEmail()
-  @MaxLength(160)
-  email?: string;
-
-  @IsOptional()
   @IsString()
-  @MaxLength(30)
-  telefono?: string;
+  @MaxLength(10)
+  codigoPostal?: string;
 
   @IsOptional()
   @IsString()

@@ -11,12 +11,14 @@ import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { RegistroDto } from './dto/registro.dto';
 import { ActualizarPerfilDto } from './dto/actualizar-perfil.dto';
+import { EmailService } from './email.service';
 
 @Injectable()
 export class AuthService implements OnModuleInit {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
+    private readonly emailService: EmailService,
   ) {}
 
   async onModuleInit(): Promise<void> {
@@ -36,6 +38,7 @@ export class AuthService implements OnModuleInit {
           telefono: dto.telefono?.trim() || null,
           empresa: dto.empresa?.trim() || null,
           cargo: dto.cargo?.trim() || null,
+          codigoPostal: dto.codigoPostal?.trim() || null,
           rol: RolUsuario.cliente,
         },
       });
@@ -48,7 +51,9 @@ export class AuthService implements OnModuleInit {
         'code' in error &&
         (error as { code?: string }).code === 'P2002'
       ) {
-        throw new BadRequestException({ mensaje: 'Ya existe una cuenta con ese correo.' });
+        throw new BadRequestException({
+          mensaje: 'Ya existe una cuenta con ese correo.',
+        });
       }
       throw error;
     }
@@ -62,7 +67,10 @@ export class AuthService implements OnModuleInit {
       throw new UnauthorizedException({ mensaje: 'Credenciales inválidas.' });
     }
 
-    const passwordValida = await bcrypt.compare(dto.password, usuario.passwordHash);
+    const passwordValida = await bcrypt.compare(
+      dto.password,
+      usuario.passwordHash,
+    );
     if (!passwordValida) {
       throw new UnauthorizedException({ mensaje: 'Credenciales inválidas.' });
     }
@@ -71,7 +79,9 @@ export class AuthService implements OnModuleInit {
   }
 
   async perfil(usuarioId: number) {
-    const usuario = await this.prisma.usuario.findUnique({ where: { id: usuarioId } });
+    const usuario = await this.prisma.usuario.findUnique({
+      where: { id: usuarioId },
+    });
     if (!usuario || !usuario.activo) {
       throw new UnauthorizedException({ mensaje: 'Usuario no autorizado.' });
     }
@@ -80,26 +90,75 @@ export class AuthService implements OnModuleInit {
   }
 
   async actualizarPerfil(usuarioId: number, dto: ActualizarPerfilDto) {
-    const usuario = await this.prisma.usuario.findUnique({ where: { id: usuarioId } });
+    const usuario = await this.prisma.usuario.findUnique({
+      where: { id: usuarioId },
+    });
     if (!usuario || !usuario.activo) {
       throw new UnauthorizedException({ mensaje: 'Usuario no autorizado.' });
     }
 
-    const actualizado = await this.prisma.usuario.update({
-      where: { id: usuarioId },
-      data: {
-        ...(dto.nombre !== undefined && { nombre: dto.nombre.trim() }),
-        ...(dto.telefono !== undefined && { telefono: dto.telefono.trim() || null }),
-        ...(dto.empresa !== undefined && { empresa: dto.empresa.trim() || null }),
-        ...(dto.cargo !== undefined && { cargo: dto.cargo.trim() || null }),
-      },
-    });
+    try {
+      const actualizado = await this.prisma.usuario.update({
+        where: { id: usuarioId },
+        data: {
+          ...(dto.correo !== undefined && { email: dto.correo.trim() }),
+          ...(dto.nombre !== undefined && { nombre: dto.nombre.trim() }),
+          ...(dto.telefono !== undefined && {
+            telefono: dto.telefono.trim() || null,
+          }),
+          ...(dto.empresa !== undefined && {
+            empresa: dto.empresa.trim() || null,
+          }),
+          ...(dto.cargo !== undefined && { cargo: dto.cargo.trim() || null }),
+          ...(dto.codigoPostal !== undefined && {
+            codigoPostal: dto.codigoPostal.trim() || null,
+          }),
+        },
+      });
 
-    return this.toUsuarioPublico(actualizado);
+      return this.toUsuarioPublico(actualizado);
+    } catch (error: unknown) {
+      if (
+        error &&
+        typeof error === 'object' &&
+        'code' in error &&
+        (error as { code?: string }).code === 'P2002'
+      ) {
+        // Unique constraint violation (email duplicated)
+        throw new BadRequestException({ mensaje: 'Ya existe una cuenta con ese correo.' });
+      }
+      throw error;
+    }
   }
 
   async hashPassword(password: string): Promise<string> {
     return bcrypt.hash(password, 10);
+  }
+
+  async cambiarPasswordPerfil(
+    usuarioId: number,
+    passwordActual: string,
+    passwordNueva: string,
+  ) {
+    const usuario = await this.prisma.usuario.findUnique({
+      where: { id: usuarioId },
+    });
+    if (!usuario || !usuario.activo) {
+      throw new UnauthorizedException({ mensaje: 'Usuario no autorizado.' });
+    }
+
+    const valida = await bcrypt.compare(passwordActual, usuario.passwordHash);
+    if (!valida) {
+      throw new BadRequestException({ mensaje: 'La contraseña actual es incorrecta.' });
+    }
+
+    const passwordHash = await bcrypt.hash(passwordNueva, 10);
+    await this.prisma.usuario.update({
+      where: { id: usuarioId },
+      data: { passwordHash },
+    });
+
+    return { mensaje: 'Contraseña actualizada correctamente.' };
   }
 
   private buildAuthResponse(usuario: {
@@ -109,6 +168,7 @@ export class AuthService implements OnModuleInit {
     telefono: string | null;
     empresa: string | null;
     cargo: string | null;
+    codigoPostal: string | null;
     rol: RolUsuario;
     activo: boolean;
     creadoEn: Date;
@@ -128,6 +188,7 @@ export class AuthService implements OnModuleInit {
     telefono: string | null;
     empresa: string | null;
     cargo: string | null;
+    codigoPostal: string | null;
     rol: RolUsuario;
     activo: boolean;
     creadoEn: Date;
@@ -139,17 +200,92 @@ export class AuthService implements OnModuleInit {
       telefono: usuario.telefono ?? undefined,
       empresa: usuario.empresa ?? undefined,
       cargo: usuario.cargo ?? undefined,
+      codigoPostal: usuario.codigoPostal ?? undefined,
       rol: usuario.rol,
       activo: usuario.activo,
       fechaRegistro: usuario.creadoEn,
     };
   }
 
+  async solicitarRecuperacion(email: string): Promise<{ mensaje: string }> {
+    const emailNorm = email.trim().toLowerCase();
+    const usuario = await this.prisma.usuario.findUnique({ where: { email: emailNorm } });
+
+    // No revelar si el correo existe o no (seguridad)
+    if (!usuario || !usuario.activo) {
+      return { mensaje: 'Si el correo existe recibirás un código de recuperación en breve.' };
+    }
+
+    // Generar código de 6 dígitos
+    const codigo = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos
+
+    await this.prisma.codigoRecuperacion.create({
+      data: { email: emailNorm, codigo, expiresAt },
+    });
+
+    try {
+      await this.emailService.enviarCodigoRecuperacion(emailNorm, codigo);
+    } catch (emailErr) {
+      // No exponer el error de SMTP al cliente por seguridad
+      console.error('[AuthService] Error enviando correo de recuperación:', emailErr);
+    }
+
+    // En desarrollo, mostrar el código en consola para facilitar pruebas
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`\n[DEV] Código de recuperación para ${emailNorm}: ${codigo}\n`);
+    }
+
+    return { mensaje: 'Si el correo existe recibirás un código de recuperación en breve.' };
+  }
+
+  async resetearPassword(
+    email: string,
+    codigo: string,
+    nuevaPassword: string,
+  ): Promise<{ mensaje: string }> {
+    const emailNorm = email.trim().toLowerCase();
+    const ahora = new Date();
+
+    const registro = await this.prisma.codigoRecuperacion.findFirst({
+      where: {
+        email: emailNorm,
+        codigo,
+        usado: false,
+        expiresAt: { gt: ahora },
+      },
+      orderBy: { creadoEn: 'desc' },
+    });
+
+    if (!registro) {
+      throw new BadRequestException({ mensaje: 'Código inválido o expirado.' });
+    }
+
+    const passwordHash = await bcrypt.hash(nuevaPassword, 10);
+
+    await this.prisma.$transaction([
+      this.prisma.usuario.update({
+        where: { email: emailNorm },
+        data: { passwordHash },
+      }),
+      this.prisma.codigoRecuperacion.update({
+        where: { id: registro.id },
+        data: { usado: true },
+      }),
+    ]);
+
+    return { mensaje: 'Contraseña actualizada correctamente. Ya puedes iniciar sesión.' };
+  }
+
   private async ensureAdminSeed(): Promise<void> {
-    const adminEmail = (process.env.ADMIN_EMAIL ?? 'admin@cyaco.local').trim().toLowerCase();
+    const adminEmail = (process.env.ADMIN_EMAIL ?? 'admin@cyaco.local')
+      .trim()
+      .toLowerCase();
     const adminPassword = process.env.ADMIN_PASSWORD ?? 'Admin12345';
 
-    const existente = await this.prisma.usuario.findUnique({ where: { email: adminEmail } });
+    const existente = await this.prisma.usuario.findUnique({
+      where: { email: adminEmail },
+    });
     if (existente) {
       return;
     }

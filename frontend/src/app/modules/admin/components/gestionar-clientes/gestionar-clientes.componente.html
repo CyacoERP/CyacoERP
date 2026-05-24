@@ -54,7 +54,9 @@
               <td class="acciones">
                 <button type="button" class="op-btn op-btn--edit" (click)="abrirEditar(cliente)">Editar</button>
                 @if (cliente.activo) {
-                  <button type="button" class="op-btn op-btn--delete" (click)="confirmarDesactivar(cliente)">Eliminar</button>
+                  <button type="button" class="op-btn op-btn--delete" (click)="confirmarDesactivar(cliente)">Desactivar</button>
+                } @else {
+                  <button type="button" class="op-btn op-btn--edit" (click)="ejecutarActivar(cliente)">Activar</button>
                 }
               </td>
             </tr>
@@ -62,6 +64,10 @@
         </tbody>
       </table>
     </div>
+
+    @if (errorActivar()) {
+      <p class="estado error" style="margin:8px 0">{{ errorActivar() }}</p>
+    }
 
     @if (totalPaginas() > 1) {
       <nav class="paginacion" aria-label="Paginación">
@@ -120,11 +126,28 @@
 
         <div class="form-actions">
           <button type="button" class="btn-secundario" (click)="cerrarModal()">Cancelar</button>
+          @if (modoModal() === 'editar') {
+            <button type="button" class="btn-danger" (click)="confirmarEliminarDesdeEdicion()">Eliminar</button>
+          }
           <button type="submit" class="btn-primario" [disabled]="guardando()">
             {{ guardando() ? 'Guardando...' : (modoModal() === 'crear' ? 'Crear' : 'Guardar') }}
           </button>
         </div>
       </form>
+    </div>
+  </div>
+}
+
+<!-- Confirm eliminar desde edición -->
+@if (mostrarConfirmEliminar()) {
+  <div class="modal-overlay" (click)="cancelarEliminar()">
+    <div class="modal-card confirm-card" (click)="$event.stopPropagation()">
+      <h2>¿Eliminar cliente?</h2>
+      <p>Se desactivará permanentemente a <strong>{{ clienteAEliminar()?.razonSocial }}</strong>.</p>
+      <div class="form-actions">
+        <button type="button" class="btn-secundario" (click)="cancelarEliminar()">Cancelar</button>
+        <button type="button" class="btn-danger" (click)="ejecutarEliminar()">Eliminar</button>
+      </div>
     </div>
   </div>
 }

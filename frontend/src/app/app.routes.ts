@@ -18,11 +18,13 @@ import { DashboardClientesComponente } from './modules/dashboards/components/das
 import { DashboardProyectosComponente } from './modules/dashboards/components/dashboard-proyectos/dashboard-proyectos.componente';
 import { GestionarClientesComponente } from './modules/admin/components/gestionar-clientes/gestionar-clientes.componente';
 import { GestionarProductosComponente } from './modules/admin/components/gestionar-productos/gestionar-productos.componente';
+import { GestionarCategoriasComponente } from './modules/admin/components/gestionar-categorias/gestionar-categorias.componente';
 import { authGuard, roleGuard } from './core/guards/auth.guard';
 import { Checkout } from './modules/catalogo/components/checkout/checkout';
 import { DetalleProductoComponente } from './modules/catalogo/components/detalle-producto/detalle-producto.componente';
 import { PerfilComponente } from './modules/auth/components/perfil/perfil.componente';
 import { DetalleBlogComponente } from './modules/blog/components/detalle-blog/detalle-blog.componente';
+import { RecuperarPasswordComponente } from './modules/auth/components/recuperar-password/recuperar-password.componente';
 
 export const routes: Routes = [
   { path: '', component: LandingComponente },
@@ -34,6 +36,7 @@ export const routes: Routes = [
   // Auth
   { path: 'auth/login', component: LoginComponente },
   { path: 'auth/registro', component: RegistroComponente },
+  { path: 'auth/recuperar-password', component: RecuperarPasswordComponente },
   { path: 'perfil', component: PerfilComponente, canActivate: [authGuard] },
   
   // Cotizaciones
@@ -89,6 +92,11 @@ export const routes: Routes = [
   {
     path: 'admin/productos',
     component: GestionarProductosComponente,
+    canActivate: [authGuard, roleGuard(['admin'])],
+  },
+  {
+    path: 'admin/categorias',
+    component: GestionarCategoriasComponente,
     canActivate: [authGuard, roleGuard(['admin'])],
   },
   

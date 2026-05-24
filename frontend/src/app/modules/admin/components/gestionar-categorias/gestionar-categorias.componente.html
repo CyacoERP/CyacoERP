@@ -1,0 +1,137 @@
+<div class="categorias-shell">
+  <div class="page-header">
+    <h1>Gestionar Categorías</h1>
+    <button type="button" class="btn-nuevo" (click)="abrirCrear()">+ Nueva Categoría</button>
+  </div>
+
+  <div class="toolbar">
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Buscar por nombre o descripción..."
+      [value]="termino()"
+      (input)="actualizarTermino($any($event.target).value)"
+    />
+    <span class="count-badge">{{ categoriasFiltradas().length }} categoría(s)</span>
+  </div>
+
+  @if (errorCarga()) {
+    <div class="alert-error">{{ errorCarga() }}</div>
+  }
+
+  @if (cargando()) {
+    <div class="loading">Cargando categorías...</div>
+  } @else if (categoriasFiltradas().length === 0) {
+    <div class="empty-state">No se encontraron categorías.</div>
+  } @else {
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th class="col-acciones">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (cat of categoriasFiltradas(); track cat.id) {
+            <tr>
+              <td class="col-id">{{ cat.id }}</td>
+              <td class="col-nombre">{{ cat.nombre }}</td>
+              <td class="col-desc">{{ cat.descripcion || '—' }}</td>
+              <td>
+                <div class="acciones">
+                  <button type="button" class="btn-accion btn-editar" (click)="abrirEditar(cat)">
+                    Editar
+                  </button>
+                  <button type="button" class="btn-accion btn-eliminar" (click)="confirmarEliminar(cat)">
+                    Eliminar
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+
+<!-- Modal crear / editar -->
+@if (mostrarModal()) {
+  <div class="modal-backdrop" (click)="cerrarModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ modoModal() === 'crear' ? 'Nueva Categoría' : 'Editar Categoría' }}</h2>
+        <button type="button" class="btn-close" (click)="cerrarModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        @if (errorModal()) {
+          <div class="alert-error">{{ errorModal() }}</div>
+        }
+        <div class="form-group">
+          <label for="cat-nombre">Nombre <span class="required">*</span></label>
+          <input
+            id="cat-nombre"
+            type="text"
+            class="form-control"
+            [value]="form().nombre"
+            (input)="form.set({ nombre: $any($event.target).value, descripcion: form().descripcion })"
+            placeholder="Ej. Automatización Industrial"
+            maxlength="100"
+          />
+        </div>
+        <div class="form-group">
+          <label for="cat-desc">Descripción</label>
+          <textarea
+            id="cat-desc"
+            class="form-control"
+            rows="3"
+            [value]="form().descripcion"
+            (input)="form.set({ nombre: form().nombre, descripcion: $any($event.target).value })"
+            placeholder="Descripción breve de la categoría (opcional)"
+            maxlength="255"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancelar" (click)="cerrarModal()" [disabled]="guardando()">
+          Cancelar
+        </button>
+        <button type="button" class="btn-guardar" (click)="guardar()" [disabled]="guardando()">
+          {{ guardando() ? 'Guardando...' : (modoModal() === 'crear' ? 'Crear' : 'Guardar') }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Confirmación eliminar -->
+@if (mostrarConfirmEliminar()) {
+  <div class="modal-backdrop" (click)="cancelarEliminar()">
+    <div class="modal modal-sm" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Eliminar Categoría</h2>
+        <button type="button" class="btn-close" (click)="cancelarEliminar()">✕</button>
+      </div>
+      <div class="modal-body">
+        @if (errorEliminar()) {
+          <div class="alert-error">{{ errorEliminar() }}</div>
+        }
+        <p>¿Eliminar la categoría <strong>{{ categoriaAEliminar()?.nombre }}</strong>?</p>
+        <p class="warning-text">Esta acción no se puede deshacer. Si la categoría tiene productos asignados, la eliminación fallará.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-cancelar" (click)="cancelarEliminar()" [disabled]="eliminando()">
+          Cancelar
+        </button>
+        <button type="button" class="btn-eliminar-confirm" (click)="ejecutarEliminar()" [disabled]="eliminando()">
+          {{ eliminando() ? 'Eliminando...' : 'Eliminar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
