@@ -128,6 +128,10 @@ export class CotizacionServicio {
     );
   }
 
+  enviarPorCorreoPdf(id: number) {
+    return this.http.post<void>(`${this.apiUrl}/${id}/enviar-por-correo`, {});
+  }
+
   tieneCotizaciones(): boolean {
     return false;
   }

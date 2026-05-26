@@ -22,6 +22,8 @@ async function bootstrap() {
   // Serve uploaded files (PDF docs, etc.)
   app.useStaticAssets(join(process.cwd(), 'uploads'), { prefix: '/uploads' });
 
-  await app.listen(process.env.PORT ?? 3000);
+  const port = 3000;
+  await app.listen(port);
+  console.log(`Nest application listening on port ${port}`);
 }
 bootstrap();

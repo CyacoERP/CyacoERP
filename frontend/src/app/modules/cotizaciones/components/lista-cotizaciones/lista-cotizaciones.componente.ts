@@ -9,6 +9,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CotizacionServicio } from '../../services/cotizacion.servicio';
+import { AuthServicio } from '../../../auth/services/auth.servicio';
 import { Cotizacion } from '../../models/cotizacion.modelo';
 
 type EstadoFiltro = 'todos' | 'pendiente' | 'en-proceso' | 'atendido' | 'rechazado';
@@ -90,6 +91,7 @@ export class ListaCotizacionesComponente implements OnInit {
   });
 
   private readonly cotizacionServicio = inject(CotizacionServicio);
+  private readonly authServicio = inject(AuthServicio);
   private readonly route = inject(ActivatedRoute);
 
   ngOnInit(): void {
@@ -281,14 +283,22 @@ export class ListaCotizacionesComponente implements OnInit {
     this.errorAccion.set('');
     this.cargandoEditorId.set(cotizacion.id);
 
-    this.cotizacionServicio.obtenerPorId(cotizacion.id).subscribe({
-      next: (detalle) => {
+    if (!this.authServicio.estáAutenticado()) {
+      this.cargandoEditorId.set(null);
+      this.errorAccion.set('Debes iniciar sesión para enviar la cotización por correo.');
+      // Opcional: redirigir a login
+      // this.router.navigate(['/auth/login']);
+      return;
+    }
+
+    this.cotizacionServicio.enviarPorCorreoPdf(cotizacion.id).subscribe({
+      next: () => {
         this.cargandoEditorId.set(null);
-        this.abrirVentanaPdf(cotizacion, detalle);
+        window.alert('La cotización fue enviada a tu correo con el PDF adjunto.');
       },
       error: (error) => {
         this.cargandoEditorId.set(null);
-        this.errorAccion.set(this.obtenerMensajeError(error, 'No se pudo generar el PDF.'));
+        this.errorAccion.set(this.obtenerMensajeError(error, 'No se pudo enviar la cotización por correo.'));
       },
     });
   }

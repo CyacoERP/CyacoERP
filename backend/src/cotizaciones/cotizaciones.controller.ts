@@ -16,6 +16,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { UsuarioAutenticado } from '../auth/interfaces';
 import { CotizacionesService } from './cotizaciones.service';
+import { EmailService } from '../auth/email.service';
 import { ActualizarEstadoCotizacionDto } from './dto/actualizar-estado-cotizacion.dto';
 import { ActualizarPreciosCotizacionDto } from './dto/actualizar-precios-cotizacion.dto';
 import { CrearCotizacionDto } from './dto/crear-cotizacion.dto';
@@ -23,7 +24,43 @@ import { CrearCotizacionDto } from './dto/crear-cotizacion.dto';
 @UseGuards(JwtAuthGuard)
 @Controller('cotizaciones')
 export class CotizacionesController {
-  constructor(private readonly cotizacionesService: CotizacionesService) {}
+  constructor(
+    private readonly cotizacionesService: CotizacionesService,
+    private readonly emailService: EmailService,
+  ) {}
+
+  @Post(':id/enviar-por-correo')
+  async enviarPorCorreo(
+    @Param('id', ParseIntPipe) id: number,
+    @UsuarioActual() usuario: UsuarioAutenticado | undefined,
+  ) {
+    const detalle = await this.cotizacionesService.obtenerPorId(
+      id,
+      usuario?.id ?? 0,
+      (usuario?.rol ?? RolUsuario.cliente) as RolUsuario,
+    );
+
+    const { pdf, xml, pdfFilename, xmlFilename } = await this.cotizacionesService.generarPdfYXmlFromCotizacion(
+      detalle,
+    );
+
+    const destinatario = detalle.usuario?.email ?? detalle.contactoCorreo ?? usuario?.email ?? '';
+    if (!destinatario) {
+      return { ok: false, message: 'No se encontró correo del destinatario.' };
+    }
+
+    await this.emailService.enviarPdfCotizacion(
+      destinatario,
+      `Cotización ${detalle.numero}`,
+      `<p>Adjunto encontrarás la cotización <strong>${detalle.numero}</strong>.</p>`,
+      pdf,
+      pdfFilename,
+      xml,
+      xmlFilename,
+    );
+
+    return { ok: true };
+  }
 
   @Post()
   crear(

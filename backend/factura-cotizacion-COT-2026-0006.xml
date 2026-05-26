@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cotizacion_factura>
+  <numero>COT-2026-0006</numero>
+  <fecha>2026-05-05T23:46:24.623Z</fecha>
+  <emisor>
+    <rfc>CYA123456789</rfc>
+    <razonSocial>CYACO ERP Soluciones S.A. de C.V.</razonSocial>
+    <direccionFiscal>Blvd. Tecnológico 456, C.P. 45000</direccionFiscal>
+  </emisor>
+  <receptor>
+    <rfc>N/A</rfc>
+    <razonSocial>PEMEX</razonSocial>
+    <direccionFiscal>N/A</direccionFiscal>
+    <contactoEmail>leosanchez1612@gmail.com</contactoEmail>
+  </receptor>
+  <detalles_proyecto>
+    <nombre>Pro</nombre>
+    <fechaRequerida>2026-05-05T00:00:00.000Z</fechaRequerida>
+    <notas>3r23tewq3r</notas>
+  </detalles_proyecto>
+  <articulos>
+    <articulo>
+      <id>15</id>
+      <nombre>Transmisor Presion X100</nombre>
+      <cantidad>1</cantidad>
+      <precioUnitario>12500</precioUnitario>
+      <subtotal>12500</subtotal>
+    </articulo>
+    <articulo>
+      <id>16</id>
+      <nombre>Transmisor Presion X300</nombre>
+      <cantidad>2</cantidad>
+      <precioUnitario>18900</precioUnitario>
+      <subtotal>37800</subtotal>
+    </articulo>
+  </articulos>
+  <totales>
+    <subtotal>50300.00</subtotal>
+    <tasaIVA>16%</tasaIVA>
+    <importeIVA>8048.00</importeIVA>
+    <totalFactura>58348.00</totalFactura>
+  </totales>
+</cotizacion_factura>

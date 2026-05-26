@@ -8,6 +8,10 @@ import { EstadoCotizacion, Prisma, RolUsuario } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CrearCotizacionDto } from './dto/crear-cotizacion.dto';
 
+// pdfkit ships as CJS; use require for reliable constructor access
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const PDFDocument = require('pdfkit') as typeof import('pdfkit');
+
 @Injectable()
 export class CotizacionesService {
   constructor(private readonly prisma: PrismaService) {}
@@ -81,6 +85,155 @@ export class CotizacionesService {
       });
 
       return cotizacion;
+    });
+  }
+
+  async generarPdfYXmlFromCotizacion(cotizacion: any): Promise<{ pdf: Buffer; xml: string; pdfFilename: string; xmlFilename: string }> {
+    const esc = (texto: string) =>
+      String(texto || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&apos;');
+
+    const iva = 0.16;
+    const subtotalBase = (cotizacion.items || []).reduce((acc: number, item: any) => acc + (item.subtotal || 0), 0);
+    const importeIva = parseFloat((subtotalBase * iva).toFixed(2));
+    const totalFactura = parseFloat((subtotalBase + importeIva).toFixed(2));
+
+    const articulos = (cotizacion.items || [])
+      .map(
+        (item: any) => `    <articulo>\n      <id>${item.id ?? ''}</id>\n      <nombre>${esc(item.producto?.nombre ?? '')}</nombre>\n      <cantidad>${item.cantidad}</cantidad>\n      <precioUnitario>${item.precioUnitario}</precioUnitario>\n      <subtotal>${item.subtotal}</subtotal>\n    </articulo>`,
+      )
+      .join('\n');
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<cotizacion_factura>\n  <numero>${esc(cotizacion.numero)}</numero>\n  <fecha>${new Date(cotizacion.creadoEn).toISOString()}</fecha>\n  <emisor>\n    <rfc>CYA123456789</rfc>\n    <razonSocial>CYACO ERP Soluciones S.A. de C.V.</razonSocial>\n    <direccionFiscal>Blvd. Tecnol\u00f3gico 456, C.P. 45000</direccionFiscal>\n  </emisor>\n  <receptor>\n    <rfc>N/A</rfc>\n    <razonSocial>${esc(cotizacion.contacto?.empresa ?? 'N/A')}</razonSocial>\n    <direccionFiscal>N/A</direccionFiscal>\n    <contactoEmail>${esc(cotizacion.contacto?.correo ?? cotizacion.usuario?.email ?? '')}</contactoEmail>\n  </receptor>\n  <detalles_proyecto>\n    <nombre>${esc(cotizacion.proyecto?.nombre ?? 'Sin proyecto')}</nombre>\n    <fechaRequerida>${cotizacion.proyecto?.fechaRequerida ?? ''}</fechaRequerida>\n    <notas>${esc(cotizacion.observaciones ?? '')}</notas>\n  </detalles_proyecto>\n  <articulos>\n${articulos}\n  </articulos>\n  <totales>\n    <subtotal>${subtotalBase.toFixed(2)}</subtotal>\n    <tasaIVA>16%</tasaIVA>\n    <importeIVA>${importeIva.toFixed(2)}</importeIVA>\n    <totalFactura>${totalFactura.toFixed(2)}</totalFactura>\n  </totales>\n</cotizacion_factura>`;
+
+    const pdfFilename = `cotizacion-${cotizacion.numero}.pdf`;
+    const xmlFilename = `factura-cotizacion-${cotizacion.numero}.xml`;
+
+    return new Promise((resolve, reject) => {
+      const doc = new PDFDocument({ margin: 40, size: 'A4' });
+      const chunks: Buffer[] = [];
+
+      doc.on('data', (chunk: Buffer) => chunks.push(chunk));
+      doc.on('end', () => resolve({ pdf: Buffer.concat(chunks), xml, pdfFilename, xmlFilename }));
+      doc.on('error', reject);
+
+      const formatMoney = (value: number) =>
+        new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 2 }).format(
+          value,
+        );
+
+      // Header
+      doc.fontSize(18).font('Helvetica-Bold').text('Cyaco ERP', { align: 'left' });
+      doc.moveDown(0.2);
+      doc.fontSize(12).font('Helvetica').text(`Cotización ${cotizacion.numero}`, { align: 'left' });
+      doc.moveDown(0.5);
+
+      // Emisor / Receptor
+      doc.fontSize(9).font('Helvetica-Bold').text('Emisor:');
+      doc.font('Helvetica').text('CYACO ERP Soluciones S.A. de C.V.');
+      doc.moveDown(0.3);
+
+      doc.font('Helvetica-Bold').text('Receptor:');
+      const receptorLine = `${cotizacion.contacto?.empresa || 'N/A'} — ${cotizacion.contacto?.nombreCompleto || ''}`;
+      doc.font('Helvetica').text(receptorLine);
+      doc.text(`Correo: ${cotizacion.contacto?.correo ?? cotizacion.usuario?.email ?? 'N/A'}`);
+      doc.moveDown(0.5);
+
+      // Proyecto / Observaciones
+      doc.font('Helvetica-Bold').text('Detalles del proyecto:');
+      doc.font('Helvetica').text(`Proyecto: ${cotizacion.proyecto?.nombre ?? 'Sin proyecto'}`);
+      doc.text(`Fecha requerida: ${cotizacion.proyecto?.fechaRequerida ?? 'N/A'}`);
+      doc.text(`Observaciones: ${cotizacion.observaciones ?? 'Sin observaciones.'}`);
+      doc.moveDown(0.5);
+
+      // Table header (monospace for alignment)
+      doc.font('Courier-Bold').fontSize(9);
+      const header = `${'#'.padEnd(4)}${'ID'.padEnd(8)}${'Producto'.padEnd(40)}${'Cant'.padEnd(6)}${'Precio U.'.padEnd(14)}${'Subtotal'.padEnd(12)}`;
+      doc.text(header);
+      doc.font('Courier').fontSize(9);
+
+      (cotizacion.items || []).forEach((item: any, idx: number) => {
+        const id = String(item.id ?? '—').padEnd(8);
+        const prod = String(item.producto?.nombre ?? 'Sin nombre').padEnd(40).substring(0, 40);
+        const cant = String(item.cantidad).padEnd(6);
+        const precio = formatMoney(item.precioUnitario).padEnd(14);
+        const sub = formatMoney(item.subtotal).padEnd(12);
+        const row = `${String(idx + 1).padEnd(4)}${id}${prod}${cant}${precio}${sub}`;
+        doc.text(row);
+      });
+
+      doc.moveDown(0.5);
+      doc.font('Helvetica-Bold').fontSize(10).text(`Subtotal: ${formatMoney(subtotalBase)}`, { align: 'right' });
+      doc.font('Helvetica').text(`IVA (16%): ${formatMoney(importeIva)}`, { align: 'right' });
+      doc.font('Helvetica-Bold').text(`Total: ${formatMoney(totalFactura)}`, { align: 'right' });
+
+      doc.moveDown(0.8);
+      doc.font('Helvetica').fontSize(8).text('* Documento generado automáticamente por Cyaco ERP.', { align: 'left' });
+
+      // Add a readable summary of the same data that we embed in the XML
+      doc.addPage();
+      doc.font('Helvetica-Bold').fontSize(12).text('Datos incluidos en el XML (resumen)', { align: 'left' });
+      doc.moveDown(0.3);
+
+      doc.font('Helvetica-Bold').fontSize(10).text('Número: ');
+      doc.font('Helvetica').fontSize(10).text(String(cotizacion.numero));
+      doc.moveDown(0.2);
+
+      doc.font('Helvetica-Bold').text('Fecha:');
+      doc.font('Helvetica').text(new Date(cotizacion.creadoEn).toISOString());
+      doc.moveDown(0.3);
+
+      doc.font('Helvetica-Bold').text('Emisor:');
+      doc.font('Helvetica').text(`RFC: CYA123456789`);
+      doc.text('Razón social: CYACO ERP Soluciones S.A. de C.V.');
+      doc.text('Dirección fiscal: Blvd. Tecnológico 456, C.P. 45000');
+      doc.moveDown(0.3);
+
+      doc.font('Helvetica-Bold').text('Receptor:');
+      doc.font('Helvetica').text(`Razón social: ${cotizacion.contacto?.empresa ?? 'N/A'}`);
+      doc.text(`Contacto: ${cotizacion.contacto?.nombreCompleto ?? ''}`);
+      if (cotizacion.contacto?.cargo) {
+        doc.text(`Cargo: ${cotizacion.contacto.cargo}`);
+      }
+      if (cotizacion.contacto?.telefono) {
+        doc.text(`Teléfono: ${cotizacion.contacto.telefono}`);
+      }
+      doc.text(`Correo: ${cotizacion.contacto?.correo ?? cotizacion.usuario?.email ?? 'N/A'}`);
+      doc.moveDown(0.3);
+
+      doc.font('Helvetica-Bold').text('Detalles del proyecto:');
+      doc.font('Helvetica').text(`Nombre: ${cotizacion.proyecto?.nombre ?? 'Sin proyecto'}`);
+      doc.text(`Fecha requerida: ${cotizacion.proyecto?.fechaRequerida ?? 'N/A'}`);
+      doc.text(`Notas: ${cotizacion.observaciones ?? ''}`);
+      doc.moveDown(0.3);
+
+      doc.font('Helvetica-Bold').text('Artículos:');
+      doc.moveDown(0.2);
+      doc.font('Helvetica').fontSize(9);
+      (cotizacion.items || []).forEach((item: any, idx: number) => {
+        doc.text(`${idx + 1}. ID: ${item.id ?? ''} — ${item.producto?.nombre ?? 'Sin nombre'}`);
+        doc.text(`   Cantidad: ${item.cantidad}   Precio unitario: ${formatMoney(item.precioUnitario)}   Subtotal: ${formatMoney(item.subtotal)}`);
+        doc.moveDown(0.1);
+      });
+
+      doc.moveDown(0.3);
+      doc.font('Helvetica-Bold').text('Totales:');
+      doc.font('Helvetica').text(`Subtotal: ${formatMoney(subtotalBase)}`);
+      doc.text(`Tasa IVA: 16%`);
+      doc.text(`Importe IVA: ${formatMoney(importeIva)}`);
+      doc.text(`Total factura: ${formatMoney(totalFactura)}`);
+
+      // Finally include the raw XML as an annex for completeness
+      doc.addPage();
+      doc.font('Helvetica-Bold').fontSize(12).text('Datos XML (anexo)', { align: 'left' });
+      doc.moveDown(0.5);
+      doc.font('Courier').fontSize(8).text(xml, { width: 510 });
+
+      doc.end();
     });
   }
 

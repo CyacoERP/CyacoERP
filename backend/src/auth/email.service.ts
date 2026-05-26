@@ -74,4 +74,45 @@ export class EmailService {
       this.logger.log(`\n\n📧  VISTA PREVIA DEL CORREO (Ethereal):\n   ${previewUrl}\n`);
     }
   }
+
+  async enviarPdfCotizacion(
+    destinatario: string,
+    asunto: string,
+    html: string,
+    pdfBuffer: Buffer,
+    pdfFilename = 'cotizacion.pdf',
+    xmlString?: string,
+    xmlFilename = 'cotizacion.xml',
+  ): Promise<void> {
+    const transporter = await this.createTransporter();
+    const from = process.env.SMTP_FROM ?? process.env.SMTP_USER ?? 'no-reply@cyaco.mx';
+
+    const attachments: Array<{
+      filename: string;
+      content: Buffer | string;
+      contentType?: string;
+    }> = [
+      { filename: pdfFilename, content: pdfBuffer, contentType: 'application/pdf' },
+    ];
+
+    if (xmlString) {
+      attachments.push({ filename: xmlFilename, content: xmlString, contentType: 'application/xml' });
+    }
+
+    const info = await transporter.sendMail({
+      from: `"Cyaco ERP" <${from}>`,
+      to: destinatario,
+      subject: asunto,
+      html,
+      text: html.replace(/<[^>]+>/g, ''),
+      attachments,
+    });
+
+    this.logger.log(`Correo con cotización enviado a ${destinatario} (messageId: ${info.messageId})`);
+
+    const previewUrl = nodemailer.getTestMessageUrl(info);
+    if (previewUrl) {
+      this.logger.log(`\n\n📧  VISTA PREVIA DEL CORREO (Ethereal):\n   ${previewUrl}\n`);
+    }
+  }
 }
